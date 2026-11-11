@@ -175,9 +175,10 @@ Deferred — see the Roadmap section's `## Deferred` block and the
 - Persistent event log with "you missed these" replay. Durable state
   lives in real tables (`notifications`, `collab.doc_sessions`, …);
   the bus is a live-delivery optimization, always best-effort.
-- Chat / DM / voice / video / screen share. Explicitly out of scope
-  for OxiCloud — that's Nextcloud Talk territory, not a file-server
-  job.
+- Chat / DM / voice / video / screen share **on this bus**. Chat and
+  calls are now in scope for OxiCloud, but via Matrix, not the bus —
+  see [`chat-matrix.md`](./chat-matrix.md). The bus only carries
+  chat-derived notification pokes.
 - Wildcard subscriptions (`folder:*`). Breaks per-subscribe AuthZ and
   makes revocation semantics fuzzy.
 - Cross-user subscriptions. Privacy + AuthZ risk. Admins subscribe to
