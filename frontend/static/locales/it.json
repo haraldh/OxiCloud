@@ -2183,5 +2183,18 @@
       "body": "Riprova tra un istante."
     },
     "go_home": "Torna alla home"
+  },
+  "idp": {
+    "title": "Accedi con OxiCloud",
+    "prompt": "{{client}} vuole farti accedere con il tuo account OxiCloud.",
+    "shares": "Riceverà:",
+    "scope_profile": "Il tuo nome e nome utente",
+    "scope_email": "Il tuo indirizzo email",
+    "allow": "Continua",
+    "deny": "Annulla",
+    "redirecting": "Accesso in corso…",
+    "expired": "Questa richiesta di accesso è scaduta. Ricomincia dall'applicazione.",
+    "forbidden": "Questo account non può essere usato per accedere ad altri servizi.",
+    "failed": "Accesso non riuscito. Riprova."
   }
 }

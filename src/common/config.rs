@@ -3479,6 +3479,9 @@ pub struct AppConfig {
     pub features: FeaturesConfig,
     /// OIDC configuration
     pub oidc: OidcConfig,
+    /// OxiCloud as an OpenID Provider for other services (`OXICLOUD_IDP_*`).
+    /// See [`crate::common::idp_config`].
+    pub idp: crate::common::idp_config::IdpConfig,
     /// WOPI configuration
     pub wopi: WopiConfig,
     /// Nextcloud compatibility configuration
@@ -3621,6 +3624,7 @@ impl Default for AppConfig {
             opaque: OpaqueConfig::default(),
             features: FeaturesConfig::default(),
             oidc: OidcConfig::default(),
+            idp: crate::common::idp_config::IdpConfig::default(),
             wopi: WopiConfig::default(),
             nextcloud: NextcloudConfig::default(),
             smtp: SmtpConfig::default(),
@@ -4827,6 +4831,12 @@ impl AppConfig {
                 *slot = (n > 0).then(|| std::time::Duration::from_millis(n));
             }
         }
+
+        // OxiCloud as OpenID Provider. A misconfigured client is fatal:
+        // silently dropping it would leave the operator debugging a login
+        // loop in a different service.
+        config.idp = crate::common::idp_config::IdpConfig::from_env()
+            .unwrap_or_else(|e| panic!("Invalid OXICLOUD_IDP_* configuration: {e}"));
 
         // OIDC configuration
         if let Ok(v) = env::var("OXICLOUD_OIDC_ENABLED") {

@@ -368,6 +368,8 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
         handlers::device_auth_handler::device_verify_action,
         handlers::device_auth_handler::list_devices,
         handlers::device_auth_handler::revoke_device,
+        handlers::idp_handler::idp_consent_info,
+        handlers::idp_handler::idp_decide,
         // App passwords — persistent credentials for DAV / NC-Basic clients
         // (DAVx5, Thunderbird, rclone, NC desktop). Self-service CRUD; the
         // plaintext secret is returned ONCE at creation and never again.
@@ -440,6 +442,10 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
             crate::application::dtos::device_auth_dto::DeviceVerifyInfoDto,
             crate::application::dtos::device_auth_dto::DeviceVerifyActionResponseDto,
             crate::application::services::device_auth_service::DeviceInfoDto,
+            // OxiCloud as OpenID Provider — SPA consent surface.
+            crate::application::services::idp_service::ConsentInfoDto,
+            crate::interfaces::api::handlers::idp_handler::IdpDecisionRequestDto,
+            crate::interfaces::api::handlers::idp_handler::IdpDecisionResponseDto,
             // App-password management.
             crate::application::dtos::app_password_dto::CreateAppPasswordRequestDto,
             crate::application::dtos::app_password_dto::AppPasswordCreatedResponseDto,

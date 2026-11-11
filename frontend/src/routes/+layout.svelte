@@ -35,7 +35,7 @@
 	});
 
 	// Routes reachable without an authenticated session.
-	const PUBLIC_PREFIXES = ['/login', '/device', '/s/', '/nextcloud'];
+	const PUBLIC_PREFIXES = ['/login', '/device', '/s/', '/nextcloud', '/oauth/'];
 
 	function isPublic(pathname: string): boolean {
 		return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));

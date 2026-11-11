@@ -11440,6 +11440,130 @@
         }
       }
     },
+    "/api/idp/requests/{id}": {
+      "get": {
+        "tags": [
+          "idp"
+        ],
+        "operationId": "idp_consent_info",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Pending sign-in request id from the consent URL",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The pending sign-in request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentInfoDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown, expired or already decided request — or the provider is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/idp/requests/{id}/decision": {
+      "post": {
+        "tags": [
+          "idp"
+        ],
+        "operationId": "idp_decide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Pending sign-in request id from the consent URL",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdpDecisionRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Decision recorded; navigate to `redirect_to`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdpDecisionResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "This account may not sign in to other services (external/guest or inactive)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown, expired or already decided request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/notifications": {
       "get": {
         "tags": [
@@ -15862,6 +15986,39 @@
           }
         }
       },
+      "ConsentInfoDto": {
+        "type": "object",
+        "required": [
+          "request_id",
+          "client_id",
+          "client_name",
+          "scopes",
+          "skip_consent"
+        ],
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "client_name": {
+            "type": "string",
+            "description": "Operator-configured display name of the relying party."
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skip_consent": {
+            "type": "boolean",
+            "description": "First-party client: the SPA approves without prompting."
+          }
+        }
+      },
       "ContactDto": {
         "type": "object",
         "required": [
@@ -18858,6 +19015,30 @@
           "kind": {
             "type": "string",
             "description": "Stable machine key — `\"migration\" | \"backup\" | \"rotation\" | \"external\"`.\nClients switch on this to pick an icon/colour per variant."
+          }
+        }
+      },
+      "IdpDecisionRequestDto": {
+        "type": "object",
+        "required": [
+          "approve"
+        ],
+        "properties": {
+          "approve": {
+            "type": "boolean",
+            "description": "`true` to sign in to the relying party, `false` to decline."
+          }
+        }
+      },
+      "IdpDecisionResponseDto": {
+        "type": "object",
+        "required": [
+          "redirect_to"
+        ],
+        "properties": {
+          "redirect_to": {
+            "type": "string",
+            "description": "Where the browser must go next (the relying party's redirect URI\ncarrying either `code` or `error`)."
           }
         }
       },

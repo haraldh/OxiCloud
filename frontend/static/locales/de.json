@@ -2183,5 +2183,18 @@
       "body": "Bitte versuchen Sie es in einem Moment erneut."
     },
     "go_home": "Zur Startseite"
+  },
+  "idp": {
+    "title": "Mit OxiCloud anmelden",
+    "prompt": "{{client}} möchte Sie mit Ihrem OxiCloud-Konto anmelden.",
+    "shares": "Folgendes wird übermittelt:",
+    "scope_profile": "Ihr Name und Benutzername",
+    "scope_email": "Ihre E-Mail-Adresse",
+    "allow": "Weiter",
+    "deny": "Abbrechen",
+    "redirecting": "Sie werden angemeldet…",
+    "expired": "Diese Anmeldeanfrage ist abgelaufen. Starten Sie erneut in der Anwendung.",
+    "forbidden": "Dieses Konto kann nicht zur Anmeldung bei anderen Diensten verwendet werden.",
+    "failed": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
   }
 }

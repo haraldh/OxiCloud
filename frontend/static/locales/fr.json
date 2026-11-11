@@ -2183,5 +2183,18 @@
       "body": "Veuillez réessayer dans un instant."
     },
     "go_home": "Retour à l'accueil"
+  },
+  "idp": {
+    "title": "Se connecter avec OxiCloud",
+    "prompt": "{{client}} souhaite vous connecter avec votre compte OxiCloud.",
+    "shares": "Il recevra :",
+    "scope_profile": "Votre nom et votre nom d'utilisateur",
+    "scope_email": "Votre adresse e-mail",
+    "allow": "Continuer",
+    "deny": "Annuler",
+    "redirecting": "Connexion en cours…",
+    "expired": "Cette demande de connexion a expiré. Recommencez depuis l'application.",
+    "forbidden": "Ce compte ne peut pas être utilisé pour se connecter à d'autres services.",
+    "failed": "Échec de la connexion. Veuillez réessayer."
   }
 }

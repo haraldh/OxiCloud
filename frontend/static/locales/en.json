@@ -2183,5 +2183,18 @@
       "body": "Please try again in a moment."
     },
     "go_home": "Go home"
+  },
+  "idp": {
+    "title": "Sign in with OxiCloud",
+    "prompt": "{{client}} wants to sign you in with your OxiCloud account.",
+    "shares": "It will receive:",
+    "scope_profile": "Your name and username",
+    "scope_email": "Your email address",
+    "allow": "Continue",
+    "deny": "Cancel",
+    "redirecting": "Signing you in…",
+    "expired": "This sign-in request has expired. Start again from the application.",
+    "forbidden": "This account can't be used to sign in to other services.",
+    "failed": "Sign-in failed. Please try again."
   }
 }

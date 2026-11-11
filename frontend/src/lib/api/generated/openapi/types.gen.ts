@@ -712,6 +712,20 @@ export type CompleteUploadResponse = {
     size: number;
 };
 
+export type ConsentInfoDto = {
+    client_id: string;
+    /**
+     * Operator-configured display name of the relying party.
+     */
+    client_name: string;
+    request_id: string;
+    scopes: Array<string>;
+    /**
+     * First-party client: the SPA approves without prompting.
+     */
+    skip_consent: boolean;
+};
+
 export type ContactDto = {
     address: Array<AddressDto>;
     address_book_id: string;
@@ -3064,6 +3078,21 @@ export type HolderHeader = {
      * Clients switch on this to pick an icon/colour per variant.
      */
     kind: string;
+};
+
+export type IdpDecisionRequestDto = {
+    /**
+     * `true` to sign in to the relying party, `false` to decline.
+     */
+    approve: boolean;
+};
+
+export type IdpDecisionResponseDto = {
+    /**
+     * Where the browser must go next (the relying party's redirect URI
+     * carrying either `code` or `error`).
+     */
+    redirect_to: string;
 };
 
 /**
@@ -12735,6 +12764,78 @@ export type TranslateResponses = {
 };
 
 export type TranslateResponse = TranslateResponses[keyof TranslateResponses];
+
+export type IdpConsentInfoData = {
+    body?: never;
+    path: {
+        /**
+         * Pending sign-in request id from the consent URL
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/idp/requests/{id}';
+};
+
+export type IdpConsentInfoErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Unknown, expired or already decided request — or the provider is disabled
+     */
+    404: ApiErrorBody;
+};
+
+export type IdpConsentInfoError = IdpConsentInfoErrors[keyof IdpConsentInfoErrors];
+
+export type IdpConsentInfoResponses = {
+    /**
+     * The pending sign-in request
+     */
+    200: ConsentInfoDto;
+};
+
+export type IdpConsentInfoResponse = IdpConsentInfoResponses[keyof IdpConsentInfoResponses];
+
+export type IdpDecideData = {
+    body: IdpDecisionRequestDto;
+    path: {
+        /**
+         * Pending sign-in request id from the consent URL
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/idp/requests/{id}/decision';
+};
+
+export type IdpDecideErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * This account may not sign in to other services (external/guest or inactive)
+     */
+    403: ApiErrorBody;
+    /**
+     * Unknown, expired or already decided request
+     */
+    404: ApiErrorBody;
+};
+
+export type IdpDecideError = IdpDecideErrors[keyof IdpDecideErrors];
+
+export type IdpDecideResponses = {
+    /**
+     * Decision recorded; navigate to `redirect_to`
+     */
+    200: IdpDecisionResponseDto;
+};
+
+export type IdpDecideResponse = IdpDecideResponses[keyof IdpDecideResponses];
 
 export type ListNotificationsData = {
     body?: never;

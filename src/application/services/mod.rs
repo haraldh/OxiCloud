@@ -23,6 +23,7 @@ pub mod file_upload_service;
 pub mod file_use_case_factory;
 pub mod folder_service;
 pub mod i18n_application_service;
+pub mod idp_service;
 pub mod magic_link_invite_service;
 pub mod mount_dto;
 pub mod mount_registry;

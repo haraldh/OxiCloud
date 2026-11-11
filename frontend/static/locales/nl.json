@@ -2183,5 +2183,18 @@
       "body": "Probeer het over een moment opnieuw."
     },
     "go_home": "Naar de startpagina"
+  },
+  "idp": {
+    "title": "Inloggen met OxiCloud",
+    "prompt": "{{client}} wil je laten inloggen met je OxiCloud-account.",
+    "shares": "Het ontvangt:",
+    "scope_profile": "Je naam en gebruikersnaam",
+    "scope_email": "Je e-mailadres",
+    "allow": "Doorgaan",
+    "deny": "Annuleren",
+    "redirecting": "Bezig met inloggen…",
+    "expired": "Dit inlogverzoek is verlopen. Begin opnieuw vanuit de applicatie.",
+    "forbidden": "Dit account kan niet worden gebruikt om bij andere diensten in te loggen.",
+    "failed": "Inloggen mislukt. Probeer het opnieuw."
   }
 }

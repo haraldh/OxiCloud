@@ -2183,5 +2183,18 @@
       "body": "Vuelve a intentarlo en un momento."
     },
     "go_home": "Ir al inicio"
+  },
+  "idp": {
+    "title": "Iniciar sesión con OxiCloud",
+    "prompt": "{{client}} quiere iniciar tu sesión con tu cuenta de OxiCloud.",
+    "shares": "Recibirá:",
+    "scope_profile": "Tu nombre y nombre de usuario",
+    "scope_email": "Tu dirección de correo electrónico",
+    "allow": "Continuar",
+    "deny": "Cancelar",
+    "redirecting": "Iniciando sesión…",
+    "expired": "Esta solicitud de inicio de sesión ha caducado. Vuelve a empezar desde la aplicación.",
+    "forbidden": "Esta cuenta no se puede usar para iniciar sesión en otros servicios.",
+    "failed": "Error al iniciar sesión. Inténtalo de nuevo."
   }
 }

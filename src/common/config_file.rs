@@ -120,6 +120,7 @@ pub const KNOWN: &[(&str, &str)] = &[
     ("auth", "OXICLOUD_MAGIC_LINK_SEND_PER_EMAIL_PER_HOUR"),
     ("auth", "OXICLOUD_MAGIC_LINK_SEND_PER_IP_PER_HOUR"),
     ("auth", "OXICLOUD_MAGIC_LINK_TTL_HOURS"),
+    ("auth", "OXICLOUD_IDP_CLIENTS"),
     ("auth", "OXICLOUD_OIDC_ADMIN_GROUPS"),
     ("auth", "OXICLOUD_OIDC_AUTO_LINK_EMAIL_MATCH"),
     ("auth", "OXICLOUD_OIDC_AUTO_PROVISION"),
@@ -279,6 +280,18 @@ pub const ENTRY_KEYS: &[&str] = &[
     "S3_SECRET_KEY",
 ];
 
+/// Keys an `[auth.idp.client.<id>]` table may carry. Like storage entries,
+/// the client id is the operator's own label, so the variables are built
+/// per client (`OXICLOUD_IDP_CLIENT_<id>_SECRET`) and cannot be listed in
+/// [`KNOWN`]. See `common::idp_config`.
+pub const IDP_CLIENT_KEYS: &[&str] = &[
+    "NAME",
+    "REDIRECT_URIS",
+    "SECRET",
+    "SECRET_FILE",
+    "SKIP_CONSENT",
+];
+
 /// What went wrong while reading a config file.
 #[derive(Debug)]
 pub enum ConfigFileError {
@@ -381,6 +394,28 @@ fn walk(
                 let entry = &path[2];
                 out.insert(
                     format!("OXICLOUD_STORAGE_{entry}_{suffix}"),
+                    render(value, &dotted)?,
+                );
+                path.pop();
+                continue;
+            }
+            if path.len() > 3 && path[0] == "auth" && path[1] == "idp" && path[2] == "client" {
+                // `[auth.idp.client.<id>]` — same shape as a storage entry.
+                if path.len() != 5 {
+                    return Err(ConfigFileError::Schema(format!(
+                        "`{dotted}`: an IdP client is `[auth.idp.client.<id>]` with plain keys"
+                    )));
+                }
+                let suffix = path[4].to_uppercase();
+                if !IDP_CLIENT_KEYS.contains(&suffix.as_str()) {
+                    return Err(ConfigFileError::Schema(format!(
+                        "`{dotted}` is not an IdP-client setting — expected one of {}",
+                        IDP_CLIENT_KEYS.join(", ").to_lowercase()
+                    )));
+                }
+                let client = &path[3];
+                out.insert(
+                    format!("OXICLOUD_IDP_CLIENT_{client}_{suffix}"),
                     render(value, &dotted)?,
                 );
                 path.pop();
@@ -517,6 +552,30 @@ mod tests {
 
     /// Multi-entry storage keeps the operator's own entry label, so those
     /// variables are built per entry rather than listed in KNOWN.
+    #[test]
+    fn idp_clients_carry_their_label() {
+        let vars = flatten(
+            r#"
+            [auth.idp]
+            clients = ["tuwunel"]
+
+            [auth.idp.client.tuwunel]
+            redirect_uris = ["https://chat.example.org/cb"]
+            secret_file = "/run/secrets/tuwunel"
+            skip_consent = true
+            "#,
+        )
+        .unwrap();
+        assert_eq!(vars["OXICLOUD_IDP_CLIENTS"], "tuwunel");
+        assert_eq!(
+            vars["OXICLOUD_IDP_CLIENT_tuwunel_REDIRECT_URIS"],
+            "https://chat.example.org/cb"
+        );
+        assert_eq!(vars["OXICLOUD_IDP_CLIENT_tuwunel_SKIP_CONSENT"], "true");
+        assert!(flatten("[auth.idp.client.a]\nnope = 1\n").is_err());
+        assert!(flatten("[auth.idp.client]\nsecret = \"x\"\n").is_err());
+    }
+
     #[test]
     fn storage_entries_carry_their_label() {
         let vars = flatten(

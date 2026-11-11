@@ -2183,5 +2183,18 @@
       "body": "Spróbuj ponownie za chwilę."
     },
     "go_home": "Wróć na stronę główną"
+  },
+  "idp": {
+    "title": "Zaloguj się przez OxiCloud",
+    "prompt": "{{client}} chce Cię zalogować za pomocą konta OxiCloud.",
+    "shares": "Otrzyma:",
+    "scope_profile": "Twoje imię i nazwę użytkownika",
+    "scope_email": "Twój adres e-mail",
+    "allow": "Kontynuuj",
+    "deny": "Anuluj",
+    "redirecting": "Logowanie…",
+    "expired": "To żądanie logowania wygasło. Zacznij ponownie w aplikacji.",
+    "forbidden": "Tego konta nie można używać do logowania w innych usługach.",
+    "failed": "Logowanie nie powiodło się. Spróbuj ponownie."
   }
 }

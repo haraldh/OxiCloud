@@ -3,6 +3,7 @@ pub mod config_file;
 pub mod di;
 pub mod errors;
 pub mod fmt;
+pub mod idp_config;
 pub mod locale;
 pub mod migration_progress;
 pub mod mime_detect;

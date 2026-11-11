@@ -1272,6 +1272,41 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
             // All other API routes are protected by auth middleware
             .nest("/api", protected_api.layer(access_log!("http::api")));
 
+        // OxiCloud as OpenID Provider. Protocol endpoints are public (the
+        // relying party authenticates with its client secret, the browser
+        // carries nothing); the consent API under /api/idp wears the same
+        // auth + CSRF + DPoP chain as every other SPA call. Not mounted at
+        // all when no client is configured, so a disabled provider is a
+        // plain 404 rather than a reachable-but-refusing surface.
+        if app_state.idp_service.is_some() {
+            use oxicloud::interfaces::api::handlers::idp_handler;
+            let idp_protected = idp_handler::idp_protected_routes()
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    require_no_password_change_pending_layer,
+                ))
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    require_dpop_layer,
+                ))
+                .layer(axum::middleware::from_fn(csrf_middleware))
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    auth_middleware,
+                ))
+                .with_state(app_state.clone());
+            app = app
+                .merge(
+                    idp_handler::idp_public_routes()
+                        .with_state(app_state.clone())
+                        .layer(access_log!("http::api::auth")),
+                )
+                .nest(
+                    "/api/idp",
+                    idp_protected.layer(access_log!("http::api::auth")),
+                );
+        }
+
         // CalDAV / CardDAV / WebDAV protocols — mounted at top-level for
         // client compatibility, each gated on its feature flag. When off
         // the router is not merged and non-SPA clients see 404. The

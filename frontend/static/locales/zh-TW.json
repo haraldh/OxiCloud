@@ -2183,5 +2183,18 @@
       "body": "請稍後再試。"
     },
     "go_home": "返回首頁"
+  },
+  "idp": {
+    "title": "使用 OxiCloud 登入",
+    "prompt": "{{client}} 想使用您的 OxiCloud 帳戶為您登入。",
+    "shares": "它將取得:",
+    "scope_profile": "您的姓名與使用者名稱",
+    "scope_email": "您的電子郵件地址",
+    "allow": "繼續",
+    "deny": "取消",
+    "redirecting": "正在登入…",
+    "expired": "此登入要求已過期。請從應用程式重新開始。",
+    "forbidden": "此帳戶無法用於登入其他服務。",
+    "failed": "登入失敗。請再試一次。"
   }
 }

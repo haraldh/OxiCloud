@@ -2688,6 +2688,7 @@ impl AppServiceFactory {
             wopi_lock_service: None,
             wopi_discovery_service: None,
             device_auth_service: None,
+            idp_service: None,
             app_password_service: None,
             path_resolver: None,
             webdav_lock_store:
@@ -3303,6 +3304,43 @@ impl AppServiceFactory {
                 ));
                 app_state.device_auth_service = Some(device_auth_svc);
                 tracing::info!("Device Authorization Grant (RFC 8628) service initialized");
+
+                // OxiCloud as OpenID Provider (docs/plan/chat-matrix.md
+                // § seam 1). Built here because it needs the user
+                // repository and the JWT secret, both auth-only.
+                if self.config.idp.enabled() {
+                    let idp_users = Arc::new(
+                        crate::infrastructure::repositories::pg::IdpUserDirectoryPg::new(Arc::new(
+                            crate::infrastructure::repositories::UserPgRepository::new(
+                                pool.clone(),
+                            ),
+                        )),
+                    );
+                    let idp_bindings = Arc::new(
+                        crate::infrastructure::repositories::pg::IdpSubjectBindingPgRepository::new(
+                            pool.clone(),
+                        ),
+                    );
+                    let signer = Arc::new(
+                        crate::infrastructure::services::idp_signing_key::IdpSigningKey::derive(
+                            &self.config.auth.jwt_secret,
+                        ),
+                    );
+                    app_state.idp_service = Some(Arc::new(
+                        crate::application::services::idp_service::IdpService::new(
+                            self.config.idp.clone(),
+                            self.config.base_url(),
+                            idp_users,
+                            idp_bindings,
+                            signer,
+                        ),
+                    ));
+                    tracing::info!(
+                        clients = ?self.config.idp.clients.iter().map(|c| c.id.as_str()).collect::<Vec<_>>(),
+                        issuer = %self.config.base_url(),
+                        "OpenID provider enabled"
+                    );
+                }
 
                 // Expired device-code cleanup — periodic janitor so the
                 // `auth.device_codes` table doesn't accumulate pending
@@ -4144,6 +4182,9 @@ pub struct AppState {
         Option<Arc<crate::infrastructure::services::wopi_discovery_service::WopiDiscoveryService>>,
     pub device_auth_service:
         Option<Arc<crate::application::services::device_auth_service::DeviceAuthService>>,
+    /// OxiCloud as OpenID Provider. `Some` iff `OXICLOUD_IDP_CLIENTS`
+    /// names at least one client (and auth is enabled).
+    pub idp_service: Option<Arc<crate::application::services::idp_service::IdpService>>,
     pub app_password_service:
         Option<Arc<crate::application::services::app_password_service::AppPasswordService>>,
     pub path_resolver:

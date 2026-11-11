@@ -680,6 +680,58 @@ jsonpath "$.message" contains "sign-in link"
 
 
 # ─────────────────────────────────────────────────────────────
+# Step 11z — OpenID provider: externals cannot sign in to other
+#            services with their guest session (docs/plan/
+#            chat-matrix.md § seam 1). A top-level "create" with no
+#            parent resource to authz.require on, so it is a principal-
+#            kind gate — pinned with BOTH the refusal and an internal
+#            user succeeding, because a gate that refuses everyone
+#            passes the refusal half alone.
+# ─────────────────────────────────────────────────────────────
+GET {{base_url}}/oidc/authorize
+[Query]
+client_id: hurl
+redirect_uri: http://localhost:9/cb
+response_type: code
+scope: openid profile
+code_challenge: E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+code_challenge_method: S256
+
+HTTP 302
+[Captures]
+idp_bob_req: header "Location" regex "/oauth/consent/([0-9a-f-]{36})$"
+
+POST {{base_url}}/api/idp/requests/{{idp_bob_req}}/decision
+Authorization: Bearer {{bob_access_token}}
+Content-Type: application/json
+{ "approve": true }
+
+HTTP 403
+
+GET {{base_url}}/oidc/authorize
+[Query]
+client_id: hurl
+redirect_uri: http://localhost:9/cb
+response_type: code
+scope: openid profile
+code_challenge: E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+code_challenge_method: S256
+
+HTTP 302
+[Captures]
+idp_alice_req: header "Location" regex "/oauth/consent/([0-9a-f-]{36})$"
+
+POST {{base_url}}/api/idp/requests/{{idp_alice_req}}/decision
+Authorization: Bearer {{alice_token}}
+Content-Type: application/json
+{ "approve": true }
+
+HTTP 200
+[Asserts]
+jsonpath "$.redirect_to" contains "code="
+
+
+# ─────────────────────────────────────────────────────────────
 # Step 12 — Cleanup. Alice drops the address book + playlist from
 #           11n, trashes the two test folders, and deletes bob + the
 #           two rate-limit-test externals via the admin API so the

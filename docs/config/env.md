@@ -375,6 +375,36 @@ See the [OIDC configuration guide](/config/oidc) for details.
 | `OXICLOUD_OIDC_DISABLE_PASSWORD_LOGIN` | `false` | **DEPRECATED** — emits boot warning; slated for removal in next major release. Use `OXICLOUD_AUTH_METHODS=oidc` (and optionally `OXICLOUD_AUTH_POLICIES=auto_redirect_if_standalone_oidc` for server-side `/login` redirect) instead. Still removes `password` from the effective allowlist when set to `true` — kept working so upgrading deployments don't break. |
 | `OXICLOUD_OIDC_PROVIDER_NAME` | `SSO` | Display name for the provider shown in UI |
 
+## OxiCloud as OpenID Provider
+
+OxiCloud can itself act as an OpenID Connect provider, so other self-hosted
+services (first of all the Matrix homeserver from
+[`docs/plan/chat-matrix.md`](../plan/chat-matrix.md)) sign users in with their
+OxiCloud account. Distinct from **OIDC / SSO** above, where OxiCloud is the
+*client* of an upstream IdP — hence the separate `OXICLOUD_IDP_` prefix.
+
+The provider is on iff `OXICLOUD_IDP_CLIENTS` names a client. Endpoints:
+`/.well-known/openid-configuration` (issuer = `OXICLOUD_BASE_URL`),
+`/oidc/authorize`, `/oidc/token`, `/oidc/userinfo`, `/oidc/jwks`,
+`/oidc/revoke`. Authorization-code flow only, PKCE `S256` mandatory, ID tokens
+signed ES256 with a key derived from `OXICLOUD_JWT_SECRET`. Only internal,
+active users can sign in; external/guest accounts are refused (audit event
+`idp.rejected`, reason `external_user`). `sub` is the user's UUID;
+`preferred_username` is frozen per client at first sign-in and never reused.
+
+| Variable | Default | Description |
+|---|---|---|
+| `OXICLOUD_IDP_CLIENTS` | — | Comma-separated client ids (`[A-Za-z0-9_-]`). Empty = provider off. |
+| `OXICLOUD_IDP_CLIENT_<id>_REDIRECT_URIS` | — | Comma-separated, exact-match redirect URIs. `https` only (plain `http` for loopback). Required. |
+| `OXICLOUD_IDP_CLIENT_<id>_SECRET` | — | Client secret, ≥ 32 characters. Set this **or** `_SECRET_FILE`. |
+| `OXICLOUD_IDP_CLIENT_<id>_SECRET_FILE` | — | Path to a file holding the client secret (trimmed). |
+| `OXICLOUD_IDP_CLIENT_<id>_NAME` | `<id>` | Display name on the consent page. |
+| `OXICLOUD_IDP_CLIENT_<id>_SKIP_CONSENT` | `false` | Skip the consent prompt (first-party clients). The user still has to be signed in. |
+
+In a config file: `[auth.idp] clients = ["tuwunel"]` plus one
+`[auth.idp.client.<id>]` table per client with the keys above in lower case.
+A misconfigured client refuses to boot.
+
 ## WOPI (Office Editing)
 
 See the [WOPI configuration guide](/config/wopi) for details.
