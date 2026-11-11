@@ -1,0 +1,68 @@
+# Phase-0 bench for docs/plan/chat-matrix.md — NOT a production deployment.
+#
+# Tuwunel (homeserver) + Dex (throwaway upstream IdP standing in for
+# OxiCloud's future OIDC provider) + LiveKit (SFU) + lk-jwt-service (call
+# token broker; AGPL, used here only as reference behaviour for seam 5)
+# behind Caddy with automatic TLS on a single public hostname.
+#
+# Run `./init.sh` first; it writes .env and generated/*.
+
+name: oxicloud-matrix-bench
+
+services:
+  caddy:
+    image: caddy:2.11.7
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      BENCH_DOMAIN: ${BENCH_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [tuwunel, dex, lk-jwt, livekit]
+
+  tuwunel:
+    image: ghcr.io/matrix-construct/tuwunel:v1.9.4
+    restart: unless-stopped
+    environment:
+      TUWUNEL_CONFIG: /etc/tuwunel/tuwunel.toml
+    volumes:
+      - ./generated/tuwunel.toml:/etc/tuwunel/tuwunel.toml:ro
+      - ./generated/dex-client-secret:/etc/tuwunel/.client_secret:ro
+      - tuwunel-db:/var/lib/tuwunel
+
+  dex:
+    image: ghcr.io/dexidp/dex:v2.46.1
+    restart: unless-stopped
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    volumes:
+      - ./generated/dex.yaml:/etc/dex/config.yaml:ro
+
+  lk-jwt:
+    image: ghcr.io/element-hq/lk-jwt-service:0.9.0
+    restart: unless-stopped
+    environment:
+      LIVEKIT_JWT_BIND: ":8081"
+      LIVEKIT_URL: wss://${BENCH_DOMAIN}/livekit/sfu
+      LIVEKIT_KEY: ${LIVEKIT_KEY}
+      LIVEKIT_SECRET: ${LIVEKIT_SECRET}
+      LIVEKIT_FULL_ACCESS_HOMESERVERS: ${BENCH_DOMAIN}
+
+  livekit:
+    image: livekit/livekit-server:v1.13.10
+    restart: unless-stopped
+    command: ["--config", "/etc/livekit.yaml"]
+    ports:
+      # Media must reach the host directly; signalling goes through Caddy.
+      - "7881:7881/tcp"
+      - "50100-50200:50100-50200/udp"
+    volumes:
+      - ./generated/livekit.yaml:/etc/livekit.yaml:ro
+
+volumes:
+  caddy-data:
+  tuwunel-db:

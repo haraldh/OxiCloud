@@ -1,0 +1,37 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$BENCH_DOMAIN} {
+	# Provisioning API (MAS-compatible) is for OxiCloud on the internal
+	# network only; never expose it publicly even though it is
+	# bearer-protected (plan § Security).
+	handle /_synapse/* {
+		respond 404
+	}
+
+	# Throwaway IdP. Dex serves under its issuer path, no prefix strip.
+	handle /dex/* {
+		reverse_proxy dex:5556
+	}
+
+	# MatrixRTC token broker (seam 5 reference behaviour).
+	handle_path /livekit/jwt/* {
+		reverse_proxy lk-jwt:8081
+	}
+
+	# LiveKit signalling (WebSocket). Media goes direct on 7881/tcp and
+	# 50100-50200/udp.
+	handle_path /livekit/sfu/* {
+		reverse_proxy livekit:7880
+	}
+
+	# Everything else is the homeserver: /_matrix, /_tuwunel,
+	# /.well-known/matrix/*, the built-in OIDC server, QR rendezvous.
+	handle {
+		# QR login breaks when rendezvous responses are compressed
+		# (Tuwunel docs, qr-login.md) — Caddy only compresses with an
+		# explicit `encode`, which this file never sets.
+		reverse_proxy tuwunel:8008
+	}
+}

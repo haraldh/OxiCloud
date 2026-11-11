@@ -106,7 +106,7 @@ Hard criteria, in priority order:
 
 | | **Tuwunel** | **Continuwuity** | Synapse + MAS |
 |---|---|---|---|
-| Licence | Apache-2.0 | *verify* (conduwuit lineage, expected Apache-2.0) | AGPL-3.0 (both) |
+| Licence | Apache-2.0 | Apache-2.0 | AGPL-3.0 (both) |
 | Language / storage | Rust / RocksDB | Rust / RocksDB | Python / PostgreSQL |
 | Native OAuth server for Element X | yes (1.6.0+, `oidc_native_auth`; requires `well_known.client`) | delegated auth merged 2026-07 (#1886); disables legacy login once enabled | yes (MAS) |
 | Upstream OIDC IdP | yes (1.5.0+) | yes | yes |
@@ -168,7 +168,7 @@ Matrix.
 ### 2. User lifecycle
 
 The homeserver creates the account on first OIDC login (JIT). OxiCloud owns
-the lifecycle after that, through the homeserver admin API:
+the lifecycle after that, through the MAS-compatible provisioning API (`/_synapse/mas/*`, see open question 4):
 
 | OxiCloud event | Homeserver action |
 |---|---|
@@ -233,7 +233,7 @@ OxiCloud serves the endpoint `lk-jwt-service` would (`/sfu/get` and
 
 Every refusal is audit-logged (`event = "matrixrtc.token_rejected"`, with
 reasons `invalid_openid_token`, `remote_calls_disabled`, `federation_disabled`).
-Implementation: the `livekit-api` crate (Apache-2.0, *verify*) or a hand-rolled
+Implementation: the `livekit-api` crate (Apache-2.0) or a hand-rolled
 JWT using the `jsonwebtoken` dependency we already have.
 
 ### 6. Well-known and discovery
@@ -314,7 +314,7 @@ seams 1–6 are proven.
 
 | Phase | Deliverable | Exit criterion |
 |---|---|---|
-| **0 — bench** | Compose stack: Tuwunel + LiveKit + `lk-jwt-service` + a throwaway IdP. Run Element X iOS and Android through login, E2EE DM, group room, background push, 1:1 and 4-person call. Repeat with Continuwuity. | Homeserver chosen. Every *verify* in this doc resolved. Measured RAM/CPU at a synthetic 1k-user load. |
+| **0 — bench** | `tools/matrix-bench/`: Tuwunel + LiveKit + `lk-jwt-service` + Dex as a throwaway IdP behind Caddy. Run Element X iOS and Android through login, E2EE DM, group room, background push, 1:1 and 4-person call. Repeat with Continuwuity. | Homeserver chosen. Every *verify* in this doc resolved. Measured RAM/CPU at a synthetic 1k-user load. |
 | **1 — identity** | OxiCloud OIDC provider (seam 1), user lifecycle jobs (seam 2), well-known (seam 6), `OXICLOUD_ENABLE_CHAT`, compose profile. | Element X logs in with an OxiCloud account. Disable/delete propagates. Hurl pins for OP endpoints and the external-user refusal. |
 | **2 — calls** | MatrixRTC token endpoint (seam 5), drop `lk-jwt-service` from the bench. | Element X group call through OxiCloud-issued tokens. Refusal paths pinned. |
 | **3 — collaboration** | Appservice (seam 4), "share to room" (seam 3), bell notifications. Decide on the web client (seam 7). | Sharing a folder to a room grants current members and revokes on leave. Integration test for the membership → grant sync. |
@@ -326,16 +326,66 @@ though it's numbered last.
 
 ## Open questions
 
-1. Continuwuity's licence: confirm from the repository's LICENSE file.
-2. `livekit-api` crate licence and maintenance state.
-3. Does Tuwunel's native OAuth server support QR-code device login (MSC4108)
-   in the version we pin? Element X onboarding leans on it.
-4. Does the homeserver admin API offer "logout all devices" without erasing?
-   (Lifecycle seam 2 depends on it.)
-5. Media quota per user in the homeserver: does Tuwunel support one, or does
-   the media repo grow unbounded?
+1. ~~Continuwuity's licence.~~ **Apache-2.0** (repository LICENSE file).
+2. ~~`livekit-api` crate.~~ **Apache-2.0**, actively released (0.10.1, 2026-11-04).
+3. ~~QR-code device login.~~ **Yes.** Tuwunel's `[global.rendezvous]`
+   (MSC4108/MSC4388) is on by default whenever the built-in OIDC server runs.
+   Sessions are in memory, so a restart drops a scan in progress. The reverse
+   proxy must not compress rendezvous responses.
+4. ~~Logout all devices without erasing.~~ **Yes, via an HTTP API, not admin-room
+   commands.** Tuwunel implements Synapse's MAS provisioning API under
+   `/_synapse/mas/*`, bearer-authenticated by `mas_secret`: `provision_user`,
+   `query_user`, `is_localpart_available`, `delete_user {erase}`,
+   `reactivate_user`, `set_displayname`/`unset_displayname`,
+   `sync_devices`, `upsert_device`, `delete_device`,
+   `update_device_display_name`, `allow_cross_signing_reset`.
+   `sync_devices` with an empty list removes every device; `delete_user`
+   with `erase = false` deactivates. Seam 2 uses this API, and it must never
+   be routed publicly.
+5. ~~Media quota.~~ **None** in Tuwunel (no quota code in the tree as of
+   v1.9.4). The media repo grows unbounded. Either accept that and monitor
+   it, or enforce it upstream (contribute a quota, or cap with
+   `max_request_size` only). Decide in phase 3.
 6. Web client: link out vs native Svelte view (seam 7).
 7. Guest access and public rooms: allow, or local users only?
+
+### Findings that change seam 1 (identity mapping)
+
+Tuwunel maps an upstream login to a Matrix user in two stages
+(`src/api/client/session/sso.rs`, v1.9.4):
+
+- **First login:** the localpart is taken from the first claim that yields
+  a free (or, with `trusted = true`, matching) user. The order is `sub` (only
+  if listed in `userid_claims`), `preferred_username`, `username`,
+  `nickname`, then the email localpart. `unique_id_fallbacks = false` makes a
+  conflict an error instead of a random ID.
+- **Every later login:** matched by the stored (issuer, `sub`) association,
+  not by claims.
+
+So OxiCloud's OP sends `sub = <user UUID>` and
+`preferred_username = <immutable localpart from chat.matrix_accounts>`, and
+configures `userid_claims = ["preferred_username"]`,
+`unique_id_fallbacks = false`. A rename in OxiCloud never moves the MXID, and
+no pre-provisioning call is needed. `trusted = true` is still required so
+that an account already provisioned through `/_synapse/mas/provision_user`
+(e.g. created by an admin before first login) is adopted rather than refused.
+That's safe because OxiCloud controls the claim.
+
+### Findings for resilience
+
+Tuwunel has online backups (`[global.database.backup]`, using the RocksDB
+backup engine, triggered by `!admin server backup-database` or `SIGUSR2`
+with `admin.signal_execute`), and restores with `--restore-backup`.
+**Media is not included** and needs its own copy. Phase 5 builds on this
+instead of filesystem snapshots.
+
+### Version note
+
+Tuwunel v2.0.0 was released on 2026-11-10 and renames much of the config
+(sectioned keys such as `[global.authentication.oidc] native_auth` and
+`[global.http.listen]`). The phase-0 bench pins **v1.9.4**. Move to 2.x
+after it has had a few weeks of patch releases, and re-run the bench
+checklist when you do.
 
 ## References
 
