@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	cryptoDbPrefix,
 	forgetChatSession,
+	isDeviceTrusted,
+	joinTarget,
 	loadChatSession,
 	saveChatSession,
 	ssoRedirectUrl,
@@ -85,5 +87,43 @@ describe('toUserId', () => {
 		expect(toUserId('', 'hoyer.xyz')).toBeNull();
 		expect(toUserId('@bob', 'hoyer.xyz')).toBeNull();
 		expect(toUserId('two words', 'hoyer.xyz')).toBeNull();
+	});
+});
+
+describe('joinTarget', () => {
+	it('passes full aliases and room ids through', () => {
+		expect(joinTarget('#town:example.org', 'hoyer.xyz')).toBe('#town:example.org');
+		expect(joinTarget(' !abc:example.org ', 'hoyer.xyz')).toBe('!abc:example.org');
+	});
+
+	it('puts a bare alias on this server', () => {
+		expect(joinTarget('#town', 'hoyer.xyz')).toBe('#town:hoyer.xyz');
+	});
+
+	it('treats everything else as a search term', () => {
+		expect(joinTarget('town', 'hoyer.xyz')).toBeNull();
+		expect(joinTarget('#town square', 'hoyer.xyz')).toBeNull();
+		expect(joinTarget('!abc', 'hoyer.xyz')).toBeNull();
+		expect(joinTarget('#', 'hoyer.xyz')).toBeNull();
+		expect(joinTarget('#town', '')).toBeNull();
+	});
+});
+
+describe('isDeviceTrusted', () => {
+	// Regression: the recovery key had to be entered twice. After an unlock
+	// the device list still lacked this device's new signature, so
+	// crossSigningVerified stayed false and the unlock banner stayed up until
+	// the user submitted again. Holding the private keys must count at once.
+	it('trusts a device holding the private cross-signing keys before the key query', () => {
+		expect(isDeviceTrusted(false, { masterKey: true, selfSigningKey: true })).toBe(true);
+	});
+
+	it('trusts a device the device list shows as cross-signed', () => {
+		expect(isDeviceTrusted(true, { masterKey: false, selfSigningKey: false })).toBe(true);
+	});
+
+	it('does not trust a fresh device without the keys', () => {
+		expect(isDeviceTrusted(false, { masterKey: false, selfSigningKey: false })).toBe(false);
+		expect(isDeviceTrusted(false, { masterKey: true, selfSigningKey: false })).toBe(false);
 	});
 });

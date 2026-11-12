@@ -16,6 +16,7 @@ import {
 	Direction,
 	EventType,
 	HttpApiEvent,
+	JoinRule,
 	KnownMembership,
 	MatrixError,
 	MatrixEventEvent,
@@ -24,18 +25,21 @@ import {
 	PendingEventOrdering,
 	Preset,
 	RoomEvent,
+	RoomStateEvent,
 	SyncState,
+	Visibility,
 	createClient,
 	type MatrixClient,
 	type MatrixEvent,
 	type Room
 } from 'matrix-js-sdk';
-import { decodeRecoveryKey } from 'matrix-js-sdk/lib/crypto-api';
+import { CryptoEvent, decodeRecoveryKey } from 'matrix-js-sdk/lib/crypto-api';
 import type { AuthDict } from 'matrix-js-sdk/lib/interactive-auth';
 import {
 	cryptoDbPrefix,
 	directRoomIds,
 	forgetChatSession,
+	isDeviceTrusted,
 	loadChatSession,
 	matrixBaseUrl,
 	originOf,
@@ -65,9 +69,49 @@ export interface RoomSummary {
 	isDirect: boolean;
 	isInvite: boolean;
 	isEncrypted: boolean;
+	topic: string;
 	unread: number;
 	lastTs: number;
 	inviter: string | null;
+}
+
+/** One room in the homeserver's public directory. */
+export interface PublicRoom {
+	id: string;
+	name: string;
+	topic: string;
+	alias: string | null;
+	members: number;
+	/** The user is already in it. */
+	joined: boolean;
+}
+
+export interface RoomMemberInfo {
+	userId: string;
+	name: string;
+	membership: 'join' | 'invite';
+	powerLevel: number;
+	/** The user may remove this member. */
+	canRemove: boolean;
+}
+
+/** What the settings view shows and what the user may change there. */
+export interface RoomDetails {
+	id: string;
+	name: string;
+	topic: string;
+	alias: string | null;
+	isPublic: boolean;
+	isEncrypted: boolean;
+	isDirect: boolean;
+	members: RoomMemberInfo[];
+	can: {
+		rename: boolean;
+		setTopic: boolean;
+		setVisibility: boolean;
+		enableEncryption: boolean;
+		invite: boolean;
+	};
 }
 
 export type TimelineKind = 'message' | 'notice' | 'undecryptable';
@@ -94,6 +138,11 @@ export interface PendingConfirmation {
 }
 
 const MEGOLM = 'm.megolm.v1.aes-sha2';
+
+function topicOf(room: Room): string {
+	const topic = room.currentState.getStateEvents(EventType.RoomTopic, '')?.getContent().topic;
+	return typeof topic === 'string' ? topic : '';
+}
 
 function isNoticeWhat(v: unknown): v is NoticeWhat {
 	return v === 'join' || v === 'leave' || v === 'invite' || v === 'ban' || v === 'knock';
@@ -249,17 +298,30 @@ export class ChatClient {
 		client.on(ClientEvent.DeleteRoom, bump);
 		client.on(RoomEvent.Timeline, bump);
 		client.on(RoomEvent.Name, bump);
+		client.on(RoomStateEvent.Events, bump);
 		client.on(RoomEvent.MyMembership, bump);
 		client.on(RoomEvent.Receipt, bump);
 		client.on(RoomEvent.LocalEchoUpdated, bump);
 		client.on(MatrixEventEvent.Decrypted, bump);
 		client.on(HttpApiEvent.SessionLoggedOut, onLoggedOut);
+		// Trust changes land after the fact (key query after an unlock,
+		// verification from another device): re-check the banner then.
+		const onTrust = () => {
+			if (this.status === 'ready') void this.refreshCryptoStatus();
+		};
+		client.on(CryptoEvent.UserTrustStatusChanged, onTrust);
+		client.on(CryptoEvent.KeysChanged, onTrust);
+		client.on(CryptoEvent.DevicesUpdated, onTrust);
 		this.#unsubscribe = () => {
+			client.off(CryptoEvent.UserTrustStatusChanged, onTrust);
+			client.off(CryptoEvent.KeysChanged, onTrust);
+			client.off(CryptoEvent.DevicesUpdated, onTrust);
 			client.off(ClientEvent.Sync, onSync);
 			client.off(ClientEvent.Room, bump);
 			client.off(ClientEvent.DeleteRoom, bump);
 			client.off(RoomEvent.Timeline, bump);
 			client.off(RoomEvent.Name, bump);
+			client.off(RoomStateEvent.Events, bump);
 			client.off(RoomEvent.MyMembership, bump);
 			client.off(RoomEvent.Receipt, bump);
 			client.off(RoomEvent.LocalEchoUpdated, bump);
@@ -299,6 +361,7 @@ export class ChatClient {
 					isDirect: direct.has(r.roomId) || Boolean(r.getDMInviter()),
 					isInvite,
 					isEncrypted: r.hasEncryptionStateEvent(),
+					topic: topicOf(r),
 					unread: r.getUnreadNotificationCount(NotificationCountType.Total),
 					lastTs: r.getLastActiveTimestamp(),
 					inviter: isInvite ? (r.getDMInviter() ?? this.#inviterOf(r)) : null
@@ -425,8 +488,128 @@ export class ChatClient {
 		await this.#need().joinRoom(roomId);
 	}
 
-	async decline(roomId: string): Promise<void> {
+	/** Leave a room, or decline an invite to it. */
+	async leave(roomId: string): Promise<void> {
 		await this.#need().leave(roomId);
+	}
+
+	/** Join by room id or `#alias:server`; returns the room id. */
+	async join(idOrAlias: string): Promise<string> {
+		const room = await this.#need().joinRoom(idOrAlias);
+		return room.roomId;
+	}
+
+	/** Search the homeserver's public room directory. */
+	async searchPublicRooms(
+		term: string,
+		since?: string
+	): Promise<{ rooms: PublicRoom[]; next: string | null }> {
+		const client = this.#need();
+		const q = term.trim();
+		const res = await client.publicRooms({
+			limit: 30,
+			since,
+			...(q ? { filter: { generic_search_term: q } } : {})
+		});
+		const rooms = res.chunk.map((r) => ({
+			id: r.room_id,
+			name: r.name || r.canonical_alias || r.room_id,
+			topic: r.topic ?? '',
+			alias: r.canonical_alias ?? null,
+			members: r.num_joined_members,
+			joined: client.getRoom(r.room_id)?.getMyMembership() === KnownMembership.Join
+		}));
+		return { rooms, next: res.next_batch ?? null };
+	}
+
+	async invite(roomId: string, userId: string): Promise<void> {
+		await this.#need().invite(roomId, userId);
+	}
+
+	async remove(roomId: string, userId: string): Promise<void> {
+		await this.#need().kick(roomId, userId);
+	}
+
+	/**
+	 * Members are loaded lazily (`lazyLoadMembers`); call this before
+	 * showing `details()`, which then includes everyone.
+	 */
+	async loadMembers(roomId: string): Promise<void> {
+		await this.#need().getRoom(roomId)?.loadMembersIfNeeded();
+		this.#rev++;
+	}
+
+	details(roomId: string): RoomDetails | null {
+		void this.#rev;
+		const client = this.#client;
+		const me = this.userId;
+		const room = client?.getRoom(roomId);
+		if (!client || !room || !me) return null;
+		const state = room.currentState;
+		const myLevel = room.getMember(me)?.powerLevel ?? 0;
+		const mayKick = state.hasSufficientPowerLevelFor('kick', myLevel);
+		const members: RoomMemberInfo[] = room
+			.getMembers()
+			.filter(
+				(m) => m.membership === KnownMembership.Join || m.membership === KnownMembership.Invite
+			)
+			.map((m) => ({
+				userId: m.userId,
+				name: m.name || m.userId,
+				membership: m.membership === KnownMembership.Invite ? 'invite' : 'join',
+				powerLevel: m.powerLevel,
+				canRemove: m.userId !== me && mayKick && m.powerLevel < myLevel
+			}));
+		members.sort((a, b) => b.powerLevel - a.powerLevel || a.name.localeCompare(b.name));
+		const isEncrypted = room.hasEncryptionStateEvent();
+		return {
+			id: room.roomId,
+			name: room.name || room.roomId,
+			topic: topicOf(room),
+			alias: room.getCanonicalAlias(),
+			isPublic: room.getJoinRule() === JoinRule.Public,
+			isEncrypted,
+			isDirect: this.#directRoomIds(client).has(room.roomId),
+			members,
+			can: {
+				rename: state.maySendStateEvent(EventType.RoomName, me),
+				setTopic: state.maySendStateEvent(EventType.RoomTopic, me),
+				setVisibility: state.maySendStateEvent(EventType.RoomJoinRules, me),
+				enableEncryption: !isEncrypted && state.maySendStateEvent(EventType.RoomEncryption, me),
+				invite: room.canInvite(me)
+			}
+		};
+	}
+
+	async setName(roomId: string, name: string): Promise<void> {
+		await this.#need().setRoomName(roomId, name.trim());
+	}
+
+	async setTopic(roomId: string, topic: string): Promise<void> {
+		await this.#need().setRoomTopic(roomId, topic.trim());
+	}
+
+	/**
+	 * Public: anyone on the server can find the room in the directory and
+	 * join. Otherwise invite-only and unlisted.
+	 */
+	async setPublic(roomId: string, isPublic: boolean): Promise<void> {
+		const client = this.#need();
+		await client.sendStateEvent(
+			roomId,
+			EventType.RoomJoinRules,
+			{ join_rule: isPublic ? JoinRule.Public : JoinRule.Invite },
+			''
+		);
+		await client.setRoomDirectoryVisibility(
+			roomId,
+			isPublic ? Visibility.Public : Visibility.Private
+		);
+	}
+
+	/** Turn on end-to-end encryption. Matrix offers no way back. */
+	async enableEncryption(roomId: string): Promise<void> {
+		await this.#need().sendStateEvent(roomId, EventType.RoomEncryption, { algorithm: MEGOLM }, '');
 	}
 
 	/** Open (or reuse) an encrypted direct chat with one user. */
@@ -477,7 +660,13 @@ export class ChatClient {
 		const deviceId = client?.getDeviceId();
 		if (!crypto || !userId || !deviceId) return;
 		const status = await crypto.getDeviceVerificationStatus(userId, deviceId);
-		if (status?.crossSigningVerified) {
+		// Right after an unlock or setup, the device list still lacks this
+		// device's new signature until the next key query, so
+		// `crossSigningVerified` lags. Holding the private cross-signing keys
+		// (bootstrapCrossSigning signed this device with them) is the same
+		// trust, available at once.
+		const keys = (await crypto.getCrossSigningStatus()).privateKeysCachedLocally;
+		if (isDeviceTrusted(status?.crossSigningVerified ?? false, keys)) {
 			this.crypto = 'ready';
 			// Keys arrive in the backup continuously; make sure it's on.
 			void crypto.checkKeyBackupAndEnable();

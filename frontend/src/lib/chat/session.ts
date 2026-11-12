@@ -192,3 +192,31 @@ export async function forgetChatSession(ownerId: string): Promise<void> {
 export async function forgetAllChatSessions(): Promise<void> {
 	await Promise.all(Object.keys(readAll()).map((owner) => forgetChatSession(owner)));
 }
+
+/**
+ * Read what someone typed into the explore box as a room to join directly:
+ * `#name:server` and `!id:server` pass through, `#name` gets this server.
+ * Anything else is a search term (null).
+ */
+export function joinTarget(input: string, serverName: string): string | null {
+	const s = input.trim();
+	if (s.length < 2 || /\s/.test(s)) return null;
+	if (s.startsWith('!')) return s.includes(':') ? s : null;
+	if (!s.startsWith('#')) return null;
+	if (s.includes(':')) return s.length > 3 ? s : null;
+	return serverName ? `${s}:${serverName}` : null;
+}
+
+/**
+ * Whether this browser's device can read the account's encrypted history:
+ * the device list says it is cross-signed, or it holds the private master
+ * and self-signing keys (which it used to sign itself). The device list
+ * only learns of that signature at the next key query, so after an unlock
+ * the first test lags and the second answers at once.
+ */
+export function isDeviceTrusted(
+	crossSigningVerified: boolean,
+	privateKeys: { masterKey: boolean; selfSigningKey: boolean }
+): boolean {
+	return crossSigningVerified || (privateKeys.masterKey && privateKeys.selfSigningKey);
+}

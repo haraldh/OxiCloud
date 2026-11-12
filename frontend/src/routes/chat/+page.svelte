@@ -5,9 +5,12 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/Button.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
+	import ChatExplore from '$lib/components/chat/ChatExplore.svelte';
+	import ChatRoomSettings from '$lib/components/chat/ChatRoomSettings.svelte';
 	import Icon from '$lib/icons/Icon.svelte';
 	import { t } from '$lib/i18n/index.svelte';
 	import { serverConfig } from '$lib/stores/serverConfig.svelte';
+	import { promptDialog } from '$lib/stores/dialogs.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import { errorMessage } from '$lib/utils/errors';
 	import { chatReturnUrl, takeLoginToken, toUserId } from '$lib/chat/session';
@@ -26,6 +29,8 @@
 	let groupName = $state('');
 	let groupInvite = $state('');
 	let copied = $state(false);
+	let exploreOpen = $state(false);
+	let settingsOpen = $state(false);
 
 	let timelineEl = $state<HTMLElement | null>(null);
 	let stickToBottom = true;
@@ -184,6 +189,25 @@
 		});
 	}
 
+	async function inviteToRoom(roomId: string) {
+		const c = chat;
+		if (!c) return;
+		await promptDialog({
+			title: t('chat.invite_people', 'Invite people'),
+			placeholder: t('chat.direct_placeholder', 'User name or @name:server'),
+			confirmText: t('chat.invite', 'Invite'),
+			action: async (value) => {
+				const userId = toUserId(value, c.serverName());
+				if (!userId) {
+					throw new Error(
+						t('chat.invalid_user', 'Enter a user name or a Matrix ID like @name:server')
+					);
+				}
+				await c.invite(roomId, userId);
+			}
+		});
+	}
+
 	async function copyRecoveryKey(key: string) {
 		try {
 			await navigator.clipboard.writeText(key);
@@ -278,6 +302,13 @@
 			<header class="chat__list-head">
 				<h1 class="chat__title">{t('chat.title', 'Chat')}</h1>
 				<div class="chat__list-actions">
+					<Button
+						small
+						icon="globe"
+						title={t('chat.explore', 'Explore rooms')}
+						onclick={() => (exploreOpen = true)}
+						data-testid="chat-explore-btn"
+					/>
 					<Button
 						small
 						icon="user-plus"
@@ -480,11 +511,30 @@
 					>
 						<Icon name="arrow-left" />
 					</button>
-					<h2 class="chat__room-title">{room.name}</h2>
+					<div class="chat__room-heading">
+						<h2 class="chat__room-title">{room.name}</h2>
+						{#if room.topic}<p class="chat__room-topic" title={room.topic}>{room.topic}</p>{/if}
+					</div>
 					{#if room.isEncrypted}
 						<span class="chat__lock" title={t('chat.encrypted', 'End-to-end encrypted')}>
 							<Icon name="lock" />
 						</span>
+					{/if}
+					{#if !room.isInvite}
+						<Button
+							small
+							icon="user-plus"
+							title={t('chat.invite_people', 'Invite people')}
+							onclick={() => void inviteToRoom(room.id)}
+							data-testid="chat-invite-btn"
+						/>
+						<Button
+							small
+							icon="cog"
+							title={t('chat.room_settings', 'Room settings')}
+							onclick={() => (settingsOpen = true)}
+							data-testid="chat-settings-btn"
+						/>
 					{/if}
 				</header>
 
@@ -507,7 +557,7 @@
 								disabled={busy}
 								onclick={() =>
 									void run(async () => {
-										await c.decline(room.id);
+										await c.leave(room.id);
 										selectedId = null;
 									})}
 							>
@@ -580,6 +630,16 @@
 			{/if}
 		</section>
 	</div>
+
+	<ChatExplore bind:open={exploreOpen} chat={c} onopenroom={select} />
+	{#if selectedId}
+		<ChatRoomSettings
+			bind:open={settingsOpen}
+			chat={c}
+			roomId={selectedId}
+			onleft={() => (selectedId = null)}
+		/>
+	{/if}
 {/if}
 
 <style>
@@ -660,6 +720,20 @@
 		margin: 0;
 		font-size: var(--text-lg);
 		font-weight: var(--weight-semibold);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.chat__room-heading {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.chat__room-topic {
+		margin: 0;
+		color: var(--color-text-muted);
+		font-size: var(--text-xs);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
