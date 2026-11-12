@@ -139,12 +139,13 @@
 		font-size: var(--text-base);
 	}
 
+	/*
+	 * In the flow, not absolutely positioned: the picker sits inside a
+	 * Modal and the sidebar, both of which clip overflow, so a floating
+	 * list was cut off below the field. Here it pushes the content down.
+	 */
 	.picker__list {
-		position: absolute;
-		inset-inline: 0;
-		top: calc(100% + var(--space-1));
-		z-index: 10;
-		margin: 0;
+		margin: var(--space-1) 0 0;
 		padding: var(--space-1) 0;
 		max-height: 16rem;
 		overflow-y: auto;
