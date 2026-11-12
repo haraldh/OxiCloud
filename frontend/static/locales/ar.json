@@ -2282,6 +2282,10 @@
     "room_topic": "الموضوع",
     "room_settings": "إعدادات الغرفة",
     "save": "حفظ",
-    "saved": "تم الحفظ"
+    "saved": "تم الحفظ",
+    "invite_member": "{{name}} موجود بالفعل في هذه الغرفة",
+    "invite_pending": "تمت دعوة {{name}} بالفعل",
+    "invite_banned": "{{name}} محظور من هذه الغرفة",
+    "suggestions": "{{n}} اقتراحات"
   }
 }

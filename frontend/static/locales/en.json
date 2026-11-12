@@ -2282,6 +2282,10 @@
     "room_topic": "Topic",
     "room_settings": "Room settings",
     "save": "Save",
-    "saved": "Saved"
+    "saved": "Saved",
+    "invite_member": "{{name}} is already in this room",
+    "invite_pending": "{{name}} has already been invited",
+    "invite_banned": "{{name}} is banned from this room",
+    "suggestions": "{{n}} suggestions"
   }
 }

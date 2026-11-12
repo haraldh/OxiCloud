@@ -2282,6 +2282,10 @@
     "room_topic": "موضوع",
     "room_settings": "تنظیمات اتاق",
     "save": "ذخیره",
-    "saved": "ذخیره شد"
+    "saved": "ذخیره شد",
+    "invite_member": "{{name}} از قبل در این اتاق است",
+    "invite_pending": "{{name}} از قبل دعوت شده است",
+    "invite_banned": "{{name}} از این اتاق مسدود شده است",
+    "suggestions": "{{n}} پیشنهاد"
   }
 }

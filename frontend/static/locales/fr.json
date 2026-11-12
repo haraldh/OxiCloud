@@ -2282,6 +2282,10 @@
     "room_topic": "Sujet",
     "room_settings": "Paramètres du salon",
     "save": "Enregistrer",
-    "saved": "Enregistré"
+    "saved": "Enregistré",
+    "invite_member": "{{name}} est déjà dans ce salon",
+    "invite_pending": "{{name}} a déjà été invité",
+    "invite_banned": "{{name}} est banni de ce salon",
+    "suggestions": "{{n}} suggestions"
   }
 }

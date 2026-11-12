@@ -6,11 +6,13 @@
 	import Button from '$lib/components/Button.svelte';
 	import EmptyState from '$lib/components/EmptyState.svelte';
 	import ChatExplore from '$lib/components/chat/ChatExplore.svelte';
+	import ChatInviteForm from '$lib/components/chat/ChatInviteForm.svelte';
+	import ChatUserPicker from '$lib/components/chat/ChatUserPicker.svelte';
+	import Modal from '$lib/components/Modal.svelte';
 	import ChatRoomSettings from '$lib/components/chat/ChatRoomSettings.svelte';
 	import Icon from '$lib/icons/Icon.svelte';
 	import { t } from '$lib/i18n/index.svelte';
 	import { serverConfig } from '$lib/stores/serverConfig.svelte';
-	import { promptDialog } from '$lib/stores/dialogs.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import { errorMessage } from '$lib/utils/errors';
 	import { chatReturnUrl, takeLoginToken, toUserId } from '$lib/chat/session';
@@ -31,6 +33,7 @@
 	let copied = $state(false);
 	let exploreOpen = $state(false);
 	let settingsOpen = $state(false);
+	let inviteOpen = $state(false);
 
 	let timelineEl = $state<HTMLElement | null>(null);
 	let stickToBottom = true;
@@ -189,25 +192,6 @@
 		});
 	}
 
-	async function inviteToRoom(roomId: string) {
-		const c = chat;
-		if (!c) return;
-		await promptDialog({
-			title: t('chat.invite_people', 'Invite people'),
-			placeholder: t('chat.direct_placeholder', 'User name or @name:server'),
-			confirmText: t('chat.invite', 'Invite'),
-			action: async (value) => {
-				const userId = toUserId(value, c.serverName());
-				if (!userId) {
-					throw new Error(
-						t('chat.invalid_user', 'Enter a user name or a Matrix ID like @name:server')
-					);
-				}
-				await c.invite(roomId, userId);
-			}
-		});
-	}
-
 	async function copyRecoveryKey(key: string) {
 		try {
 			await navigator.clipboard.writeText(key);
@@ -334,11 +318,11 @@
 						void startDirect();
 					}}
 				>
-					<input
-						class="chat__field"
+					<ChatUserPicker
+						chat={c}
 						bind:value={directTo}
+						label={t('chat.new_direct', 'New direct chat')}
 						placeholder={t('chat.direct_placeholder', 'User name or @name:server')}
-						aria-label={t('chat.new_direct', 'New direct chat')}
 					/>
 					<Button type="submit" variant="primary" small disabled={busy}>
 						{t('chat.start', 'Start')}
@@ -540,7 +524,7 @@
 							small
 							icon="user-plus"
 							title={t('chat.invite_people', 'Invite people')}
-							onclick={() => void inviteToRoom(room.id)}
+							onclick={() => (inviteOpen = true)}
 							data-testid="chat-invite-btn"
 						/>
 						<Button
@@ -648,6 +632,9 @@
 
 	<ChatExplore bind:open={exploreOpen} chat={c} onopenroom={select} />
 	{#if selectedId}
+		<Modal bind:open={inviteOpen} title={t('chat.invite_people', 'Invite people')}>
+			{#if inviteOpen}<ChatInviteForm chat={c} roomId={selectedId} />{/if}
+		</Modal>
 		<ChatRoomSettings
 			bind:open={settingsOpen}
 			chat={c}

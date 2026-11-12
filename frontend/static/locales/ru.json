@@ -2282,6 +2282,10 @@
     "room_topic": "Тема",
     "room_settings": "Настройки комнаты",
     "save": "Сохранить",
-    "saved": "Сохранено"
+    "saved": "Сохранено",
+    "invite_member": "{{name}} уже в этой комнате",
+    "invite_pending": "{{name}} уже приглашён(-а)",
+    "invite_banned": "{{name}} заблокирован(-а) в этой комнате",
+    "suggestions": "Вариантов: {{n}}"
   }
 }

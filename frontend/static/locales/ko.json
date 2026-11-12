@@ -2282,6 +2282,10 @@
     "room_topic": "주제",
     "room_settings": "방 설정",
     "save": "저장",
-    "saved": "저장됨"
+    "saved": "저장됨",
+    "invite_member": "{{name}} 님은 이미 이 방에 있습니다",
+    "invite_pending": "{{name}} 님은 이미 초대되었습니다",
+    "invite_banned": "{{name}} 님은 이 방에서 차단되었습니다",
+    "suggestions": "추천 {{n}}개"
   }
 }

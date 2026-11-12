@@ -2282,6 +2282,10 @@
     "room_topic": "Temat",
     "room_settings": "Ustawienia pokoju",
     "save": "Zapisz",
-    "saved": "Zapisano"
+    "saved": "Zapisano",
+    "invite_member": "{{name}} jest już w tym pokoju",
+    "invite_pending": "{{name}} został(a) już zaproszony(-a)",
+    "invite_banned": "{{name}} ma zakaz wstępu do tego pokoju",
+    "suggestions": "Sugestie: {{n}}"
   }
 }

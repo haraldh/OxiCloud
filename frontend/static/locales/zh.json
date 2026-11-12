@@ -2282,6 +2282,10 @@
     "room_topic": "主题",
     "room_settings": "房间设置",
     "save": "保存",
-    "saved": "已保存"
+    "saved": "已保存",
+    "invite_member": "{{name}} 已在此房间中",
+    "invite_pending": "{{name}} 已被邀请",
+    "invite_banned": "{{name}} 已被此房间封禁",
+    "suggestions": "{{n}} 条建议"
   }
 }

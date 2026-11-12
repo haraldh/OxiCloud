@@ -2282,6 +2282,10 @@
     "room_topic": "Thema",
     "room_settings": "Raumeinstellungen",
     "save": "Speichern",
-    "saved": "Gespeichert"
+    "saved": "Gespeichert",
+    "invite_member": "{{name}} ist bereits in diesem Raum",
+    "invite_pending": "{{name}} wurde bereits eingeladen",
+    "invite_banned": "{{name}} ist aus diesem Raum verbannt",
+    "suggestions": "{{n}} Vorschläge"
   }
 }

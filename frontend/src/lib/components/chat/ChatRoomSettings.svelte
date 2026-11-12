@@ -2,10 +2,10 @@
 	import { untrack } from 'svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Modal from '$lib/components/Modal.svelte';
+	import ChatInviteForm from '$lib/components/chat/ChatInviteForm.svelte';
 	import { t } from '$lib/i18n/index.svelte';
 	import { confirmDialog } from '$lib/stores/dialogs.svelte';
 	import { errorMessage } from '$lib/utils/errors';
-	import { toUserId } from '$lib/chat/session';
 	import type { ChatClient } from '$lib/chat/matrix.svelte';
 
 	interface Props {
@@ -22,7 +22,6 @@
 
 	let name = $state('');
 	let topic = $state('');
-	let inviteTo = $state('');
 	let busy = $state(false);
 	let error = $state<string | null>(null);
 	let notice = $state<string | null>(null);
@@ -38,7 +37,6 @@
 			const d = chat.details(id);
 			name = d?.name ?? '';
 			topic = d?.topic ?? '';
-			inviteTo = '';
 			error = null;
 			notice = null;
 			void chat.loadMembers(id).catch(() => undefined);
@@ -70,21 +68,6 @@
 				if (d.can.setTopic && topic.trim() !== d.topic) await chat.setTopic(roomId, topic);
 			},
 			t('chat.saved', 'Saved')
-		);
-	}
-
-	function invite() {
-		const userId = toUserId(inviteTo, chat.serverName());
-		if (!userId) {
-			error = t('chat.invalid_user', 'Enter a user name or a Matrix ID like @name:server');
-			return;
-		}
-		void run(
-			async () => {
-				await chat.invite(roomId, userId);
-				inviteTo = '';
-			},
-			t('chat.invited_user', { name: userId }, '{{name}} was invited')
 		);
 	}
 
@@ -230,24 +213,7 @@
 					{t('chat.members', { n: d.members.length }, 'Members ({{n}})')}
 				</h3>
 				{#if d.can.invite}
-					<form
-						class="room-settings__invite"
-						onsubmit={(e) => {
-							e.preventDefault();
-							invite();
-						}}
-					>
-						<input
-							class="room-settings__field"
-							bind:value={inviteTo}
-							placeholder={t('chat.direct_placeholder', 'User name or @name:server')}
-							aria-label={t('chat.invite_people', 'Invite people')}
-							data-testid="chat-invite-input"
-						/>
-						<Button type="submit" small icon="user-plus" disabled={busy || !inviteTo.trim()}>
-							{t('chat.invite', 'Invite')}
-						</Button>
-					</form>
+					<ChatInviteForm {chat} {roomId} />
 				{/if}
 				<ul class="room-settings__members">
 					{#each d.members as m (m.userId)}
@@ -349,11 +315,6 @@
 	.room-settings__actions {
 		display: flex;
 		justify-content: flex-end;
-	}
-
-	.room-settings__invite {
-		display: flex;
-		gap: var(--space-2);
 	}
 
 	.room-settings__members {

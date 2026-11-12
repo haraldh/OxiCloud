@@ -2282,6 +2282,10 @@
     "room_topic": "トピック",
     "room_settings": "ルームの設定",
     "save": "保存",
-    "saved": "保存しました"
+    "saved": "保存しました",
+    "invite_member": "{{name}} はすでにこのルームにいます",
+    "invite_pending": "{{name}} はすでに招待されています",
+    "invite_banned": "{{name}} はこのルームから追放されています",
+    "suggestions": "候補 {{n}} 件"
   }
 }

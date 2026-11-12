@@ -39,6 +39,7 @@ import {
 	cryptoDbPrefix,
 	directRoomIds,
 	forgetChatSession,
+	inviteRefusal,
 	isDeviceTrusted,
 	loadChatSession,
 	matrixBaseUrl,
@@ -46,7 +47,8 @@ import {
 	saveChatSession,
 	serverNameOf,
 	ssoRedirectUrl,
-	type ChatSession
+	type ChatSession,
+	type InviteRefusal
 } from './session';
 import { matrixFetch } from './matrixHttp';
 import { receiptTarget } from './receipts';
@@ -73,6 +75,12 @@ export interface RoomSummary {
 	unread: number;
 	lastTs: number;
 	inviter: string | null;
+}
+
+/** A person offered while typing a name to invite or chat with. */
+export interface UserSuggestion {
+	userId: string;
+	name: string;
 }
 
 /** One room in the homeserver's public directory. */
@@ -522,8 +530,30 @@ export class ChatClient {
 		return { rooms, next: res.next_batch ?? null };
 	}
 
-	async invite(roomId: string, userId: string): Promise<void> {
-		await this.#need().invite(roomId, userId);
+	/** People matching a name or Matrix ID, from the homeserver's user directory. */
+	async searchUsers(term: string, limit = 8): Promise<UserSuggestion[]> {
+		const q = term.trim();
+		if (!q) return [];
+		const res = await this.#need().searchUserDirectory({ term: q, limit });
+		return res.results.map((u) => ({
+			userId: u.user_id,
+			name: u.display_name || u.user_id
+		}));
+	}
+
+	/**
+	 * Invite someone, unless their membership already rules it out: then
+	 * nothing is sent and the reason comes back for the page to show.
+	 */
+	async invite(roomId: string, userId: string): Promise<InviteRefusal | null> {
+		const client = this.#need();
+		const room = client.getRoom(roomId);
+		// Members load lazily; without the full list a joined user looks absent.
+		await room?.loadMembersIfNeeded();
+		const refusal = inviteRefusal(room?.getMember(userId)?.membership);
+		if (refusal) return refusal;
+		await client.invite(roomId, userId);
+		return null;
 	}
 
 	async remove(roomId: string, userId: string): Promise<void> {

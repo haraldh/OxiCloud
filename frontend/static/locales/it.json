@@ -2282,6 +2282,10 @@
     "room_topic": "Argomento",
     "room_settings": "Impostazioni stanza",
     "save": "Salva",
-    "saved": "Salvato"
+    "saved": "Salvato",
+    "invite_member": "{{name}} è già in questa stanza",
+    "invite_pending": "{{name}} è già stato invitato",
+    "invite_banned": "{{name}} è bandito da questa stanza",
+    "suggestions": "{{n}} suggerimenti"
   }
 }

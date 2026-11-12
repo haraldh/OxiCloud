@@ -2282,6 +2282,10 @@
     "room_topic": "Tema",
     "room_settings": "Ajustes de la sala",
     "save": "Guardar",
-    "saved": "Guardado"
+    "saved": "Guardado",
+    "invite_member": "{{name}} ya está en esta sala",
+    "invite_pending": "{{name}} ya ha sido invitado",
+    "invite_banned": "{{name}} está vetado en esta sala",
+    "suggestions": "{{n}} sugerencias"
   }
 }

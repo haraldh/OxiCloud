@@ -2282,6 +2282,10 @@
     "room_topic": "विषय",
     "room_settings": "रूम सेटिंग्स",
     "save": "सहेजें",
-    "saved": "सहेजा गया"
+    "saved": "सहेजा गया",
+    "invite_member": "{{name}} पहले से इस रूम में हैं",
+    "invite_pending": "{{name}} को पहले ही आमंत्रित किया जा चुका है",
+    "invite_banned": "{{name}} इस रूम से प्रतिबंधित हैं",
+    "suggestions": "{{n}} सुझाव"
   }
 }

@@ -2282,6 +2282,10 @@
     "room_topic": "Onderwerp",
     "room_settings": "Ruimte-instellingen",
     "save": "Opslaan",
-    "saved": "Opgeslagen"
+    "saved": "Opgeslagen",
+    "invite_member": "{{name}} zit al in deze ruimte",
+    "invite_pending": "{{name}} is al uitgenodigd",
+    "invite_banned": "{{name}} is uit deze ruimte verbannen",
+    "suggestions": "{{n}} suggesties"
   }
 }

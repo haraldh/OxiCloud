@@ -220,3 +220,23 @@ export function isDeviceTrusted(
 ): boolean {
 	return crossSigningVerified || (privateKeys.masterKey && privateKeys.selfSigningKey);
 }
+
+/** Why an invite would be refused, from the invitee's current membership. */
+export type InviteRefusal = 'member' | 'invited' | 'banned';
+
+/**
+ * The homeserver answers an invite for someone already joined or banned
+ * with a bare 403; check the membership first so the user gets a reason.
+ */
+export function inviteRefusal(membership: string | undefined): InviteRefusal | null {
+	switch (membership) {
+		case 'join':
+			return 'member';
+		case 'invite':
+			return 'invited';
+		case 'ban':
+			return 'banned';
+		default:
+			return null;
+	}
+}
