@@ -45,6 +45,7 @@ import {
 	type ChatSession
 } from './session';
 import { matrixFetch } from './matrixHttp';
+import { receiptTarget } from './receipts';
 
 export type ChatStatus = 'idle' | 'signing-in' | 'starting' | 'ready' | 'signed-out' | 'error';
 
@@ -408,15 +409,16 @@ export class ChatClient {
 		await this.#need().sendTextMessage(roomId, text);
 	}
 
-	/** Mark everything up to the newest event in the room as read. */
+	/**
+	 * Mark everything up to the newest event in the room as read. Sends at
+	 * most one receipt per event: see `receiptTarget`.
+	 */
 	async markRead(roomId: string): Promise<void> {
 		const client = this.#need();
 		const room = client.getRoom(roomId);
-		const events = room?.getLiveTimeline().getEvents() ?? [];
-		const last = events[events.length - 1];
-		if (!room || !last || last.getSender() === this.userId) return;
-		if (room.getUnreadNotificationCount(NotificationCountType.Total) === 0) return;
-		await client.sendReadReceipt(last);
+		if (!room || room.getUnreadNotificationCount(NotificationCountType.Total) === 0) return;
+		const last = receiptTarget(room, this.userId);
+		if (last) await client.sendReadReceipt(last);
 	}
 
 	async accept(roomId: string): Promise<void> {
