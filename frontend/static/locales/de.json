@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} ist bereits in diesem Raum",
     "invite_pending": "{{name}} wurde bereits eingeladen",
     "invite_banned": "{{name}} ist aus diesem Raum verbannt",
-    "suggestions": "{{n}} Vorschläge"
+    "suggestions": "{{n}} Vorschläge",
+    "group_public": "Alle auf diesem Server können ihn finden und beitreten",
+    "group_public_hint": "In „Räume entdecken“ aufgeführt, nicht verschlüsselt und nie von anderen Servern erreichbar.",
+    "group_private_hint": "Nur auf Einladung und Ende-zu-Ende-verschlüsselt.",
+    "local_only": "Dieser Raum bleibt auf diesem Server, auch wenn später Föderation eingeschaltet wird."
   }
 }

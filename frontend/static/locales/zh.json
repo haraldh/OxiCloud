@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} 已在此房间中",
     "invite_pending": "{{name}} 已被邀请",
     "invite_banned": "{{name}} 已被此房间封禁",
-    "suggestions": "{{n}} 条建议"
+    "suggestions": "{{n}} 条建议",
+    "group_public": "此服务器上的任何人都可以找到并加入",
+    "group_public_hint": "显示在“探索房间”中，不加密，且其他服务器永远无法访问。",
+    "group_private_hint": "仅限邀请，端到端加密。",
+    "local_only": "即使以后开启联邦，此房间也只保留在此服务器上。"
   }
 }

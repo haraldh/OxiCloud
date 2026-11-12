@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} è già in questa stanza",
     "invite_pending": "{{name}} è già stato invitato",
     "invite_banned": "{{name}} è bandito da questa stanza",
-    "suggestions": "{{n}} suggerimenti"
+    "suggestions": "{{n}} suggerimenti",
+    "group_public": "Chiunque su questo server può trovarla ed entrare",
+    "group_public_hint": "Elencata in Esplora stanze, non cifrata e mai raggiungibile da altri server.",
+    "group_private_hint": "Solo su invito e cifrata end-to-end.",
+    "local_only": "Questa stanza resta su questo server, anche se in seguito si attiva la federazione."
   }
 }

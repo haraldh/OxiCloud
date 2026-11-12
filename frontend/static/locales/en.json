@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} is already in this room",
     "invite_pending": "{{name}} has already been invited",
     "invite_banned": "{{name}} is banned from this room",
-    "suggestions": "{{n}} suggestions"
+    "suggestions": "{{n}} suggestions",
+    "group_public": "Anyone on this server can find and join",
+    "group_public_hint": "Listed in Explore rooms, not encrypted, and never reachable from other servers.",
+    "group_private_hint": "Invite-only and end-to-end encrypted.",
+    "local_only": "This room stays on this server, even if federation is turned on later."
   }
 }

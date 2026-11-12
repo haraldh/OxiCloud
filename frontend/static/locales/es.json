@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} ya está en esta sala",
     "invite_pending": "{{name}} ya ha sido invitado",
     "invite_banned": "{{name}} está vetado en esta sala",
-    "suggestions": "{{n}} sugerencias"
+    "suggestions": "{{n}} sugerencias",
+    "group_public": "Cualquiera en este servidor puede encontrarla y unirse",
+    "group_public_hint": "Aparece en Explorar salas, sin cifrar y nunca accesible desde otros servidores.",
+    "group_private_hint": "Solo con invitación y cifrada de extremo a extremo.",
+    "local_only": "Esta sala se queda en este servidor, aunque más adelante se active la federación."
   }
 }

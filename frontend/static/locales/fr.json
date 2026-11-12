@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} est déjà dans ce salon",
     "invite_pending": "{{name}} a déjà été invité",
     "invite_banned": "{{name}} est banni de ce salon",
-    "suggestions": "{{n}} suggestions"
+    "suggestions": "{{n}} suggestions",
+    "group_public": "Toute personne sur ce serveur peut le trouver et le rejoindre",
+    "group_public_hint": "Listé dans Explorer les salons, non chiffré et jamais accessible depuis d'autres serveurs.",
+    "group_private_hint": "Sur invitation uniquement et chiffré de bout en bout.",
+    "local_only": "Ce salon reste sur ce serveur, même si la fédération est activée plus tard."
   }
 }

@@ -110,6 +110,8 @@ export interface RoomDetails {
 	topic: string;
 	alias: string | null;
 	isPublic: boolean;
+	/** Created with `m.federate: false`: can never leave this server. */
+	localOnly: boolean;
 	isEncrypted: boolean;
 	isDirect: boolean;
 	members: RoomMemberInfo[];
@@ -598,6 +600,8 @@ export class ChatClient {
 			topic: topicOf(room),
 			alias: room.getCanonicalAlias(),
 			isPublic: room.getJoinRule() === JoinRule.Public,
+			localOnly:
+				state.getStateEvents(EventType.RoomCreate, '')?.getContent()['m.federate'] === false,
 			isEncrypted,
 			isDirect: this.#directRoomIds(client).has(room.roomId),
 			members,
@@ -664,16 +668,32 @@ export class ChatClient {
 		return room_id;
 	}
 
-	/** Create an encrypted, invite-only room. */
-	async createGroup(name: string, invite: string[]): Promise<string> {
-		const { room_id } = await this.#need().createRoom({
-			name: name.trim(),
-			invite,
-			preset: Preset.PrivateChat,
-			initial_state: [
-				{ type: EventType.RoomEncryption, state_key: '', content: { algorithm: MEGOLM } }
-			]
-		});
+	/**
+	 * Create a group. Private: encrypted and invite-only. Public: anyone on
+	 * this server can find and join it, and `m.federate: false` (fixed at
+	 * creation) keeps it on this server even if federation is turned on
+	 * later. Public rooms start unencrypted, as in Element; settings can
+	 * turn encryption on.
+	 */
+	async createGroup(name: string, invite: string[], isPublic = false): Promise<string> {
+		const { room_id } = await this.#need().createRoom(
+			isPublic
+				? {
+						name: name.trim(),
+						invite,
+						preset: Preset.PublicChat,
+						visibility: Visibility.Public,
+						creation_content: { 'm.federate': false }
+					}
+				: {
+						name: name.trim(),
+						invite,
+						preset: Preset.PrivateChat,
+						initial_state: [
+							{ type: EventType.RoomEncryption, state_key: '', content: { algorithm: MEGOLM } }
+						]
+					}
+		);
 		return room_id;
 	}
 

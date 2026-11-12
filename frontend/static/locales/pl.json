@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} jest już w tym pokoju",
     "invite_pending": "{{name}} został(a) już zaproszony(-a)",
     "invite_banned": "{{name}} ma zakaz wstępu do tego pokoju",
-    "suggestions": "Sugestie: {{n}}"
+    "suggestions": "Sugestie: {{n}}",
+    "group_public": "Każdy na tym serwerze może go znaleźć i dołączyć",
+    "group_public_hint": "Widoczny w Przeglądaj pokoje, nieszyfrowany i nigdy niedostępny z innych serwerów.",
+    "group_private_hint": "Tylko na zaproszenie i szyfrowany end-to-end.",
+    "local_only": "Ten pokój pozostaje na tym serwerze, nawet jeśli później zostanie włączona federacja."
   }
 }

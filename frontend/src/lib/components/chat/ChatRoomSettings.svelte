@@ -185,6 +185,14 @@
 						/>
 						{t('chat.access_public', 'Anyone on this server (listed in Explore rooms)')}
 					</label>
+					{#if d.localOnly}
+						<p class="room-settings__hint">
+							{t(
+								'chat.local_only',
+								'This room stays on this server, even if federation is turned on later.'
+							)}
+						</p>
+					{/if}
 				</section>
 			{/if}
 

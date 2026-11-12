@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} 已在此聊天室中",
     "invite_pending": "{{name}} 已被邀請",
     "invite_banned": "{{name}} 已被此聊天室封鎖",
-    "suggestions": "{{n}} 個建議"
+    "suggestions": "{{n}} 個建議",
+    "group_public": "此伺服器上的任何人都能找到並加入",
+    "group_public_hint": "顯示在「探索聊天室」中，不加密，且其他伺服器永遠無法存取。",
+    "group_private_hint": "僅限邀請，端對端加密。",
+    "local_only": "即使之後開啟聯邦，此聊天室也只保留在此伺服器上。"
   }
 }

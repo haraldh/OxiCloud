@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} はすでにこのルームにいます",
     "invite_pending": "{{name}} はすでに招待されています",
     "invite_banned": "{{name}} はこのルームから追放されています",
-    "suggestions": "候補 {{n}} 件"
+    "suggestions": "候補 {{n}} 件",
+    "group_public": "このサーバーの誰でも検索して参加可能",
+    "group_public_hint": "「ルームを探す」に表示され、暗号化されず、他のサーバーからは決してアクセスできません。",
+    "group_private_hint": "招待制でエンドツーエンド暗号化。",
+    "local_only": "後でフェデレーションを有効にしても、このルームはこのサーバーに留まります。"
   }
 }

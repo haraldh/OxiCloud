@@ -30,6 +30,7 @@
 	let directTo = $state('');
 	let groupName = $state('');
 	let groupInvite = $state('');
+	let groupPublic = $state(false);
 	let copied = $state(false);
 	let exploreOpen = $state(false);
 	let settingsOpen = $state(false);
@@ -185,10 +186,11 @@
 			invite.push(id);
 		}
 		await run(async () => {
-			selectedId = await c.createGroup(groupName, invite);
+			selectedId = await c.createGroup(groupName, invite, groupPublic);
 			composer = 'none';
 			groupName = '';
 			groupInvite = '';
+			groupPublic = false;
 		});
 	}
 
@@ -348,6 +350,20 @@
 						placeholder={t('chat.group_invite', 'Invite (user names, comma-separated)')}
 						aria-label={t('chat.group_invite', 'Invite (user names, comma-separated)')}
 					/>
+					<label class="chat__check">
+						<input type="checkbox" bind:checked={groupPublic} data-testid="chat-group-public" />
+						<span>
+							{t('chat.group_public', 'Anyone on this server can find and join')}
+							<small class="chat__check-hint">
+								{groupPublic
+									? t(
+											'chat.group_public_hint',
+											'Listed in Explore rooms, not encrypted, and never reachable from other servers.'
+										)
+									: t('chat.group_private_hint', 'Invite-only and end-to-end encrypted.')}
+							</small>
+						</span>
+					</label>
 					<Button type="submit" variant="primary" small disabled={busy || !groupName.trim()}>
 						{t('chat.create', 'Create')}
 					</Button>
@@ -755,6 +771,18 @@
 
 	.chat__form--stack {
 		flex-direction: column;
+	}
+
+	.chat__check {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-2);
+		font-size: var(--text-sm);
+	}
+
+	.chat__check-hint {
+		display: block;
+		color: var(--color-text-muted);
 	}
 
 	.chat__empty {

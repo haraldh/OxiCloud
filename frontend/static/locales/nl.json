@@ -2286,6 +2286,10 @@
     "invite_member": "{{name}} zit al in deze ruimte",
     "invite_pending": "{{name}} is al uitgenodigd",
     "invite_banned": "{{name}} is uit deze ruimte verbannen",
-    "suggestions": "{{n}} suggesties"
+    "suggestions": "{{n}} suggesties",
+    "group_public": "Iedereen op deze server kan hem vinden en deelnemen",
+    "group_public_hint": "Vermeld in Ruimtes verkennen, niet versleuteld en nooit bereikbaar vanaf andere servers.",
+    "group_private_hint": "Alleen op uitnodiging en end-to-end versleuteld.",
+    "local_only": "Deze ruimte blijft op deze server, ook als federatie later wordt ingeschakeld."
   }
 }
