@@ -3482,6 +3482,9 @@ pub struct AppConfig {
     /// OxiCloud as an OpenID Provider for other services (`OXICLOUD_IDP_*`).
     /// See [`crate::common::idp_config`].
     pub idp: crate::common::idp_config::IdpConfig,
+    /// Chat via a Matrix homeserver (`OXICLOUD_ENABLE_CHAT`,
+    /// `OXICLOUD_CHAT_HOMESERVER_URL`). See [`crate::common::chat_config`].
+    pub chat: crate::common::chat_config::ChatConfig,
     /// WOPI configuration
     pub wopi: WopiConfig,
     /// Nextcloud compatibility configuration
@@ -3625,6 +3628,7 @@ impl Default for AppConfig {
             features: FeaturesConfig::default(),
             oidc: OidcConfig::default(),
             idp: crate::common::idp_config::IdpConfig::default(),
+            chat: crate::common::chat_config::ChatConfig::default(),
             wopi: WopiConfig::default(),
             nextcloud: NextcloudConfig::default(),
             smtp: SmtpConfig::default(),
@@ -4837,6 +4841,8 @@ impl AppConfig {
         // loop in a different service.
         config.idp = crate::common::idp_config::IdpConfig::from_env()
             .unwrap_or_else(|e| panic!("Invalid OXICLOUD_IDP_* configuration: {e}"));
+        config.chat = crate::common::chat_config::ChatConfig::from_env()
+            .unwrap_or_else(|e| panic!("Invalid chat configuration: {e}"));
 
         // OIDC configuration
         if let Ok(v) = env::var("OXICLOUD_OIDC_ENABLED") {

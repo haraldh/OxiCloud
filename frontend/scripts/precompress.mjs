@@ -20,7 +20,9 @@ const EXTENSIONS = new Set([
 	'.txt',
 	'.xml',
 	'.map',
-	'.webmanifest'
+	'.webmanifest',
+	// The chat's Rust crypto module: ~7.8 MB raw, ~2 MB brotli.
+	'.wasm'
 ]);
 // Below this size the encoding overhead outweighs the transfer win
 // (mirrors the server's SizeAbove(256) predicate).

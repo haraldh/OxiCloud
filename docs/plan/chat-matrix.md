@@ -256,8 +256,35 @@ source of truth for the public hostname, which today lives in `AppConfig`.
   E2EE key management in the browser, which is a large and security-critical
   body of work.
 
-The recommendation is to link out first and decide on the native view once
+The recommendation was to link out first and decide on the native view once
 seams 1–6 are proven.
+
+**Decided 2026-11-12: native view, with E2EE.** The `/chat` page runs
+`matrix-js-sdk` (Apache-2.0) with its Rust crypto (`matrix-sdk-crypto-wasm`,
+Apache-2.0), both loaded only when the page opens: about 850 KB of JS and a
+7.8 MB WASM module (1.4 MB brotli). Without E2EE the page could not read any
+DM started in Element, which encrypts DMs by default. Shape of the first cut:
+
+- `OXICLOUD_ENABLE_CHAT` + `OXICLOUD_CHAT_HOMESERVER_URL`, published in
+  `/api/config` as `features.chat` and `chat.homeserver_url`.
+- API calls go to `/_matrix/client/*` on **OxiCloud's origin**, forwarded to
+  the homeserver by the reverse proxy. The SPA's CSP is fixed at build time
+  with `connect-src 'self'`, and a runtime homeserver origin can't be added
+  to it.
+- Sign-in navigates to the homeserver's SSO redirect (OxiCloud is its IdP,
+  consent skipped) and comes back to `/chat?loginToken=…`. The homeserver
+  must trust the OxiCloud host as a redirect target
+  (`oidc_registration_allowed_redirect_hosts`) or it shows a confirmation
+  page.
+- The Matrix session is stored per OxiCloud user in `localStorage`; the
+  crypto store is IndexedDB, keyed by Matrix device. OxiCloud logout logs the
+  device out of the homeserver and wipes both.
+- Encryption: unlock with an existing recovery key (cross-signs the device,
+  restores the key backup), or set up cross-signing, secret storage and key
+  backup for an account that has none. Interactive (emoji) verification is
+  not in the first cut.
+- Not yet: media (attachments show as their file name), replies, edits,
+  reactions, typing, threads, room settings, calls.
 
 ## Federation
 
@@ -346,7 +373,7 @@ though it's numbered last.
    v1.9.4). The media repo grows unbounded. Either accept that and monitor
    it, or enforce it upstream (contribute a quota, or cap with
    `max_request_size` only). Decide in phase 3.
-6. Web client: link out vs native Svelte view (seam 7).
+6. ~~Web client: link out vs native Svelte view (seam 7).~~ **Native, with E2EE** (see seam 7).
 7. Guest access and public rooms: allow, or local users only?
 
 ### Findings that change seam 1 (identity mapping)

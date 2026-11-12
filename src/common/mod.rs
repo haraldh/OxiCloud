@@ -1,3 +1,4 @@
+pub mod chat_config;
 pub mod config;
 pub mod config_file;
 pub mod di;

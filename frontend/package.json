@@ -69,6 +69,7 @@
     "@codemirror/view": "^6.43.12",
     "@serenity-kit/opaque": "^1.1.0",
     "loglevel": "^1.9.2",
+    "matrix-js-sdk": "45.0.0",
     "y-codemirror.next": "^0.3.6",
     "y-protocols": "^1.0.7",
     "yjs": "^13.6.32"

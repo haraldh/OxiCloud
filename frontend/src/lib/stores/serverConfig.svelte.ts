@@ -24,7 +24,7 @@
 import log from 'loglevel';
 
 import { getConfig } from '$lib/api/generated/openapi/sdk.gen';
-import type { ServerAuth, ServerConfig, ServerFeatures } from '$lib/api/types';
+import type { ServerAuth, ServerChat, ServerConfig, ServerFeatures } from '$lib/api/types';
 
 /** Sensible defaults for every field. Used before `load()` resolves
  *  and as the fallback if the fetch fails — every feature enabled,
@@ -58,7 +58,10 @@ const DEFAULT_FEATURES: ServerFeatures = {
 	// Browsers that can't actually run shared mode still fall back to
 	// per-tab via `trySharedWorker` detection — the flag never bypasses
 	// capability checks.
-	shared_worker_bus: true
+	shared_worker_bus: true,
+	// Chat is opt-in server-side and needs a homeserver URL besides, so a
+	// client without the config must not show a nav entry that can't work.
+	chat: false
 };
 
 /** Pre-load default for the auth tunables. `8` matches the server's
@@ -125,6 +128,8 @@ class ServerConfigStore {
 	 *  historical floor (8) so pre-load form validation isn't accidentally
 	 *  more permissive than the server. */
 	auth = $state<ServerAuth>({ ...DEFAULT_AUTH });
+	/** Chat sign-in settings; `homeserver_url` is null when chat is off. */
+	chat = $state<ServerChat>({ homeserver_url: null });
 	/** `true` once `load()` has resolved (success OR failure). Guards
 	 *  callers that want to skip work until the boot snapshot is in. */
 	loaded = $state(false);
@@ -144,6 +149,7 @@ class ServerConfigStore {
 			// hide a feature that works. Absence means "not disabled".
 			this.features = { ...DEFAULT_FEATURES, ...cfg.features };
 			this.auth = cfg.auth ?? { ...DEFAULT_AUTH };
+			this.chat = cfg.chat ?? { homeserver_url: null };
 			// No server_status on /api/config (feat/registration):
 			// the authenticated hydration path (`hydrateFromAuthenticatedBoot`
 			// in the root layout) + the per-response `X-Server-Status`

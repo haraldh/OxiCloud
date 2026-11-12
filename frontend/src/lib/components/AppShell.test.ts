@@ -1,5 +1,5 @@
 import { it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
+import { cleanup, render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 
 const { goto, pageState } = vi.hoisted(() => ({
@@ -135,8 +135,10 @@ function resetFeatures() {
 		calendars: true,
 		nextcloud: false,
 		markdown_collab: false,
-		shared_worker_bus: true
+		shared_worker_bus: true,
+		chat: false
 	};
+	serverConfig.chat = { homeserver_url: null };
 }
 
 beforeEach(() => {
@@ -300,6 +302,24 @@ it('keeps /contacts gated on features.contacts, NOT features.carddav', () => {
 	serverConfig.features = { ...serverConfig.features, carddav: false, contacts: true };
 	render(AppShell, { props: { children } });
 	expect(screen.queryByTestId('appshell-nav-contacts-link')).toBeTruthy();
+});
+
+// The chat page can only sign in through the homeserver URL, so the entry
+// needs both the flag and the URL; with the flag alone it would lead to a
+// page that can do nothing but show an error.
+it('shows /chat only with features.chat AND a homeserver URL', () => {
+	render(AppShell, { props: { children } });
+	expect(screen.queryByTestId('appshell-nav-chat-link')).toBeNull();
+	cleanup();
+
+	serverConfig.features = { ...serverConfig.features, chat: true };
+	render(AppShell, { props: { children } });
+	expect(screen.queryByTestId('appshell-nav-chat-link')).toBeNull();
+	cleanup();
+
+	serverConfig.chat = { homeserver_url: 'https://matrix.example.org' };
+	render(AppShell, { props: { children } });
+	expect(screen.queryByTestId('appshell-nav-chat-link')).toBeTruthy();
 });
 
 // ── Drop onto a drive in the sidebar picker ──────────────────────────

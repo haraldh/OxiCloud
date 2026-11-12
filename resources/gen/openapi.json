@@ -15904,6 +15904,19 @@
           }
         }
       },
+      "ChatDto": {
+        "type": "object",
+        "description": "Chat block within [`ServerConfigDto`]. Public anyway: the same URL\nis in the homeserver's `/.well-known/matrix/client`.",
+        "properties": {
+          "homeserver_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The homeserver's public base URL, where the SPA starts the SSO\nsign-in. `null` when chat is off. API calls do NOT go here: they\nuse `/_matrix/*` on OxiCloud's own origin (reverse-proxied)."
+          }
+        }
+      },
       "ChunkUploadResponseDto": {
         "type": "object",
         "description": "Response returned after a single chunk is uploaded.",
@@ -18020,7 +18033,8 @@
           "contacts",
           "nextcloud",
           "markdown_collab",
-          "shared_worker_bus"
+          "shared_worker_bus",
+          "chat"
         ],
         "properties": {
           "caldav": {
@@ -18034,6 +18048,10 @@
           "carddav": {
             "type": "boolean",
             "description": "CardDAV protocol surface (`/carddav/*` + well-known discovery).\nSee `FeaturesConfig::enable_carddav`."
+          },
+          "chat": {
+            "type": "boolean",
+            "description": "Chat through a Matrix homeserver: the SPA's `/chat` page and its\nnav entry. Off by default. See `crate::common::chat_config`."
           },
           "contacts": {
             "type": "boolean",
@@ -21859,12 +21877,17 @@
           "version",
           "features",
           "auth",
+          "chat",
           "initialized"
         ],
         "properties": {
           "auth": {
             "$ref": "#/components/schemas/AuthDto",
             "description": "Auth-related tunables the SPA needs to gate submit locally.\nComposes with `/api/auth/oidc/providers` — that endpoint lists\nfederation options; this one carries the numeric thresholds\n(password length today, more later) that the form has to check\nbefore firing the request."
+          },
+          "chat": {
+            "$ref": "#/components/schemas/ChatDto",
+            "description": "Chat (Matrix) settings the SPA needs to sign in. See\n[`ChatDto`]; `features.chat` says whether the block is live."
           },
           "features": {
             "$ref": "#/components/schemas/FeaturesDto",

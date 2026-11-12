@@ -58,6 +58,10 @@ pub struct ServerConfigDto {
     /// before firing the request.
     pub auth: AuthDto,
 
+    /// Chat (Matrix) settings the SPA needs to sign in. See
+    /// [`ChatDto`]; `features.chat` says whether the block is live.
+    pub chat: ChatDto,
+
     /// `true` once the deployment has completed first-run setup
     /// (admin exists OR the admin-settings DB flag is set). FE
     /// login page gates: `false` → render the admin-setup wizard;
@@ -74,6 +78,16 @@ pub struct ServerConfigDto {
     // callers. If the server is in maintenance mode, login
     // attempts are rejected with a maintenance reason by the auth
     // handler — that's the signal path, not a pre-auth banner.
+}
+
+/// Chat block within [`ServerConfigDto`]. Public anyway: the same URL
+/// is in the homeserver's `/.well-known/matrix/client`.
+#[derive(Debug, Serialize, utoipa::ToSchema)]
+pub struct ChatDto {
+    /// The homeserver's public base URL, where the SPA starts the SSO
+    /// sign-in. `null` when chat is off. API calls do NOT go here: they
+    /// use `/_matrix/*` on OxiCloud's own origin (reverse-proxied).
+    pub homeserver_url: Option<String>,
 }
 
 /// Auth block within [`ServerConfigDto`]. Non-privacy-implicating
@@ -322,6 +336,9 @@ pub struct FeaturesDto {
     /// `docs/plan/message-bus-via-shared-worker.md` for the rollout
     /// story and fallback matrix.
     pub shared_worker_bus: bool,
+    /// Chat through a Matrix homeserver: the SPA's `/chat` page and its
+    /// nav entry. Off by default. See `crate::common::chat_config`.
+    pub chat: bool,
 }
 
 /// `GET /api/config` — return the public server-configuration
@@ -447,6 +464,10 @@ pub async fn get_config(State(state): State<Arc<AppState>>) -> Json<ServerConfig
             nextcloud: f.enable_nextcloud,
             markdown_collab: f.enable_markdown_collab,
             shared_worker_bus: f.enable_shared_worker_bus,
+            chat: state.core.config.chat.enabled(),
+        },
+        chat: ChatDto {
+            homeserver_url: state.core.config.chat.homeserver_url.clone(),
         },
         auth: AuthDto {
             min_password_length: state.core.config.auth.min_password_length,

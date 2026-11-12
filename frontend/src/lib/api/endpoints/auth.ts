@@ -611,6 +611,13 @@ export async function logout(): Promise<LogoutResult> {
 		authLog.debug('dpop: cleanup failed during logout', err);
 	}
 
+	// Chat tokens live in this browser's storage, not in the OxiCloud
+	// session, so the server-side logout doesn't reach them. Not awaited:
+	// the homeserver call is best effort and must not hold up the logout.
+	void import('$lib/chat/session')
+		.then(({ forgetAllChatSessions }) => forgetAllChatSessions())
+		.catch((err: unknown) => authLog.debug('chat: cleanup failed during logout', err));
+
 	if (!body) return {};
 	return typeof body.post_logout_url === 'string' ? { postLogoutUrl: body.post_logout_url } : {};
 }

@@ -673,12 +673,20 @@ export interface AdminSessionsPage {
 // opportunity for a future enum pass).
 import type {
 	AuthDto as ServerAuth,
+	ChatDto as ServerChat,
 	FeaturesDto as ServerFeatures,
 	HeaderPayload as ServerStatus,
 	HolderHeader as ServerStatusHolder,
 	ProgressHeader as ServerStatusProgress
 } from './generated/openapi/types.gen';
-export type { ServerAuth, ServerFeatures, ServerStatus, ServerStatusHolder, ServerStatusProgress };
+export type {
+	ServerAuth,
+	ServerChat,
+	ServerFeatures,
+	ServerStatus,
+	ServerStatusHolder,
+	ServerStatusProgress
+};
 
 /** One operator-authored banner. Severity drives the visual
  *  variant (warning / notification). `body` holds raw markdown

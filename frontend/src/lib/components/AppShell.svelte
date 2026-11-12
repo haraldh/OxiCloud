@@ -149,6 +149,17 @@
 			});
 		}
 
+		// Chat sits with the other collaboration surfaces. Needs both the
+		// flag and a homeserver URL, or the page could only show an error.
+		if (serverConfig.features.chat && serverConfig.chat.homeserver_url) {
+			sharing.push({
+				href: '/chat',
+				label: t('nav.chat', 'Chat'),
+				icon: 'paper-plane',
+				section: 'chat'
+			});
+		}
+
 		const groups: NavGroup[] = [
 			{
 				label: null,

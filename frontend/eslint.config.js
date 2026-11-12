@@ -64,6 +64,8 @@ export default ts.config(
 			'src/lib/api/generated/**',
 			'src/lib/api/transport.ts',
 			'src/lib/api/upload-transport.ts',
+			// Matrix client-server API, not OxiCloud's: see its header.
+			'src/lib/chat/matrixHttp.ts',
 			'src/lib/utils/assets.ts',
 			'src/service-worker.ts'
 		],

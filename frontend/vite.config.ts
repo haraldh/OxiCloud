@@ -84,7 +84,11 @@ const proxy = {
 	// dev Vite has no corresponding route so without this forward the
 	// pages render unstyled.
 	'/askama-common.css': p(BACKEND),
-	'/logo': p(BACKEND)
+	'/logo': p(BACKEND),
+	// The /chat page's Matrix client API. Production proxies it on the
+	// OxiCloud host (the SPA's CSP allows connect-src 'self' only); in dev,
+	// point OXICLOUD_MATRIX at the homeserver to get the same.
+	...(process.env.OXICLOUD_MATRIX ? { '/_matrix': p(process.env.OXICLOUD_MATRIX) } : {})
 };
 
 // `__OXI_WORKER_VERSION__` is injected into the SharedWorker bundle so
