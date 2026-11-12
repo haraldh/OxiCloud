@@ -460,10 +460,25 @@
 							'Enter your recovery key to read encrypted messages in this browser.'
 						)}
 					</p>
+					<!--
+						Password managers ignore autocomplete="off" on a password
+						field and, with no username beside it, filled in the OxiCloud
+						login password. Naming the Matrix account makes the recovery
+						key its own saved login, offered again on the next unlock.
+					-->
+					<input
+						class="sr-only"
+						type="text"
+						autocomplete="username"
+						value={c.userId ?? ''}
+						readonly
+						tabindex="-1"
+						aria-hidden="true"
+					/>
 					<input
 						class="chat__field"
 						type="password"
-						autocomplete="off"
+						autocomplete="current-password"
 						bind:value={recoveryKey}
 						placeholder={t('chat.recovery_key', 'Recovery key')}
 						aria-label={t('chat.recovery_key', 'Recovery key')}
