@@ -8,7 +8,8 @@ import {
 	passkeyRegisterFinish,
 	passkeyRegisterStart,
 	passkeyRemove,
-	passkeyRename
+	passkeyRename,
+	passwordRemove
 } from '$lib/api/generated/openapi/sdk.gen';
 import type { PasskeyInfo } from '$lib/api/generated/openapi/types.gen';
 import { registrationToJson, toCreationOptions } from '$lib/auth/passkey';
@@ -68,5 +69,18 @@ export async function removePasskey(id: string): Promise<void> {
 		await passkeyRemove({ path: { id }, throwOnError: true });
 	} catch (e) {
 		throw apiErrorFromSdkError(e, '/api/auth/passkeys/{id}');
+	}
+}
+
+/**
+ * Delete the account password; from then on the user signs in with
+ * passkeys (or a recovery code). Refused (409 `PasswordRemovalNeedsBackup`)
+ * unless two passkeys, or one plus recovery codes, remain.
+ */
+export async function removePassword(): Promise<void> {
+	try {
+		await passwordRemove({ throwOnError: true });
+	} catch (e) {
+		throw apiErrorFromSdkError(e, '/api/auth/password');
 	}
 }

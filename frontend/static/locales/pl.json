@@ -2323,7 +2323,13 @@
     "invalid_name": "Użyj nazwy o długości od 1 do 64 znaków.",
     "verification_failed": "Nie udało się zweryfikować klucza dostępu. Spróbuj ponownie.",
     "not_allowed": "To konto nie może dodawać kluczy dostępu.",
-    "default_name": "Mój klucz dostępu"
+    "default_name": "Mój klucz dostępu",
+    "remove_password_title": "Logować się bez hasła?",
+    "remove_password_message": "Twoje hasło zostanie usunięte. Będziesz logować się kluczem dostępu lub kodem odzyskiwania, jeśli stracisz wszystkie klucze. Administrator może nadać Ci nowe hasło.",
+    "remove_password": "Usuń hasło",
+    "password_removed": "Hasło usunięte. Od teraz loguj się kluczem dostępu.",
+    "remove_password_needs_backup": "Najpierw dodaj drugi klucz dostępu lub utwórz kody odzyskiwania.",
+    "passwordless_desc": "Używaj tylko kluczy dostępu: usuń hasło. Wymaga drugiego klucza lub kodów odzyskiwania."
   },
   "reauth": {
     "title": "Potwierdź, że to Ty",

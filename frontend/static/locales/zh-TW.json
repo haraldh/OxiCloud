@@ -2323,7 +2323,13 @@
     "invalid_name": "請使用 1 到 64 個字元的名稱。",
     "verification_failed": "無法驗證密碼金鑰。請再試一次。",
     "not_allowed": "此帳號無法新增密碼金鑰。",
-    "default_name": "我的密碼金鑰"
+    "default_name": "我的密碼金鑰",
+    "remove_password_title": "不使用密碼登入?",
+    "remove_password_message": "您的密碼將被刪除。之後您將使用密碼金鑰登入,若全部遺失則使用復原碼。管理員可以為您設定新密碼。",
+    "remove_password": "移除密碼",
+    "password_removed": "已移除密碼。之後請使用密碼金鑰登入。",
+    "remove_password_needs_backup": "請先新增第二個密碼金鑰或建立復原碼。",
+    "passwordless_desc": "只使用密碼金鑰:移除密碼。需要第二個密碼金鑰或復原碼。"
   },
   "reauth": {
     "title": "確認是您本人",

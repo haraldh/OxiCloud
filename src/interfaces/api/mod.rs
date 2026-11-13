@@ -350,6 +350,7 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
         handlers::recovery_code_handler::status,
         handlers::recovery_code_handler::generate,
         handlers::recovery_code_handler::login,
+        handlers::password_handler::remove,
         crate::interfaces::nextcloud::login_v2_handler::handle_session_grant,
         // Grant / ReBAC handlers (free functions)
         handlers::grant_handler::create_grant,

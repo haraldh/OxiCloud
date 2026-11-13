@@ -2323,7 +2323,13 @@
     "invalid_name": "Verwenden Sie einen Namen mit 1 bis 64 Zeichen.",
     "verification_failed": "Der Passkey konnte nicht überprüft werden. Bitte versuchen Sie es erneut.",
     "not_allowed": "Dieses Konto kann keine Passkeys hinzufügen.",
-    "default_name": "Mein Passkey"
+    "default_name": "Mein Passkey",
+    "remove_password_title": "Ohne Passwort anmelden?",
+    "remove_password_message": "Ihr Passwort wird gelöscht. Sie melden sich dann mit einem Passkey an, oder mit einem Wiederherstellungscode, falls Sie alle verlieren. Eine Administratorin oder ein Administrator kann Ihnen ein neues Passwort geben.",
+    "remove_password": "Passwort entfernen",
+    "password_removed": "Passwort entfernt. Melden Sie sich ab jetzt mit einem Passkey an.",
+    "remove_password_needs_backup": "Fügen Sie zuerst einen zweiten Passkey hinzu oder erstellen Sie Wiederherstellungscodes.",
+    "passwordless_desc": "Nur Passkeys verwenden: Passwort entfernen. Dafür braucht es einen zweiten Passkey oder Wiederherstellungscodes."
   },
   "reauth": {
     "title": "Bestätigen Sie, dass Sie es sind",

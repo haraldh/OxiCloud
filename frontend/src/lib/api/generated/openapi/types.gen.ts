@@ -10306,6 +10306,43 @@ export type PasskeyRenameResponses = {
 
 export type PasskeyRenameResponse = PasskeyRenameResponses[keyof PasskeyRenameResponses];
 
+export type PasswordRemoveData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/password';
+};
+
+export type PasswordRemoveErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Confirm it's you first (`ReauthRequired`), or a guest / SSO account (`PasswordRemovalNotAllowed`)
+     */
+    403: ApiErrorBody;
+    /**
+     * No password (`NoPassword`), or not enough to fall back on (`PasswordRemovalNeedsBackup`)
+     */
+    409: ApiErrorBody;
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type PasswordRemoveError = PasswordRemoveErrors[keyof PasswordRemoveErrors];
+
+export type PasswordRemoveResponses = {
+    /**
+     * Password removed; the account signs in with passkeys
+     */
+    204: void;
+};
+
+export type PasswordRemoveResponse = PasswordRemoveResponses[keyof PasswordRemoveResponses];
+
 export type ReauthMethodsData = {
     body?: never;
     path?: never;

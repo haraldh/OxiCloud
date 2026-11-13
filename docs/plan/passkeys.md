@@ -1,8 +1,8 @@
 # Passkeys (WebAuthn) for OxiCloud login
 
 **Status**: Phase 1 IMPLEMENTED (2026-11-12, branch `feat/passkeys`), with the
-deviations listed under "Phase 1 as built". Phase 2a IN PROGRESS (branch
-`feat/passkeys-phase2`, see "Phase 2a plan"); 2b and 3 planned.
+deviations listed under "Phase 1 as built". Phase 2a IMPLEMENTED (2026-11-13,
+branch `feat/passkeys-phase2`, see "Phase 2a as built"); 2b and 3 planned.
 
 **Related**: `docs/architecture/auth-model.md` (lists native WebAuthn as a
 future feature and reserves the `mfa_enrolled` magic-link rejection),
@@ -338,6 +338,44 @@ Phase 2 is two independent parts, built in this order (decided 2026-11-13):
    two passkeys, or one passkey plus unused recovery codes. OIDC-linked
    accounts are refused (the IdP owns their login). An admin password
    reset gives the password back.
+
+## Phase 2a as built
+
+- **Step-up** is a router layer (`require_recent_auth_layer`), like
+  `require_dpop_layer`: a property of the session, not a grant. Gated:
+  `POST /api/auth/passkeys/register/start`, `DELETE
+  /api/auth/passkeys/{id}`, `POST /api/auth/recovery-codes`, `DELETE
+  /api/auth/password`, `POST /api/nextcloud/login-flow/{token}/grant`. The
+  auth middleware exposes the token's `sid` as `AuthSessionId`.
+  Device-flow sessions start stale (`authenticated_at` NULL): the device
+  proved nothing. Refusals of `/api/auth/reauth/*` are **403**
+  `InvalidCredentials`, not 401: the SPA reads a 401 as an expired session
+  (refresh, retry, sign out).
+- **Login flow v2 grant** also mints the app password behind step-up; a
+  stolen cookie should not be able to mint a long-lived credential any
+  more than plant a passkey. Label `Nextcloud (session)`. The password,
+  OIDC and session paths share `advance_flow`.
+- **Recovery codes** exist exactly when passkeys do (same DI branch).
+  SHA-256, not Argon2 (80-bit codes). Session origin `recovery`, fresh.
+- **Removing the password** clears the legacy hash and the OPAQUE envelope
+  in one UPDATE that also refuses federated rows. Needs two passkeys, or
+  one plus unused recovery codes; recovery codes alone are not enough.
+  Lives on the passkeys card in the profile.
+- **Magic links are refused for any user with a passkey** (`has_passkey`,
+  in every `open_to_password_users` mode), pulled forward from 2b's
+  `mfa_enrolled`: without it, removing the password made a passkey-only
+  account magic-link eligible ("no credential"), i.e. opened it to its
+  mailbox. The lookup fails closed.
+- **Not yet gated (2b):** creating app passwords through
+  `/api/auth/app-passwords` and approving device-flow codes still need
+  only a session, not a recent one.
+- **Tests:** Rust service tests (step-up ceremonies, recovery codes,
+  removal rules, magic-link ladder), DB integration tests in
+  `passkey_pg_repository.rs` (password clearing, federated rows untouched,
+  recovery-code round trip, passkey lookup), Hurl `step_up`,
+  `recovery_codes`, `password_removal`, `nc_login_flow_v2_session`, Vitest
+  for `withReauth` and the auth-primitive list. A real browser ceremony
+  for step-up is untested until deployment.
 
 ## Open questions
 

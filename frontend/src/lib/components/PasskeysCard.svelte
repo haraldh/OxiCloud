@@ -12,12 +12,15 @@
 		addPasskey,
 		listPasskeys,
 		removePasskey,
+		removePassword,
 		renamePasskey,
 		type PasskeyInfo
 	} from '$lib/api/endpoints/passkeys';
 	import { isPasskeyCancelled, passkeysSupported } from '$lib/auth/passkey';
 	import { isReauthRequired, withReauth } from '$lib/auth/reauth';
 	import { confirmDialog, promptDialog } from '$lib/stores/dialogs.svelte';
+	import { fetchMe } from '$lib/api/endpoints/auth';
+	import { session } from '$lib/stores/session.svelte';
 	import { formatDate } from '$lib/utils/display';
 	import { relativeTimeAgo } from '$lib/utils/time';
 	import { errorMessage } from '$lib/utils/errors';
@@ -137,6 +140,47 @@
 		}
 	}
 
+	// Passkey-only accounts (Phase 2a): the password can go once there is
+	// something to fall back on. SSO accounts keep theirs; their provider
+	// owns the login.
+	const canRemovePassword = $derived(
+		!session.me?.full.federation_kind &&
+			((session.me?.full.has_password ?? false) || (session.me?.full.opaque_registered ?? false))
+	);
+
+	async function dropPassword() {
+		const ok = await confirmDialog({
+			title: t('passkeys.remove_password_title', 'Sign in without a password?'),
+			message: t(
+				'passkeys.remove_password_message',
+				'Your password will be deleted. You will sign in with a passkey, or with a recovery code if you lose them all. An administrator can give you a new password.'
+			),
+			confirmText: t('passkeys.remove_password', 'Remove password'),
+			danger: true
+		});
+		if (!ok) return;
+		error = null;
+		notice = null;
+		try {
+			await withReauth(removePassword);
+			const me = await fetchMe();
+			if (me) session.me = me;
+			notice = t(
+				'passkeys.password_removed',
+				'Password removed. Sign in with a passkey from now on.'
+			);
+		} catch (err) {
+			if (isReauthRequired(err)) return;
+			error =
+				err instanceof ApiError && err.errorType === 'PasswordRemovalNeedsBackup'
+					? t(
+							'passkeys.remove_password_needs_backup',
+							'Add a second passkey or create recovery codes first.'
+						)
+					: messageFor(err);
+		}
+	}
+
 	$effect(() => {
 		void load();
 	});
@@ -210,6 +254,20 @@
 			{/each}
 		</ul>
 	{/if}
+
+	{#if canRemovePassword && passkeys.length > 0}
+		<div class="passkeys__passwordless">
+			<p class="muted">
+				{t(
+					'passkeys.passwordless_desc',
+					'Only use passkeys: remove your password. Needs a second passkey or recovery codes.'
+				)}
+			</p>
+			<Button small variant="danger" onclick={() => void dropPassword()}>
+				{t('passkeys.remove_password', 'Remove password')}
+			</Button>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -271,6 +329,15 @@
 		gap: var(--space-2);
 		padding: var(--space-2) 0;
 		border-bottom: 1px solid var(--color-border);
+	}
+
+	.passkeys__passwordless {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2);
+		padding-top: var(--space-2);
+		border-top: 1px solid var(--color-border);
 	}
 
 	.passkeys__info {

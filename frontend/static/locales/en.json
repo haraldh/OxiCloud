@@ -2323,7 +2323,13 @@
     "invalid_name": "Use a name of 1 to 64 characters.",
     "verification_failed": "The passkey could not be verified. Please try again.",
     "not_allowed": "This account cannot add passkeys.",
-    "default_name": "My passkey"
+    "default_name": "My passkey",
+    "remove_password_title": "Sign in without a password?",
+    "remove_password_message": "Your password will be deleted. You will sign in with a passkey, or with a recovery code if you lose them all. An administrator can give you a new password.",
+    "remove_password": "Remove password",
+    "password_removed": "Password removed. Sign in with a passkey from now on.",
+    "remove_password_needs_backup": "Add a second passkey or create recovery codes first.",
+    "passwordless_desc": "Only use passkeys: remove your password. Needs a second passkey or recovery codes."
   },
   "reauth": {
     "title": "Confirm it’s you",

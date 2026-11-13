@@ -96,6 +96,8 @@ impl MemUsers {
             is_active: true,
             is_external: false,
             has_other_login: true,
+            is_federated: false,
+            has_password: true,
         };
         f(&mut v);
         self.0.lock().unwrap().insert(id, v);

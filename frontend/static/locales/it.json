@@ -2323,7 +2323,13 @@
     "invalid_name": "Usa un nome da 1 a 64 caratteri.",
     "verification_failed": "Impossibile verificare la passkey. Riprova.",
     "not_allowed": "Questo account non può aggiungere passkey.",
-    "default_name": "La mia passkey"
+    "default_name": "La mia passkey",
+    "remove_password_title": "Accedere senza password?",
+    "remove_password_message": "La tua password verrà eliminata. Accederai con una passkey, o con un codice di recupero se le perdi tutte. Un amministratore può darti una nuova password.",
+    "remove_password": "Rimuovi password",
+    "password_removed": "Password rimossa. D’ora in poi accedi con una passkey.",
+    "remove_password_needs_backup": "Aggiungi prima una seconda passkey o crea dei codici di recupero.",
+    "passwordless_desc": "Usa solo passkey: rimuovi la password. Serve una seconda passkey o dei codici di recupero."
   },
   "reauth": {
     "title": "Conferma che sei tu",

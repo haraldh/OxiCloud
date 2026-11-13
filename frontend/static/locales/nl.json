@@ -2323,7 +2323,13 @@
     "invalid_name": "Gebruik een naam van 1 tot 64 tekens.",
     "verification_failed": "De passkey kon niet worden geverifieerd. Probeer het opnieuw.",
     "not_allowed": "Dit account kan geen passkeys toevoegen.",
-    "default_name": "Mijn passkey"
+    "default_name": "Mijn passkey",
+    "remove_password_title": "Inloggen zonder wachtwoord?",
+    "remove_password_message": "Je wachtwoord wordt verwijderd. Je logt in met een passkey, of met een herstelcode als je ze allemaal kwijtraakt. Een beheerder kan je een nieuw wachtwoord geven.",
+    "remove_password": "Wachtwoord verwijderen",
+    "password_removed": "Wachtwoord verwijderd. Log voortaan in met een passkey.",
+    "remove_password_needs_backup": "Voeg eerst een tweede passkey toe of maak herstelcodes.",
+    "passwordless_desc": "Alleen passkeys gebruiken: verwijder je wachtwoord. Vereist een tweede passkey of herstelcodes."
   },
   "reauth": {
     "title": "Bevestig dat jij het bent",

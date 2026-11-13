@@ -6623,6 +6623,59 @@
         }
       }
     },
+    "/api/auth/password": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "password_remove",
+        "responses": {
+          "204": {
+            "description": "Password removed; the account signs in with passkeys"
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Confirm it's you first (`ReauthRequired`), or a guest / SSO account (`PasswordRemovalNotAllowed`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "No password (`NoPassword`), or not enough to fall back on (`PasswordRemovalNeedsBackup`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/reauth": {
       "get": {
         "tags": [

@@ -25,6 +25,7 @@ pub mod music_handler;
 pub mod notifications_handler;
 pub mod opaque_auth_handler;
 pub mod passkey_handler;
+pub mod password_handler;
 pub mod people_handler;
 pub mod photos_handler;
 pub mod reauth_handler;

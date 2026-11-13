@@ -2323,7 +2323,13 @@
     "invalid_name": "Use um nome com 1 a 64 caracteres.",
     "verification_failed": "Não foi possível verificar a chave de acesso. Tente novamente.",
     "not_allowed": "Esta conta não pode adicionar chaves de acesso.",
-    "default_name": "A minha chave de acesso"
+    "default_name": "A minha chave de acesso",
+    "remove_password_title": "Entrar sem senha?",
+    "remove_password_message": "Sua senha será excluída. Você entrará com uma chave de acesso, ou com um código de recuperação se perder todas. Um administrador pode lhe dar uma nova senha.",
+    "remove_password": "Remover senha",
+    "password_removed": "Senha removida. A partir de agora, entre com uma chave de acesso.",
+    "remove_password_needs_backup": "Primeiro adicione uma segunda chave de acesso ou crie códigos de recuperação.",
+    "passwordless_desc": "Usar apenas chaves de acesso: remova sua senha. Requer uma segunda chave ou códigos de recuperação."
   },
   "reauth": {
     "title": "Confirme que é você",

@@ -173,6 +173,26 @@ impl UserPgRepository {
     /// Deliberately does NOT gate on the current value — flipping FALSE
     /// to FALSE is a no-op at the row level. That keeps the caller from
     /// needing a read-modify-write.
+    /// Whether the user has registered any passkey, for the magic-link
+    /// eligibility ladder. A failed lookup answers `true`: refusing a
+    /// convenience mail is safe, opening a passkey-only account to its
+    /// mailbox is not (docs/plan/passkeys.md, Phase 2a).
+    pub async fn has_passkeys_or_unknown(&self, id: Uuid) -> bool {
+        match sqlx::query_scalar::<_, bool>(
+            "SELECT EXISTS (SELECT 1 FROM auth.passkeys WHERE user_id = $1)",
+        )
+        .bind(id)
+        .fetch_one(&*self.pool)
+        .await
+        {
+            Ok(has) => has,
+            Err(e) => {
+                tracing::error!(error = %e, user_id = %id, "passkey lookup failed; treating as enrolled");
+                true
+            }
+        }
+    }
+
     pub async fn clear_force_password_change(&self, id: Uuid) -> UserRepositoryResult<()> {
         sqlx::query(
             r#"

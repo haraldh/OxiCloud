@@ -2323,7 +2323,13 @@
     "invalid_name": "请使用 1 到 64 个字符的名称。",
     "verification_failed": "无法验证通行密钥。请重试。",
     "not_allowed": "此帐户无法添加通行密钥。",
-    "default_name": "我的通行密钥"
+    "default_name": "我的通行密钥",
+    "remove_password_title": "不使用密码登录?",
+    "remove_password_message": "你的密码将被删除。今后你将使用通行密钥登录,如果全部丢失则使用恢复代码。管理员可以为你设置新密码。",
+    "remove_password": "删除密码",
+    "password_removed": "密码已删除。今后请使用通行密钥登录。",
+    "remove_password_needs_backup": "请先添加第二个通行密钥或创建恢复代码。",
+    "passwordless_desc": "只使用通行密钥:删除密码。需要第二个通行密钥或恢复代码。"
   },
   "reauth": {
     "title": "确认是你本人",

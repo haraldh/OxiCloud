@@ -59,7 +59,9 @@ pub use magic_link_token_pg_repository::MagicLinkTokenPgRepository;
 pub use nextcloud_object_id_repository::NextcloudObjectIdRepository;
 pub use notification_pg_repository::NotificationPgRepository;
 pub use opaque_pg_repository::OpaquePgRepository;
-pub use passkey_pg_repository::{PasskeyPgRepository, PasskeyUserDirectoryPg};
+pub use passkey_pg_repository::{
+    PasskeyPgRepository, PasskeyUserDirectoryPg, PasswordCredentialPg,
+};
 pub use playlist_pg_repository::{
     AudioMetadataPgRepository, PlaylistItemPgRepository, PlaylistPgRepository,
 };

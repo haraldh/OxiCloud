@@ -67,6 +67,19 @@ pub struct PasskeyUserView {
     /// OPAQUE envelope) or a linked OIDC identity. Magic links don't
     /// count, since an operator may switch them off.
     pub has_other_login: bool,
+    /// Linked to an external OIDC identity: that provider owns the login.
+    pub is_federated: bool,
+    /// A password the user can type: legacy hash or OPAQUE envelope.
+    pub has_password: bool,
+}
+
+/// Removing the account password (Phase 2a step 4).
+#[async_trait]
+pub trait PasswordCredentialPort: Send + Sync + 'static {
+    /// Clear the legacy hash and the OPAQUE envelope in one write. `false`
+    /// when the user does not exist or is federated (checked again here so
+    /// a concurrent OIDC link cannot slip between check and write).
+    async fn remove_password(&self, user_id: Uuid) -> Result<bool, DomainError>;
 }
 
 #[async_trait]

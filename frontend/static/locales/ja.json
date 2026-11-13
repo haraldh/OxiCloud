@@ -2323,7 +2323,13 @@
     "invalid_name": "1〜64文字の名前を使ってください。",
     "verification_failed": "パスキーを確認できませんでした。もう一度お試しください。",
     "not_allowed": "このアカウントではパスキーを追加できません。",
-    "default_name": "マイパスキー"
+    "default_name": "マイパスキー",
+    "remove_password_title": "パスワードなしでサインインしますか?",
+    "remove_password_message": "パスワードは削除されます。今後はパスキーで、すべて紛失した場合は復旧コードでサインインします。管理者は新しいパスワードを設定できます。",
+    "remove_password": "パスワードを削除",
+    "password_removed": "パスワードを削除しました。今後はパスキーでサインインしてください。",
+    "remove_password_needs_backup": "先に2つ目のパスキーを追加するか、復旧コードを作成してください。",
+    "passwordless_desc": "パスキーのみを使う:パスワードを削除します。2つ目のパスキーか復旧コードが必要です。"
   },
   "reauth": {
     "title": "ご本人確認",

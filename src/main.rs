@@ -1159,6 +1159,24 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
                     rate_limit_login,
                 ))
                 .with_state(app_state.clone());
+        // Removing the password (Phase 2a): signed-in stack; the step-up
+        // gate is on the route.
+        let password_protected =
+            oxicloud::interfaces::api::handlers::password_handler::password_routes(&app_state)
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    require_no_password_change_pending_layer,
+                ))
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    require_dpop_layer,
+                ))
+                .layer(axum::middleware::from_fn(csrf_middleware))
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    auth_middleware,
+                ))
+                .with_state(app_state.clone());
         let passkey_login_public =
             oxicloud::interfaces::api::handlers::passkey_handler::passkey_login_routes()
                 .layer(axum::middleware::from_fn_with_state(
@@ -1378,6 +1396,10 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
             .nest(
                 "/api/auth/recovery",
                 recovery_login_public.layer(access_log!("http::api::auth")),
+            )
+            .nest(
+                "/api/auth/password",
+                password_protected.layer(access_log!("http::api::auth")),
             )
             .nest(
                 "/api/nextcloud/login-flow",

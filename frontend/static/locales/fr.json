@@ -2323,7 +2323,13 @@
     "invalid_name": "Utilisez un nom de 1 à 64 caractères.",
     "verification_failed": "La clé d'accès n'a pas pu être vérifiée. Veuillez réessayer.",
     "not_allowed": "Ce compte ne peut pas ajouter de clés d'accès.",
-    "default_name": "Ma clé d'accès"
+    "default_name": "Ma clé d'accès",
+    "remove_password_title": "Se connecter sans mot de passe ?",
+    "remove_password_message": "Votre mot de passe sera supprimé. Vous vous connecterez avec une clé d’accès, ou avec un code de récupération si vous les perdez toutes. Un administrateur peut vous donner un nouveau mot de passe.",
+    "remove_password": "Supprimer le mot de passe",
+    "password_removed": "Mot de passe supprimé. Connectez-vous désormais avec une clé d’accès.",
+    "remove_password_needs_backup": "Ajoutez d’abord une deuxième clé d’accès ou créez des codes de récupération.",
+    "passwordless_desc": "Utiliser uniquement des clés d’accès : supprimez votre mot de passe. Nécessite une deuxième clé ou des codes de récupération."
   },
   "reauth": {
     "title": "Confirmez que c’est vous",

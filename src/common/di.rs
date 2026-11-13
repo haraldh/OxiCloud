@@ -2691,6 +2691,7 @@ impl AppServiceFactory {
             idp_service: None,
             passkey_service: None,
             recovery_code_service: None,
+            password_removal_service: None,
             app_password_service: None,
             path_resolver: None,
             webdav_lock_store:
@@ -3364,7 +3365,7 @@ impl AppServiceFactory {
                     let public_url = self.config.base_url();
                     match crate::application::services::passkey_service::PasskeyService::new(
                         &public_url,
-                        store,
+                        store.clone(),
                         users.clone(),
                     ) {
                         Ok(svc) => {
@@ -3372,14 +3373,29 @@ impl AppServiceFactory {
                             // Recovery codes (Phase 2a) belong to passkeys:
                             // they are the way back when every passkey is
                             // gone, so they exist exactly when passkeys do.
+                            let recovery_store = Arc::new(
+                                crate::infrastructure::repositories::pg::RecoveryCodePgRepository::new(
+                                    pool.clone(),
+                                ),
+                            );
                             app_state.recovery_code_service = Some(Arc::new(
                                 crate::application::services::recovery_code_service::RecoveryCodeService::new(
+                                    recovery_store.clone(),
+                                    users.clone(),
+                                ),
+                            ));
+                            // Removing the password needs passkeys (and
+                            // recovery codes) to fall back on.
+                            app_state.password_removal_service = Some(Arc::new(
+                                crate::application::services::password_removal_service::PasswordRemovalService::new(
+                                    users,
+                                    store,
+                                    recovery_store,
                                     Arc::new(
-                                        crate::infrastructure::repositories::pg::RecoveryCodePgRepository::new(
+                                        crate::infrastructure::repositories::pg::PasswordCredentialPg::new(
                                             pool.clone(),
                                         ),
                                     ),
-                                    users,
                                 ),
                             ));
                             tracing::info!(public_url = %public_url, "Passkey sign-in enabled");
@@ -4245,6 +4261,10 @@ pub struct AppState {
     /// Recovery codes; `Some` exactly when `passkey_service` is.
     pub recovery_code_service:
         Option<Arc<crate::application::services::recovery_code_service::RecoveryCodeService>>,
+    /// Removing the account password; `Some` exactly when `passkey_service` is.
+    pub password_removal_service: Option<
+        Arc<crate::application::services::password_removal_service::PasswordRemovalService>,
+    >,
     pub app_password_service:
         Option<Arc<crate::application::services::app_password_service::AppPasswordService>>,
     pub path_resolver:

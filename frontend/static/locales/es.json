@@ -2323,7 +2323,13 @@
     "invalid_name": "Usa un nombre de 1 a 64 caracteres.",
     "verification_failed": "No se pudo verificar la llave de acceso. Inténtalo de nuevo.",
     "not_allowed": "Esta cuenta no puede añadir llaves de acceso.",
-    "default_name": "Mi llave de acceso"
+    "default_name": "Mi llave de acceso",
+    "remove_password_title": "¿Iniciar sesión sin contraseña?",
+    "remove_password_message": "Se eliminará tu contraseña. Iniciarás sesión con una llave de acceso, o con un código de recuperación si las pierdes todas. Un administrador puede darte una contraseña nueva.",
+    "remove_password": "Eliminar contraseña",
+    "password_removed": "Contraseña eliminada. A partir de ahora inicia sesión con una llave de acceso.",
+    "remove_password_needs_backup": "Primero añade una segunda llave de acceso o crea códigos de recuperación.",
+    "passwordless_desc": "Usar solo llaves de acceso: elimina tu contraseña. Requiere una segunda llave o códigos de recuperación."
   },
   "reauth": {
     "title": "Confirma que eres tú",

@@ -73,11 +73,18 @@ pub enum Eligibility {
 /// 3. **No credential at all** (the typical external user or
 ///    fresh email-only signup) → allow.
 ///
+/// Before step 2, a user with **any passkey** is rejected with
+/// `"has_passkey"`, whatever `open_to_password_users` says: they chose a
+/// phishing-resistant login, and once they remove their password
+/// (docs/plan/passkeys.md, Phase 2a) step 3 would otherwise hand their
+/// mailbox the keys. Callers look `has_passkey` up and fail closed.
+///
 /// Account-deactivation is **not** checked here — `send_login_link` /
 /// `issue_invitation` handle it separately because the rejection reason
 /// (`"account_deactivated"`) is unrelated to credential state.
 pub fn magic_link_eligibility(
     user: &User,
+    has_passkey: bool,
     open_to_password_users: bool,
     open_to_oidc_users: bool,
 ) -> Eligibility {
@@ -87,6 +94,9 @@ pub fn magic_link_eligibility(
         } else {
             Eligibility::Reject("oidc_user")
         };
+    }
+    if has_passkey {
+        return Eligibility::Reject("has_passkey");
     }
     if user.has_password() {
         return if open_to_password_users {
@@ -304,6 +314,9 @@ impl MagicLinkInviteService {
         // the mail is purely a notification convenience.
         if let Eligibility::Reject(reason) = magic_link_eligibility(
             recipient,
+            self.user_storage
+                .has_passkeys_or_unknown(recipient.id())
+                .await,
             self.magic_link_cfg.open_to_password_users,
             self.magic_link_cfg.open_to_oidc_users,
         ) {
@@ -525,6 +538,7 @@ impl MagicLinkInviteService {
 
         if let Eligibility::Reject(reason) = magic_link_eligibility(
             &user,
+            self.user_storage.has_passkeys_or_unknown(user.id()).await,
             self.magic_link_cfg.open_to_password_users,
             self.magic_link_cfg.open_to_oidc_users,
         ) {
@@ -1267,18 +1281,24 @@ mod tests {
         // Strict (default): OIDC users are refused magic-link so the
         // IdP's MFA / step-up stays authoritative.
         assert_eq!(
-            magic_link_eligibility(&u, false, false),
+            magic_link_eligibility(&u, false, false, false),
             Eligibility::Reject("oidc_user")
         );
         // `permit_magic_link_for_oidc_users` doesn't move the needle
         // on password-users; the two policies are independent.
         assert_eq!(
-            magic_link_eligibility(&u, true, false),
+            magic_link_eligibility(&u, false, true, false),
             Eligibility::Reject("oidc_user")
         );
         // Lenient on OIDC: allow regardless of password-user policy.
-        assert_eq!(magic_link_eligibility(&u, false, true), Eligibility::Allow);
-        assert_eq!(magic_link_eligibility(&u, true, true), Eligibility::Allow);
+        assert_eq!(
+            magic_link_eligibility(&u, false, false, true),
+            Eligibility::Allow
+        );
+        assert_eq!(
+            magic_link_eligibility(&u, false, true, true),
+            Eligibility::Allow
+        );
     }
 
     #[test]
@@ -1304,16 +1324,47 @@ mod tests {
         let u = user(Some("$argon2id$..."), None);
         // Strict: has_password rejection regardless of the OIDC flag.
         assert_eq!(
-            magic_link_eligibility(&u, false, false),
+            magic_link_eligibility(&u, false, false, false),
             Eligibility::Reject("has_password")
         );
         assert_eq!(
-            magic_link_eligibility(&u, false, true),
+            magic_link_eligibility(&u, false, false, true),
             Eligibility::Reject("has_password")
         );
         // Lenient on password: allow regardless of OIDC flag.
-        assert_eq!(magic_link_eligibility(&u, true, false), Eligibility::Allow);
-        assert_eq!(magic_link_eligibility(&u, true, true), Eligibility::Allow);
+        assert_eq!(
+            magic_link_eligibility(&u, false, true, false),
+            Eligibility::Allow
+        );
+        assert_eq!(
+            magic_link_eligibility(&u, false, true, true),
+            Eligibility::Allow
+        );
+    }
+
+    /// Phase 2a: removing the password left a passkey-only account with
+    /// "no credential" in this ladder, so it fell through to Allow and a
+    /// mailbox could sign in where only the passkey should. A passkey
+    /// rejects in every mode, password or not.
+    #[test]
+    fn passkey_users_never_get_magic_links() {
+        let passwordless = user(None, None);
+        for (pw, oidc) in [(false, false), (true, false), (false, true), (true, true)] {
+            assert_eq!(
+                magic_link_eligibility(&passwordless, true, pw, oidc),
+                Eligibility::Reject("has_passkey")
+            );
+        }
+        let with_password = user(Some("$argon2id$..."), None);
+        assert_eq!(
+            magic_link_eligibility(&with_password, true, true, false),
+            Eligibility::Reject("has_passkey")
+        );
+        // Without a passkey the old ladder is unchanged.
+        assert_eq!(
+            magic_link_eligibility(&passwordless, false, false, false),
+            Eligibility::Allow
+        );
     }
 
     #[test]
@@ -1327,7 +1378,7 @@ mod tests {
         for pw in [false, true] {
             for oidc in [false, true] {
                 assert_eq!(
-                    magic_link_eligibility(&u, pw, oidc),
+                    magic_link_eligibility(&u, false, pw, oidc),
                     Eligibility::Allow,
                     "no-credential user must always be eligible (pw={pw}, oidc={oidc})"
                 );
@@ -1343,15 +1394,21 @@ mod tests {
         let u = user(Some("hash"), Some(("google", "sub-123")));
         // OIDC flag off → reject as oidc_user regardless of password flag.
         assert_eq!(
-            magic_link_eligibility(&u, false, false),
+            magic_link_eligibility(&u, false, false, false),
             Eligibility::Reject("oidc_user")
         );
         assert_eq!(
-            magic_link_eligibility(&u, true, false),
+            magic_link_eligibility(&u, false, true, false),
             Eligibility::Reject("oidc_user")
         );
         // OIDC flag on → allow regardless of password flag.
-        assert_eq!(magic_link_eligibility(&u, false, true), Eligibility::Allow);
-        assert_eq!(magic_link_eligibility(&u, true, true), Eligibility::Allow);
+        assert_eq!(
+            magic_link_eligibility(&u, false, false, true),
+            Eligibility::Allow
+        );
+        assert_eq!(
+            magic_link_eligibility(&u, false, true, true),
+            Eligibility::Allow
+        );
     }
 }

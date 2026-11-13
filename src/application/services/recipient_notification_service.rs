@@ -336,6 +336,9 @@ impl RecipientNotificationService {
         // 2. Choose the dispatch arm.
         let kind = match magic_link_eligibility(
             recipient,
+            self.user_storage
+                .has_passkeys_or_unknown(recipient.id())
+                .await,
             self.magic_link_cfg.open_to_password_users,
             self.magic_link_cfg.open_to_oidc_users,
         ) {
