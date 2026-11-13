@@ -2300,7 +2300,12 @@
     "group_public": "此伺服器上的任何人都能找到並加入",
     "group_public_hint": "顯示在「探索聊天室」中，不加密，且其他伺服器永遠無法存取。",
     "group_private_hint": "僅限邀請，端對端加密。",
-    "local_only": "即使之後開啟聯邦，此聊天室也只保留在此伺服器上。"
+    "local_only": "即使之後開啟聯邦，此聊天室也只保留在此伺服器上。",
+    "attachment_open": "開啟 {{name}}",
+    "attachment_play": "播放",
+    "attachment_show": "顯示",
+    "attachment_download": "下載",
+    "attachment_failed": "無法載入此附件。"
   },
   "passkeys": {
     "title": "密碼金鑰",

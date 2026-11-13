@@ -52,6 +52,15 @@ import {
 } from './session';
 import { matrixFetch } from './matrixHttp';
 import { receiptTarget } from './receipts';
+import {
+	attachmentCaption,
+	attachmentFromContent,
+	decryptAttachment,
+	mediaDownloadPath,
+	sourceUrl,
+	type Attachment,
+	type AttachmentSource
+} from './attachment';
 
 export type ChatStatus = 'idle' | 'signing-in' | 'starting' | 'ready' | 'signed-out' | 'error';
 
@@ -137,6 +146,8 @@ export interface TimelineItem {
 	pending: boolean;
 	/** For `notice`: whose membership changed (display name), and to what. */
 	notice?: { who: string; what: NoticeWhat };
+	/** For a media message; `body` is then the caption (often empty). */
+	attachment?: Attachment;
 }
 
 export type NoticeWhat = 'join' | 'leave' | 'invite' | 'ban' | 'knock' | 'encryption';
@@ -174,6 +185,9 @@ export class ChatClient {
 	#ownerId: string;
 	#homeserverUrl: string;
 	#ssKey: [string, Uint8Array<ArrayBuffer>] | null = null;
+	/** Downloaded (and decrypted) attachments as `blob:` URLs, by mxc URL. */
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- a download cache, never read reactively
+	#media = new Map<string, Promise<string>>();
 	#unsubscribe: (() => void) | null = null;
 
 	constructor(ownerId: string, homeserverUrl: string) {
@@ -243,6 +257,49 @@ export class ChatClient {
 		this.#unsubscribe = null;
 		this.#client?.stopClient();
 		this.#client = null;
+		this.#releaseMedia();
+	}
+
+	#releaseMedia(): void {
+		for (const url of this.#media.values()) {
+			void url.then(URL.revokeObjectURL, () => {});
+		}
+		this.#media.clear();
+	}
+
+	/**
+	 * A `blob:` URL for an attachment's bytes: downloaded through
+	 * authenticated media with this session's token and, in encrypted
+	 * rooms, decrypted here (the homeserver only ever has ciphertext).
+	 * Cached for the session; a failure is not cached, so a retry refetches.
+	 */
+	mediaUrl(src: AttachmentSource, mimetype?: string): Promise<string> {
+		const key = sourceUrl(src);
+		const cached = this.#media.get(key);
+		if (cached) return cached;
+		const pending = this.#download(src, mimetype);
+		this.#media.set(key, pending);
+		pending.catch(() => this.#media.delete(key));
+		return pending;
+	}
+
+	async #download(src: AttachmentSource, mimetype?: string): Promise<string> {
+		const client = this.#need();
+		const path = mediaDownloadPath(sourceUrl(src));
+		if (!path) throw new Error('Unsupported media URL');
+		const res = await matrixFetch(path, {
+			headers: { Authorization: `Bearer ${client.getAccessToken() ?? ''}` }
+		});
+		if (!res.ok) throw new Error(`Media download failed (${res.status})`);
+		let bytes = await res.arrayBuffer();
+		if ('file' in src) bytes = await decryptAttachment(bytes, src.file);
+		// Never trust the sender's MIME type for active content: only media
+		// types render inline; anything else is handed out as a plain blob.
+		const type =
+			mimetype && /^(image|video|audio)\//.test(mimetype) && !mimetype.includes('svg')
+				? mimetype
+				: 'application/octet-stream';
+		return URL.createObjectURL(new Blob([bytes], { type }));
 	}
 
 	async #start(session: ChatSession): Promise<void> {
@@ -432,15 +489,11 @@ export class ChatClient {
 			// Edits arrive as their own events and replace the original's text
 			// in clients that support them; show the original only.
 			if (c['m.relates_to']?.rel_type === 'm.replace') return null;
-			const prefix =
-				c.msgtype === MsgType.Emote
-					? `* ${senderName} `
-					: c.msgtype === MsgType.Image ||
-						  c.msgtype === MsgType.File ||
-						  c.msgtype === MsgType.Video ||
-						  c.msgtype === MsgType.Audio
-						? '📎 '
-						: '';
+			const attachment = attachmentFromContent(c);
+			if (attachment) {
+				return { ...base, kind: 'message', body: attachmentCaption(c), attachment };
+			}
+			const prefix = c.msgtype === MsgType.Emote ? `* ${senderName} ` : '';
 			return { ...base, kind: 'message', body: prefix + c.body };
 		}
 		if (type === EventType.RoomMember) {

@@ -16,6 +16,7 @@
 	import { session } from '$lib/stores/session.svelte';
 	import { errorMessage } from '$lib/utils/errors';
 	import { chatReturnUrl, takeLoginToken, toUserId } from '$lib/chat/session';
+	import ChatAttachment from '$lib/components/ChatAttachment.svelte';
 	import type { ChatClient, RoomSummary, TimelineItem } from '$lib/chat/matrix.svelte';
 
 	let chat = $state<ChatClient | null>(null);
@@ -612,7 +613,10 @@
 											{t('chat.undecryptable', 'Encrypted message: unlock this browser to read it')}
 										</p>
 									{:else}
-										<p class="chat__body">{item.body}</p>
+										{#if item.attachment}
+											<ChatAttachment attachment={item.attachment} chat={c} />
+										{/if}
+										{#if item.body}<p class="chat__body">{item.body}</p>{/if}
 									{/if}
 									<time class="chat__time" datetime={new Date(item.ts).toISOString()}>
 										{timeOf(item.ts)}

@@ -2300,7 +2300,12 @@
     "group_public": "此服务器上的任何人都可以找到并加入",
     "group_public_hint": "显示在“探索房间”中，不加密，且其他服务器永远无法访问。",
     "group_private_hint": "仅限邀请，端到端加密。",
-    "local_only": "即使以后开启联邦，此房间也只保留在此服务器上。"
+    "local_only": "即使以后开启联邦，此房间也只保留在此服务器上。",
+    "attachment_open": "打开 {{name}}",
+    "attachment_play": "播放",
+    "attachment_show": "显示",
+    "attachment_download": "下载",
+    "attachment_failed": "无法加载此附件。"
   },
   "passkeys": {
     "title": "通行密钥",

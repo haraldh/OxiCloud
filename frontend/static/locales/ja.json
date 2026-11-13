@@ -2300,7 +2300,12 @@
     "group_public": "このサーバーの誰でも検索して参加可能",
     "group_public_hint": "「ルームを探す」に表示され、暗号化されず、他のサーバーからは決してアクセスできません。",
     "group_private_hint": "招待制でエンドツーエンド暗号化。",
-    "local_only": "後でフェデレーションを有効にしても、このルームはこのサーバーに留まります。"
+    "local_only": "後でフェデレーションを有効にしても、このルームはこのサーバーに留まります。",
+    "attachment_open": "{{name}} を開く",
+    "attachment_play": "再生",
+    "attachment_show": "表示",
+    "attachment_download": "ダウンロード",
+    "attachment_failed": "この添付ファイルを読み込めませんでした。"
   },
   "passkeys": {
     "title": "パスキー",

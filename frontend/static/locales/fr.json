@@ -2300,7 +2300,12 @@
     "group_public": "Toute personne sur ce serveur peut le trouver et le rejoindre",
     "group_public_hint": "Listé dans Explorer les salons, non chiffré et jamais accessible depuis d'autres serveurs.",
     "group_private_hint": "Sur invitation uniquement et chiffré de bout en bout.",
-    "local_only": "Ce salon reste sur ce serveur, même si la fédération est activée plus tard."
+    "local_only": "Ce salon reste sur ce serveur, même si la fédération est activée plus tard.",
+    "attachment_open": "Ouvrir {{name}}",
+    "attachment_play": "Lire",
+    "attachment_show": "Afficher",
+    "attachment_download": "Télécharger",
+    "attachment_failed": "Impossible de charger cette pièce jointe."
   },
   "passkeys": {
     "title": "Clés d'accès",

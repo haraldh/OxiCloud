@@ -2300,7 +2300,12 @@
     "group_public": "Qualquer pessoa neste servidor pode encontrá-la e entrar",
     "group_public_hint": "Listada em Explorar salas, não encriptada e nunca acessível a partir de outros servidores.",
     "group_private_hint": "Apenas por convite e encriptada ponto a ponto.",
-    "local_only": "Esta sala fica neste servidor, mesmo que a federação seja ativada mais tarde."
+    "local_only": "Esta sala fica neste servidor, mesmo que a federação seja ativada mais tarde.",
+    "attachment_open": "Abrir {{name}}",
+    "attachment_play": "Reproduzir",
+    "attachment_show": "Mostrar",
+    "attachment_download": "Baixar",
+    "attachment_failed": "Não foi possível carregar este anexo."
   },
   "passkeys": {
     "title": "Chaves de acesso",

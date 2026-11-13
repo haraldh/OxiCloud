@@ -2300,7 +2300,12 @@
     "group_public": "Alle auf diesem Server können ihn finden und beitreten",
     "group_public_hint": "In „Räume entdecken“ aufgeführt, nicht verschlüsselt und nie von anderen Servern erreichbar.",
     "group_private_hint": "Nur auf Einladung und Ende-zu-Ende-verschlüsselt.",
-    "local_only": "Dieser Raum bleibt auf diesem Server, auch wenn später Föderation eingeschaltet wird."
+    "local_only": "Dieser Raum bleibt auf diesem Server, auch wenn später Föderation eingeschaltet wird.",
+    "attachment_open": "{{name}} öffnen",
+    "attachment_play": "Abspielen",
+    "attachment_show": "Anzeigen",
+    "attachment_download": "Herunterladen",
+    "attachment_failed": "Dieser Anhang konnte nicht geladen werden."
   },
   "passkeys": {
     "title": "Passkeys",

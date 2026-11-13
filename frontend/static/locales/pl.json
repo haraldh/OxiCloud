@@ -2300,7 +2300,12 @@
     "group_public": "Każdy na tym serwerze może go znaleźć i dołączyć",
     "group_public_hint": "Widoczny w Przeglądaj pokoje, nieszyfrowany i nigdy niedostępny z innych serwerów.",
     "group_private_hint": "Tylko na zaproszenie i szyfrowany end-to-end.",
-    "local_only": "Ten pokój pozostaje na tym serwerze, nawet jeśli później zostanie włączona federacja."
+    "local_only": "Ten pokój pozostaje na tym serwerze, nawet jeśli później zostanie włączona federacja.",
+    "attachment_open": "Otwórz {{name}}",
+    "attachment_play": "Odtwórz",
+    "attachment_show": "Pokaż",
+    "attachment_download": "Pobierz",
+    "attachment_failed": "Nie udało się wczytać tego załącznika."
   },
   "passkeys": {
     "title": "Klucze dostępu",

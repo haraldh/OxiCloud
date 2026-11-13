@@ -2300,7 +2300,12 @@
     "group_public": "Chiunque su questo server può trovarla ed entrare",
     "group_public_hint": "Elencata in Esplora stanze, non cifrata e mai raggiungibile da altri server.",
     "group_private_hint": "Solo su invito e cifrata end-to-end.",
-    "local_only": "Questa stanza resta su questo server, anche se in seguito si attiva la federazione."
+    "local_only": "Questa stanza resta su questo server, anche se in seguito si attiva la federazione.",
+    "attachment_open": "Apri {{name}}",
+    "attachment_play": "Riproduci",
+    "attachment_show": "Mostra",
+    "attachment_download": "Scarica",
+    "attachment_failed": "Impossibile caricare questo allegato."
   },
   "passkeys": {
     "title": "Passkey",

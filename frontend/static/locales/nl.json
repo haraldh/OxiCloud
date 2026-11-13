@@ -2300,7 +2300,12 @@
     "group_public": "Iedereen op deze server kan hem vinden en deelnemen",
     "group_public_hint": "Vermeld in Ruimtes verkennen, niet versleuteld en nooit bereikbaar vanaf andere servers.",
     "group_private_hint": "Alleen op uitnodiging en end-to-end versleuteld.",
-    "local_only": "Deze ruimte blijft op deze server, ook als federatie later wordt ingeschakeld."
+    "local_only": "Deze ruimte blijft op deze server, ook als federatie later wordt ingeschakeld.",
+    "attachment_open": "{{name}} openen",
+    "attachment_play": "Afspelen",
+    "attachment_show": "Tonen",
+    "attachment_download": "Downloaden",
+    "attachment_failed": "Deze bijlage kon niet worden geladen."
   },
   "passkeys": {
     "title": "Passkeys",

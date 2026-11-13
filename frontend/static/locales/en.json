@@ -2300,7 +2300,12 @@
     "group_public": "Anyone on this server can find and join",
     "group_public_hint": "Listed in Explore rooms, not encrypted, and never reachable from other servers.",
     "group_private_hint": "Invite-only and end-to-end encrypted.",
-    "local_only": "This room stays on this server, even if federation is turned on later."
+    "local_only": "This room stays on this server, even if federation is turned on later.",
+    "attachment_open": "Open {{name}}",
+    "attachment_play": "Play",
+    "attachment_show": "Show",
+    "attachment_download": "Download",
+    "attachment_failed": "Could not load this attachment."
   },
   "passkeys": {
     "title": "Passkeys",
