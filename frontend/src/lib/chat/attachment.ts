@@ -151,3 +151,89 @@ export async function decryptAttachment(
 		ciphertext
 	);
 }
+
+// ── sending ─────────────────────────────────────────────────────────────
+
+function bytesToB64(bytes: Uint8Array): string {
+	let bin = '';
+	for (const b of bytes) bin += String.fromCharCode(b);
+	return btoa(bin).replace(/=+$/, '');
+}
+
+/** The message type a file of this MIME type is sent as. */
+export function kindForMime(mimetype: string): AttachmentKind {
+	if (mimetype.startsWith('image/') && !mimetype.includes('svg')) return 'image';
+	if (mimetype.startsWith('video/')) return 'video';
+	if (mimetype.startsWith('audio/')) return 'audio';
+	return 'file';
+}
+
+/**
+ * Encrypt an attachment for an encrypted room (spec `EncryptedFile`, v2):
+ * a fresh AES-256-CTR key per file, an IV whose low 64 bits (the counter)
+ * are zero, and the SHA-256 of the ciphertext. Upload `cipher`, then put
+ * the returned `file` (with the upload's mxc URL) in the event.
+ */
+export async function encryptAttachment(
+	plain: ArrayBuffer
+): Promise<{ cipher: ArrayBuffer; file: Omit<EncryptedFile, 'url'> }> {
+	const key = await crypto.subtle.generateKey({ name: 'AES-CTR', length: 256 }, true, [
+		'encrypt',
+		'decrypt'
+	]);
+	const iv = new Uint8Array(new ArrayBuffer(16));
+	crypto.getRandomValues(iv.subarray(0, 8));
+	const cipher = await crypto.subtle.encrypt(
+		{ name: 'AES-CTR', counter: iv, length: 64 },
+		key,
+		plain
+	);
+	const jwk = await crypto.subtle.exportKey('jwk', key);
+	if (!jwk.k) throw new Error('Could not export the attachment key');
+	const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', cipher));
+	return {
+		cipher,
+		file: {
+			key: { k: jwk.k, alg: 'A256CTR' },
+			iv: bytesToB64(iv),
+			hashes: { sha256: bytesToB64(hash) },
+			v: 'v2'
+		}
+	};
+}
+
+/**
+ * The `m.room.message` content for an uploaded attachment. `source` is the
+ * plain mxc URL, or the encrypted file with its mxc URL. Encrypted files
+ * need the full JWK in the event, as other clients import it as such.
+ */
+export function attachmentContent(
+	name: string,
+	mimetype: string,
+	size: number,
+	source: AttachmentSource,
+	dims?: { w: number; h: number }
+): Record<string, unknown> {
+	const kind = kindForMime(mimetype);
+	const info: Record<string, unknown> = { mimetype, size };
+	if (dims && (kind === 'image' || kind === 'video')) {
+		info.w = dims.w;
+		info.h = dims.h;
+	}
+	const where =
+		'file' in source
+			? {
+					file: {
+						...source.file,
+						key: {
+							kty: 'oct',
+							key_ops: ['encrypt', 'decrypt'],
+							alg: 'A256CTR',
+							k: source.file.key.k,
+							ext: true
+						}
+					}
+				}
+			: { url: source.url };
+	return { msgtype: `m.${kind}`, body: name, filename: name, info, ...where };
+}

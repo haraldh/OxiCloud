@@ -16,7 +16,11 @@
 	import { session } from '$lib/stores/session.svelte';
 	import { errorMessage } from '$lib/utils/errors';
 	import { chatReturnUrl, takeLoginToken, toUserId } from '$lib/chat/session';
-	import ChatAttachment from '$lib/components/ChatAttachment.svelte';
+	import ChatAttachment from '$lib/components/chat/ChatAttachment.svelte';
+	import { formatBytes } from '$lib/utils/format';
+	import FilePickerDialog from '$lib/components/FilePickerDialog.svelte';
+	import { fetchFileContent } from '$lib/api/endpoints/files';
+	import type { FileItem } from '$lib/api/types';
 	import type { ChatClient, RoomSummary, TimelineItem } from '$lib/chat/matrix.svelte';
 
 	let chat = $state<ChatClient | null>(null);
@@ -98,6 +102,62 @@
 		if (!timelineEl) return;
 		const { scrollTop, scrollHeight, clientHeight } = timelineEl;
 		stickToBottom = scrollHeight - scrollTop - clientHeight < 48;
+	}
+
+	// ── attachments ────────────────────────────────────────────────────
+	let fileInput = $state<HTMLInputElement | null>(null);
+	let pickerOpen = $state(false);
+	let attaching = $state(false);
+
+	/**
+	 * Send one file into the open room. Refused up front when it exceeds
+	 * the homeserver's upload limit, so the user isn't left waiting for a
+	 * failed upload.
+	 */
+	async function sendFile(blob: Blob, name: string) {
+		const c = chat;
+		const id = selectedId;
+		if (!c || !id) return;
+		attaching = true;
+		actionError = null;
+		stickToBottom = true;
+		try {
+			const limit = await c.uploadLimit().catch(() => null);
+			if (limit !== null && blob.size > limit) {
+				actionError = t(
+					'chat.attachment_too_large',
+					{ max: formatBytes(limit) },
+					'This file is too large to send (limit {{max}}).'
+				);
+				return;
+			}
+			await c.sendAttachment(id, blob, name);
+		} catch (err) {
+			actionError = errorMessage(err);
+		} finally {
+			attaching = false;
+		}
+	}
+
+	async function onFilesChosen(e: Event) {
+		const input = e.currentTarget as HTMLInputElement;
+		const files = [...(input.files ?? [])];
+		input.value = '';
+		for (const f of files) await sendFile(f, f.name);
+	}
+
+	async function sendFromFiles(file: FileItem) {
+		attaching = true;
+		try {
+			const content = await fetchFileContent(file.id);
+			const typed =
+				content.type || !file.mime_type ? content : new Blob([content], { type: file.mime_type });
+			await sendFile(typed, file.name);
+		} catch (err) {
+			actionError = errorMessage(err);
+		} finally {
+			attaching = false;
+		}
 	}
 
 	async function run(fn: () => Promise<void>) {
@@ -641,6 +701,28 @@
 							placeholder={t('chat.message_placeholder', 'Write a message…')}
 							aria-label={t('chat.message_placeholder', 'Write a message…')}
 							data-testid="chat-composer"></textarea>
+						<input
+							bind:this={fileInput}
+							type="file"
+							multiple
+							hidden
+							onchange={(e) => void onFilesChosen(e)}
+							data-testid="chat-attach-input"
+						/>
+						<Button
+							icon="file-circle-plus"
+							disabled={attaching}
+							onclick={() => fileInput?.click()}
+							title={t('chat.attach_device', 'Attach a file')}
+							data-testid="chat-attach-device"
+						/>
+						<Button
+							icon="folder-open"
+							disabled={attaching}
+							onclick={() => (pickerOpen = true)}
+							title={t('chat.attach_files', 'Send from Files')}
+							data-testid="chat-attach-files"
+						/>
 						<Button type="submit" variant="primary" icon="paper-plane" disabled={!draft.trim()}>
 							{t('chat.send', 'Send')}
 						</Button>
@@ -663,6 +745,12 @@
 		/>
 	{/if}
 {/if}
+
+<FilePickerDialog
+	bind:open={pickerOpen}
+	title={t('chat.attach_files', 'Send from Files')}
+	onpick={(f) => void sendFromFiles(f)}
+/>
 
 <style>
 	.chat-state {

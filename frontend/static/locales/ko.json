@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "비텍스트 확장자",
     "new_text_file_binary_ext_message": "\"{{name}}\"은(는) 텍스트 파일이 아닌 것 같습니다. 편집기가 텍스트로 열며 — 바이너리 형식은 보통 이렇게 하면 망가집니다. 계속하시겠습니까?",
     "confirm_delete_permanent": "\"{{name}}\"을(를) 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-    "confirm_batch_delete_permanent": "{{n}}개 항목을 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+    "confirm_batch_delete_permanent": "{{n}}개 항목을 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    "pick_file": "파일 선택",
+    "empty_folder": "이 폴더는 비어 있습니다."
   },
   "dialogs": {
     "rename_folder": "폴더 이름 변경",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "이 첨부 파일을 불러올 수 없습니다.",
     "attachment_save": "파일에 저장",
     "attachment_saved": "{{name}}에 저장했습니다",
-    "attachment_open_folder": "폴더 열기"
+    "attachment_open_folder": "폴더 열기",
+    "attach_device": "파일 첨부",
+    "attach_files": "파일에서 보내기",
+    "attachment_too_large": "이 파일은 너무 커서 보낼 수 없습니다(한도 {{max}})."
   },
   "passkeys": {
     "title": "패스키",

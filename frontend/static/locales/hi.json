@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "गैर-पाठ एक्सटेंशन",
     "new_text_file_binary_ext_message": "\"{{name}}\" एक पाठ फ़ाइल नहीं लगती। संपादक इसे पाठ के रूप में खोलेगा — यह आमतौर पर बाइनरी फ़ॉर्मेट को खराब कर देता है। फिर भी जारी रखें?",
     "confirm_delete_permanent": "«{{name}}» को स्थायी रूप से हटाएँ? यह क्रिया पूर्ववत नहीं की जा सकती।",
-    "confirm_batch_delete_permanent": "{{n}} आइटम स्थायी रूप से हटाएँ? यह क्रिया पूर्ववत नहीं की जा सकती।"
+    "confirm_batch_delete_permanent": "{{n}} आइटम स्थायी रूप से हटाएँ? यह क्रिया पूर्ववत नहीं की जा सकती।",
+    "pick_file": "फ़ाइल चुनें",
+    "empty_folder": "यह फ़ोल्डर खाली है।"
   },
   "dialogs": {
     "rename_folder": "फ़ोल्डर का नाम बदलें",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "यह अटैचमेंट लोड नहीं हो सका।",
     "attachment_save": "फ़ाइलों में सहेजें",
     "attachment_saved": "{{name}} में सहेजा गया",
-    "attachment_open_folder": "फ़ोल्डर खोलें"
+    "attachment_open_folder": "फ़ोल्डर खोलें",
+    "attach_device": "फ़ाइल संलग्न करें",
+    "attach_files": "फ़ाइलों से भेजें",
+    "attachment_too_large": "यह फ़ाइल भेजने के लिए बहुत बड़ी है (सीमा {{max}})।"
   },
   "passkeys": {
     "title": "पासकी",

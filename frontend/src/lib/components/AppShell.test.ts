@@ -96,7 +96,8 @@ const { driveStore } = vi.hoisted(() => ({
 }));
 vi.mock('$lib/stores/drives.svelte', () => ({
 	drives: driveStore,
-	driveIcon: () => 'hdd'
+	driveIcon: () => 'hdd',
+	compareDrives: () => 0
 }));
 
 import { logout } from '$lib/api/endpoints/auth';

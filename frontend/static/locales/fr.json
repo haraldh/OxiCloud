@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "Extension non textuelle",
     "new_text_file_binary_ext_message": "« {{name}} » ne ressemble pas à un fichier texte. L'éditeur l'ouvrira comme du texte — cela endommage généralement les formats binaires. Continuer quand même ?",
     "confirm_delete_permanent": "Supprimer définitivement « {{name}} » ? Cette action est irréversible.",
-    "confirm_batch_delete_permanent": "Supprimer définitivement {{n}} éléments ? Cette action est irréversible."
+    "confirm_batch_delete_permanent": "Supprimer définitivement {{n}} éléments ? Cette action est irréversible.",
+    "pick_file": "Choisir un fichier",
+    "empty_folder": "Ce dossier est vide."
   },
   "dialogs": {
     "rename_folder": "Renommer le dossier",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "Impossible de charger cette pièce jointe.",
     "attachment_save": "Enregistrer dans Fichiers",
     "attachment_saved": "Enregistré dans {{name}}",
-    "attachment_open_folder": "Ouvrir le dossier"
+    "attachment_open_folder": "Ouvrir le dossier",
+    "attach_device": "Joindre un fichier",
+    "attach_files": "Envoyer depuis Fichiers",
+    "attachment_too_large": "Ce fichier est trop volumineux pour être envoyé (limite {{max}})."
   },
   "passkeys": {
     "title": "Clés d'accès",

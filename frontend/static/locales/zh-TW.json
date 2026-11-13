@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "非文字副檔名",
     "new_text_file_binary_ext_message": "「{{name}}」看起來不像文字檔案。編輯器會以文字方式開啟 — 這通常會破壞二進位格式。仍要繼續嗎?",
     "confirm_delete_permanent": "永久刪除「{{name}}」？此操作無法復原。",
-    "confirm_batch_delete_permanent": "永久刪除 {{n}} 個項目？此操作無法復原。"
+    "confirm_batch_delete_permanent": "永久刪除 {{n}} 個項目？此操作無法復原。",
+    "pick_file": "選擇檔案",
+    "empty_folder": "此資料夾是空的。"
   },
   "dialogs": {
     "rename_folder": "重新命名資料夾",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "無法載入此附件。",
     "attachment_save": "儲存到檔案",
     "attachment_saved": "已儲存到 {{name}}",
-    "attachment_open_folder": "開啟資料夾"
+    "attachment_open_folder": "開啟資料夾",
+    "attach_device": "附加檔案",
+    "attach_files": "從檔案傳送",
+    "attachment_too_large": "此檔案太大,無法傳送(上限 {{max}})。"
   },
   "passkeys": {
     "title": "密碼金鑰",

@@ -137,6 +137,19 @@ export async function uploadFile(folderId: string | null, file: File): Promise<F
 	}
 }
 
+/**
+ * A file's content as a Blob (`GET /api/files/{id}` streams it). For
+ * handing a file to the browser, e.g. sending it as a chat attachment.
+ */
+export async function fetchFileContent(fileId: string): Promise<Blob> {
+	const res = await apiFetch(`/api/files/${fileId}`, {
+		credentials: 'same-origin',
+		cache: 'no-store'
+	});
+	if (!res.ok) throw await apiErrorFromResponse(res);
+	return res.blob();
+}
+
 /** Upload through the generated client with an XHR transport for progress events. */
 export async function uploadFileWithProgress(
 	folderId: string | null,

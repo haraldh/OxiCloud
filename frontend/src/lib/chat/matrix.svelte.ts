@@ -35,6 +35,7 @@ import {
 } from 'matrix-js-sdk';
 import { CryptoEvent, decodeRecoveryKey } from 'matrix-js-sdk/lib/crypto-api';
 import type { AuthDict } from 'matrix-js-sdk/lib/interactive-auth';
+import type { RoomMessageEventContent } from 'matrix-js-sdk/lib/@types/events';
 import {
 	cryptoDbPrefix,
 	directRoomIds,
@@ -54,8 +55,10 @@ import { matrixFetch } from './matrixHttp';
 import { receiptTarget } from './receipts';
 import {
 	attachmentCaption,
+	attachmentContent,
 	attachmentFromContent,
 	decryptAttachment,
+	encryptAttachment,
 	mediaDownloadPath,
 	sourceUrl,
 	type Attachment,
@@ -544,6 +547,48 @@ export class ChatClient {
 		await this.#need().sendTextMessage(roomId, text);
 	}
 
+	/** The homeserver's upload limit in bytes, or null when it sets none. */
+	async uploadLimit(): Promise<number | null> {
+		const cfg = await this.#need().getMediaConfig(true);
+		const size = cfg['m.upload.size'];
+		return typeof size === 'number' ? size : null;
+	}
+
+	/**
+	 * Send a file. In an encrypted room it is encrypted here first, so the
+	 * homeserver stores only ciphertext; the event itself is encrypted by
+	 * the SDK as usual. Images carry their size in pixels so clients can
+	 * lay them out before loading.
+	 */
+	async sendAttachment(roomId: string, blob: Blob, name: string): Promise<void> {
+		const client = this.#need();
+		const room = client.getRoom(roomId);
+		const mimetype = blob.type || 'application/octet-stream';
+		const plain = await blob.arrayBuffer();
+		const dims = await imageSize(blob);
+		let content: Record<string, unknown>;
+		if (room?.hasEncryptionStateEvent()) {
+			const { cipher, file } = await encryptAttachment(plain);
+			const up = await client.uploadContent(new Blob([cipher]), {
+				type: 'application/octet-stream',
+				includeFilename: false
+			});
+			content = attachmentContent(
+				name,
+				mimetype,
+				blob.size,
+				{ file: { ...file, url: up.content_uri } },
+				dims
+			);
+		} else {
+			const up = await client.uploadContent(blob, { name, type: mimetype });
+			content = attachmentContent(name, mimetype, blob.size, { url: up.content_uri }, dims);
+		}
+		// Built at runtime to the spec's shape; the SDK's content type is a
+		// union it can't infer from a plain object.
+		await client.sendMessage(roomId, null, content as unknown as RoomMessageEventContent);
+	}
+
 	/**
 	 * Mark everything up to the newest event in the room as read. Sends at
 	 * most one receipt per event: see `receiptTarget`.
@@ -897,5 +942,18 @@ export class ChatClient {
 			// A blocked popup leaves the user a link and a "done" button.
 			this.confirmation = { url, done: finish };
 		});
+	}
+}
+
+/** Pixel size of an image blob, or undefined for anything else. */
+async function imageSize(blob: Blob): Promise<{ w: number; h: number } | undefined> {
+	if (!blob.type.startsWith('image/') || blob.type.includes('svg')) return undefined;
+	try {
+		const bmp = await createImageBitmap(blob);
+		const dims = { w: bmp.width, h: bmp.height };
+		bmp.close();
+		return dims;
+	} catch {
+		return undefined;
 	}
 }

@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "Estensione non testuale",
     "new_text_file_binary_ext_message": "«{{name}}» non sembra un file di testo. L'editor lo aprirà come testo — di solito questo danneggia i formati binari. Continuare comunque?",
     "confirm_delete_permanent": "Eliminare definitivamente «{{name}}»? Questa azione non può essere annullata.",
-    "confirm_batch_delete_permanent": "Eliminare definitivamente {{n}} elementi? Questa azione non può essere annullata."
+    "confirm_batch_delete_permanent": "Eliminare definitivamente {{n}} elementi? Questa azione non può essere annullata.",
+    "pick_file": "Scegli un file",
+    "empty_folder": "Questa cartella è vuota."
   },
   "dialogs": {
     "rename_folder": "Rinomina cartella",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "Impossibile caricare questo allegato.",
     "attachment_save": "Salva in File",
     "attachment_saved": "Salvato in {{name}}",
-    "attachment_open_folder": "Apri cartella"
+    "attachment_open_folder": "Apri cartella",
+    "attach_device": "Allega un file",
+    "attach_files": "Invia da File",
+    "attachment_too_large": "Questo file è troppo grande per essere inviato (limite {{max}})."
   },
   "passkeys": {
     "title": "Passkey",

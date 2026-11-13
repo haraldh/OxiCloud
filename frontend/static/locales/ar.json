@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "امتداد غير نصي",
     "new_text_file_binary_ext_message": "لا يبدو \"{{name}}\" ملفًا نصيًا. سيفتحه المحرّر كنص — وهذا عادةً ما يُفسد التنسيقات الثنائية. المتابعة على أي حال؟",
     "confirm_delete_permanent": "حذف «{{name}}» نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.",
-    "confirm_batch_delete_permanent": "حذف {{n}} عناصر نهائيًا؟ لا يمكن التراجع عن هذا الإجراء."
+    "confirm_batch_delete_permanent": "حذف {{n}} عناصر نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.",
+    "pick_file": "اختر ملفًا",
+    "empty_folder": "هذا المجلد فارغ."
   },
   "dialogs": {
     "rename_folder": "إعادة تسمية المجلد",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "تعذّر تحميل هذا المرفق.",
     "attachment_save": "حفظ في الملفات",
     "attachment_saved": "حُفظ في {{name}}",
-    "attachment_open_folder": "فتح المجلد"
+    "attachment_open_folder": "فتح المجلد",
+    "attach_device": "إرفاق ملف",
+    "attach_files": "إرسال من الملفات",
+    "attachment_too_large": "هذا الملف أكبر من أن يُرسل (الحد {{max}})."
   },
   "passkeys": {
     "title": "مفاتيح المرور",

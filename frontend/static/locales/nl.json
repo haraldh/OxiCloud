@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "Niet-tekst-extensie",
     "new_text_file_binary_ext_message": "\"{{name}}\" lijkt geen tekstbestand. De editor opent het als tekst — dat beschadigt doorgaans binaire formaten. Toch doorgaan?",
     "confirm_delete_permanent": "\"{{name}}\" definitief verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
-    "confirm_batch_delete_permanent": "{{n}} items definitief verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+    "confirm_batch_delete_permanent": "{{n}} items definitief verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "pick_file": "Kies een bestand",
+    "empty_folder": "Deze map is leeg."
   },
   "dialogs": {
     "rename_folder": "Map hernoemen",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "Deze bijlage kon niet worden geladen.",
     "attachment_save": "Opslaan in Bestanden",
     "attachment_saved": "Opgeslagen in {{name}}",
-    "attachment_open_folder": "Map openen"
+    "attachment_open_folder": "Map openen",
+    "attach_device": "Bestand bijvoegen",
+    "attach_files": "Verzenden vanuit Bestanden",
+    "attachment_too_large": "Dit bestand is te groot om te verzenden (limiet {{max}})."
   },
   "passkeys": {
     "title": "Passkeys",

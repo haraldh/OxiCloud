@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "Keine Text-Erweiterung",
     "new_text_file_binary_ext_message": "„{{name}}\" sieht nicht wie eine Textdatei aus. Der Editor öffnet sie als Text — bei Binärformaten geht das meist schief. Trotzdem fortfahren?",
     "confirm_delete_permanent": "„{{name}}\" dauerhaft löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-    "confirm_batch_delete_permanent": "{{n}} Elemente dauerhaft löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    "confirm_batch_delete_permanent": "{{n}} Elemente dauerhaft löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "pick_file": "Datei auswählen",
+    "empty_folder": "Dieser Ordner ist leer."
   },
   "dialogs": {
     "rename_folder": "Ordner umbenennen",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "Dieser Anhang konnte nicht geladen werden.",
     "attachment_save": "In Dateien speichern",
     "attachment_saved": "Gespeichert unter {{name}}",
-    "attachment_open_folder": "Ordner öffnen"
+    "attachment_open_folder": "Ordner öffnen",
+    "attach_device": "Datei anhängen",
+    "attach_files": "Aus Dateien senden",
+    "attachment_too_large": "Diese Datei ist zu groß zum Senden (Grenze {{max}})."
   },
   "passkeys": {
     "title": "Passkeys",

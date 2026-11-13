@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "Extensión no textual",
     "new_text_file_binary_ext_message": "«{{name}}» no parece un archivo de texto. El editor lo abrirá como texto — normalmente eso rompe los formatos binarios. ¿Continuar de todos modos?",
     "confirm_delete_permanent": "¿Eliminar permanentemente «{{name}}»? Esta acción no se puede deshacer.",
-    "confirm_batch_delete_permanent": "¿Eliminar permanentemente {{n}} elementos? Esta acción no se puede deshacer."
+    "confirm_batch_delete_permanent": "¿Eliminar permanentemente {{n}} elementos? Esta acción no se puede deshacer.",
+    "pick_file": "Elegir un archivo",
+    "empty_folder": "Esta carpeta está vacía."
   },
   "dialogs": {
     "rename_folder": "Renombrar carpeta",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "No se pudo cargar este adjunto.",
     "attachment_save": "Guardar en Archivos",
     "attachment_saved": "Guardado en {{name}}",
-    "attachment_open_folder": "Abrir carpeta"
+    "attachment_open_folder": "Abrir carpeta",
+    "attach_device": "Adjuntar un archivo",
+    "attach_files": "Enviar desde Archivos",
+    "attachment_too_large": "Este archivo es demasiado grande para enviarlo (límite {{max}})."
   },
   "passkeys": {
     "title": "Llaves de acceso",

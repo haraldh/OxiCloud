@@ -32,7 +32,7 @@ const { ui, drives, driveIcon } = vi.hoisted(() => {
 		driveIcon: vi.fn(() => 'home')
 	};
 });
-vi.mock('$lib/stores/drives.svelte', () => ({ drives, driveIcon }));
+vi.mock('$lib/stores/drives.svelte', () => ({ drives, driveIcon, compareDrives: () => 0 }));
 vi.mock('$lib/stores/ui.svelte', () => ({ ui }));
 vi.mock('$lib/utils/errors', () => ({ errorToast: vi.fn() }));
 vi.mock('$lib/api/endpoints/folders', () => ({ listFolder: vi.fn(), moveFolder: vi.fn() }));

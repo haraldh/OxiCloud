@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
 	attachmentCaption,
+	attachmentContent,
 	attachmentFromContent,
 	decryptAttachment,
+	encryptAttachment,
+	kindForMime,
 	mediaDownloadPath,
 	type EncryptedFile
 } from './attachment';
@@ -137,5 +140,68 @@ describe('decryptAttachment', () => {
 		const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', cipher));
 		const out = await decryptAttachment(cipher, { ...file, hashes: { sha256: b64url(hash) } });
 		expect(Array.from(new Uint8Array(out))).toEqual([9, 9, 9]);
+	});
+});
+
+describe('sending', () => {
+	it('picks the message type from the MIME type, never image for SVG', () => {
+		expect(kindForMime('image/png')).toBe('image');
+		expect(kindForMime('image/svg+xml')).toBe('file');
+		expect(kindForMime('video/mp4')).toBe('video');
+		expect(kindForMime('audio/ogg')).toBe('audio');
+		expect(kindForMime('application/pdf')).toBe('file');
+	});
+
+	it('encrypts so that our own (spec) decryption reads it back', async () => {
+		const plain = new TextEncoder().encode('round trip').buffer as ArrayBuffer;
+		const { cipher, file } = await encryptAttachment(plain);
+		expect(Array.from(new Uint8Array(cipher))).not.toEqual(Array.from(new Uint8Array(plain)));
+		const back = await decryptAttachment(cipher, { ...file, url: 'mxc://e/x' });
+		expect(new TextDecoder().decode(back)).toBe('round trip');
+	});
+
+	it('uses a fresh key and IV per file, with a zero counter half', async () => {
+		const a = await encryptAttachment(new ArrayBuffer(4));
+		const b = await encryptAttachment(new ArrayBuffer(4));
+		expect(a.file.key.k).not.toBe(b.file.key.k);
+		const iv = Uint8Array.from(
+			atob(a.file.iv + '=='.slice(0, (4 - (a.file.iv.length % 4)) % 4)),
+			(c) => c.charCodeAt(0)
+		);
+		expect(Array.from(iv.subarray(8))).toEqual([0, 0, 0, 0, 0, 0, 0, 0]);
+	});
+
+	it('builds content other clients and our parser read back', async () => {
+		const { file } = await encryptAttachment(new ArrayBuffer(8));
+		const content = attachmentContent(
+			'cat.jpg',
+			'image/jpeg',
+			8,
+			{ file: { ...file, url: 'mxc://e/x' } },
+			{ w: 4, h: 3 }
+		);
+		expect(content).toMatchObject({
+			msgtype: 'm.image',
+			body: 'cat.jpg',
+			filename: 'cat.jpg',
+			info: { mimetype: 'image/jpeg', size: 8, w: 4, h: 3 },
+			file: {
+				url: 'mxc://e/x',
+				key: { kty: 'oct', alg: 'A256CTR', ext: true, key_ops: ['encrypt', 'decrypt'] },
+				v: 'v2'
+			}
+		});
+		const parsed = attachmentFromContent(content);
+		expect(parsed?.kind).toBe('image');
+		expect(parsed?.source).toMatchObject({ file: { url: 'mxc://e/x', iv: file.iv } });
+
+		const plainContent = attachmentContent('a.pdf', 'application/pdf', 5, { url: 'mxc://e/y' });
+		expect(plainContent).toEqual({
+			msgtype: 'm.file',
+			body: 'a.pdf',
+			filename: 'a.pdf',
+			info: { mimetype: 'application/pdf', size: 5 },
+			url: 'mxc://e/y'
+		});
 	});
 });

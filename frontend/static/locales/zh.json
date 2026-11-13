@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "非文本扩展名",
     "new_text_file_binary_ext_message": "\"{{name}}\" 看起来不像文本文件。编辑器会按文本方式打开 — 这通常会破坏二进制格式。仍要继续吗?",
     "confirm_delete_permanent": "永久删除「{{name}}」？此操作无法撤销。",
-    "confirm_batch_delete_permanent": "永久删除 {{n}} 个项目？此操作无法撤销。"
+    "confirm_batch_delete_permanent": "永久删除 {{n}} 个项目？此操作无法撤销。",
+    "pick_file": "选择文件",
+    "empty_folder": "此文件夹为空。"
   },
   "dialogs": {
     "rename_folder": "重命名文件夹",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "无法加载此附件。",
     "attachment_save": "保存到文件",
     "attachment_saved": "已保存到 {{name}}",
-    "attachment_open_folder": "打开文件夹"
+    "attachment_open_folder": "打开文件夹",
+    "attach_device": "附加文件",
+    "attach_files": "从文件发送",
+    "attachment_too_large": "此文件太大,无法发送(上限 {{max}})。"
   },
   "passkeys": {
     "title": "通行密钥",

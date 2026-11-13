@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "非テキスト拡張子",
     "new_text_file_binary_ext_message": "「{{name}}」はテキストファイルではないようです。エディターはテキストとして開きます — 通常、バイナリ形式はこれで壊れます。それでも続行しますか?",
     "confirm_delete_permanent": "「{{name}}」を完全に削除しますか?この操作は取り消せません。",
-    "confirm_batch_delete_permanent": "{{n}} 件のアイテムを完全に削除しますか?この操作は取り消せません。"
+    "confirm_batch_delete_permanent": "{{n}} 件のアイテムを完全に削除しますか?この操作は取り消せません。",
+    "pick_file": "ファイルを選択",
+    "empty_folder": "このフォルダーは空です。"
   },
   "dialogs": {
     "rename_folder": "フォルダ名を変更",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "この添付ファイルを読み込めませんでした。",
     "attachment_save": "ファイルに保存",
     "attachment_saved": "{{name}} に保存しました",
-    "attachment_open_folder": "フォルダーを開く"
+    "attachment_open_folder": "フォルダーを開く",
+    "attach_device": "ファイルを添付",
+    "attach_files": "ファイルから送信",
+    "attachment_too_large": "このファイルは大きすぎて送信できません(上限 {{max}})。"
   },
   "passkeys": {
     "title": "パスキー",

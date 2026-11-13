@@ -96,3 +96,13 @@ export function driveIcon(d: Drive): string {
 	if (d.default_for_user) return 'home';
 	return d.kind === 'shared' ? 'users' : 'folder';
 }
+
+/**
+ * Display order for drive lists: the user's home first, then other
+ * personal drives, then shared ones; by name within each group. One
+ * ordering for the sidebar picker and every dialog.
+ */
+export function compareDrives(a: Drive, b: Drive): number {
+	const rank = (d: Drive) => (d.default_for_user ? 0 : d.kind === 'personal' ? 1 : 2);
+	return rank(a) - rank(b) || a.name.localeCompare(b.name);
+}

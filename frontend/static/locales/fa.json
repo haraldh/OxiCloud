@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "پسوند غیرمتنی",
     "new_text_file_binary_ext_message": "«{{name}}» شبیه فایل متنی نیست. ویرایشگر آن را به صورت متن باز می‌کند — این معمولاً فرمت‌های دودویی را خراب می‌کند. با این حال ادامه می‌دهید؟",
     "confirm_delete_permanent": "حذف «{{name}}» برای همیشه؟ این عمل قابل بازگشت نیست.",
-    "confirm_batch_delete_permanent": "حذف {{n}} مورد برای همیشه؟ این عمل قابل بازگشت نیست."
+    "confirm_batch_delete_permanent": "حذف {{n}} مورد برای همیشه؟ این عمل قابل بازگشت نیست.",
+    "pick_file": "یک فایل انتخاب کنید",
+    "empty_folder": "این پوشه خالی است."
   },
   "dialogs": {
     "rename_folder": "تغییر نام پوشه",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "این پیوست بارگیری نشد.",
     "attachment_save": "ذخیره در فایل‌ها",
     "attachment_saved": "در {{name}} ذخیره شد",
-    "attachment_open_folder": "باز کردن پوشه"
+    "attachment_open_folder": "باز کردن پوشه",
+    "attach_device": "پیوست کردن فایل",
+    "attach_files": "ارسال از فایل‌ها",
+    "attachment_too_large": "این فایل برای ارسال بیش از حد بزرگ است (حد {{max}})."
   },
   "passkeys": {
     "title": "کلیدهای عبور",

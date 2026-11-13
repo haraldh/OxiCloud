@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "Нетекстовое расширение",
     "new_text_file_binary_ext_message": "«{{name}}» не похож на текстовый файл. Редактор откроет его как текст — для бинарных форматов это обычно губительно. Всё равно продолжить?",
     "confirm_delete_permanent": "Удалить «{{name}}» без возможности восстановления? Это действие необратимо.",
-    "confirm_batch_delete_permanent": "Удалить {{n}} элементов без возможности восстановления? Это действие необратимо."
+    "confirm_batch_delete_permanent": "Удалить {{n}} элементов без возможности восстановления? Это действие необратимо.",
+    "pick_file": "Выберите файл",
+    "empty_folder": "Эта папка пуста."
   },
   "dialogs": {
     "rename_folder": "Переименовать папку",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "Не удалось загрузить вложение.",
     "attachment_save": "Сохранить в Файлы",
     "attachment_saved": "Сохранено в {{name}}",
-    "attachment_open_folder": "Открыть папку"
+    "attachment_open_folder": "Открыть папку",
+    "attach_device": "Прикрепить файл",
+    "attach_files": "Отправить из Файлов",
+    "attachment_too_large": "Файл слишком большой для отправки (ограничение {{max}})."
   },
   "passkeys": {
     "title": "Ключи доступа",

@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { errorToast } from '$lib/utils/errors';
-	import { listFolder, moveFolder } from '$lib/api/endpoints/folders';
+	import { moveFolder } from '$lib/api/endpoints/folders';
 	import { moveFile } from '$lib/api/endpoints/files';
 	import { copyFiles, copyFolders } from '$lib/api/endpoints/batch';
-	import type { Drive, DriveRole, FolderItem } from '$lib/api/types';
-	import Icon from '$lib/icons/Icon.svelte';
+	import type { Drive, DriveRole } from '$lib/api/types';
+	import FolderBrowser from '$lib/components/FolderBrowser.svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import { t } from '$lib/i18n/index.svelte';
-	import { drives as drivesStore, driveIcon } from '$lib/stores/drives.svelte';
+	import { compareDrives, drives as drivesStore } from '$lib/stores/drives.svelte';
 	import { ui } from '$lib/stores/ui.svelte';
 	import { useAsyncAction } from '$lib/composables/useAsyncAction.svelte';
 
@@ -24,14 +23,6 @@
 		// 2-value `WRITABLE_ROLES` is safe — the two phantom values
 		// (`contributor`, `commenter`) narrow back to `false`.
 		return d.caller_role != null && WRITABLE_ROLES.includes(d.caller_role as DriveRole);
-	}
-
-	// Default-personal first, then secondary personals, then shared; within
-	// a group, alphabetical. Mirrors DrivePicker so the sidebar and this
-	// dialog rank drives identically.
-	function driveRank(d: Drive): number {
-		if (d.default_for_user) return 0;
-		return d.kind === 'personal' ? 1 : 2;
 	}
 
 	interface Target {
@@ -55,87 +46,11 @@
 	const targets = $derived(items && items.length ? items : item ? [item] : []);
 	const targetIds = $derived(new Set(targets.map((x) => x.id)));
 
-	let crumbs = $state<Array<{ id: string; name: string }>>([]);
-	let folders = $state<FolderItem[]>([]);
 	let currentId = $state<string | null>(null);
-	let selectedDriveId = $state<string | null>(null);
-	let loading = $state(false);
 
-	// Managed `{busy, error, run, clearError}` state so a failed move or
-	// copy (duplicate-name 409, quota 507, permission denial, …)
-	// surfaces inline in the dialog instead of as a corner toast —
-	// user keeps their picked destination and can retry or back out
-	// without reopening. See `frontend/AGENTS.md § Dialog error UX`.
 	const action = useAsyncAction();
 
-	const writableDrives = $derived(
-		[...drivesStore.drives].filter(isWritable).sort((a, b) => {
-			const r = driveRank(a) - driveRank(b);
-			return r !== 0 ? r : a.name.localeCompare(b.name);
-		})
-	);
-
-	// The chip strip only earns its vertical space when there's a real
-	// choice. One writable drive → identical to the single-drive UI.
-	const showDriveSwitcher = $derived(writableDrives.length > 1);
-
-	async function loadInto(id: string) {
-		loading = true;
-		// User is picking a new destination — clear any inline error
-		// from a previous failed attempt. Mirror of the oninput-clears
-		// pattern DialogHost uses for prompt dialogs.
-		action.clearError();
-		try {
-			currentId = id;
-			folders = (await listFolder(id)).folders;
-		} catch (e) {
-			errorToast(e);
-		} finally {
-			loading = false;
-		}
-	}
-
-	async function init() {
-		await drivesStore.load();
-		const home = drivesStore.findDefault();
-		// Prefer the user's home drive when it's writable (covers the
-		// common case: moving stuff around inside Personal). Otherwise
-		// fall back to the first writable drive, sorted as above.
-		const start = home && isWritable(home) ? home : writableDrives[0];
-		if (!start) return;
-		selectedDriveId = start.id;
-		crumbs = [{ id: start.root_folder_id, name: start.name }];
-		await loadInto(start.root_folder_id);
-	}
-
-	async function switchDrive(d: Drive) {
-		if (d.id === selectedDriveId) return;
-		selectedDriveId = d.id;
-		crumbs = [{ id: d.root_folder_id, name: d.name }];
-		await loadInto(d.root_folder_id);
-	}
-
-	function enter(f: FolderItem) {
-		crumbs = [...crumbs, { id: f.id, name: f.name }];
-		void loadInto(f.id);
-	}
-
-	function gotoCrumb(index: number) {
-		crumbs = crumbs.slice(0, index + 1);
-		void loadInto(crumbs[index].id);
-	}
-
-	/** Jump to the home (root) folder — the first crumb. */
-	function goHome() {
-		if (crumbs.length) gotoCrumb(0);
-	}
-
-	/** Step up one level to the parent folder (no-op at home). */
-	function goParent() {
-		if (crumbs.length > 1) gotoCrumb(crumbs.length - 2);
-	}
-
-	const atHome = $derived(crumbs.length <= 1);
+	const writableDrives = $derived([...drivesStore.drives].filter(isWritable).sort(compareDrives));
 
 	async function confirmMove() {
 		if (!targets.length || !currentId) return;
@@ -167,11 +82,6 @@
 		}
 	}
 
-	// (Re)initialise the picker each time it opens.
-	$effect(() => {
-		if (open && targets.length) void init();
-	});
-
 	const moveTitle = $derived.by(() => {
 		if (mode === 'copy') {
 			return targets.length > 1
@@ -186,80 +96,15 @@
 
 <Modal bind:open title={moveTitle}>
 	<div data-testid="move-dialog">
-		{#if showDriveSwitcher}
-			<div
-				class="mv-drives"
-				role="tablist"
-				aria-label={t('drive.picker', 'Drives')}
-				data-testid="move-dialog-drives"
-			>
-				{#each writableDrives as d (d.id)}
-					<button
-						type="button"
-						role="tab"
-						aria-selected={d.id === selectedDriveId}
-						class="mv-drive"
-						class:mv-drive--active={d.id === selectedDriveId}
-						data-testid={`move-dialog-drive-${d.id}`}
-						onclick={() => switchDrive(d)}
-					>
-						<Icon name={driveIcon(d)} />
-						<span>{d.name}</span>
-					</button>
-				{/each}
-			</div>
-		{/if}
-
-		<div class="mv-nav">
-			<button
-				class="mv-nav-btn"
-				data-testid="move-dialog-home-btn"
-				title={t('breadcrumb.home', 'Home')}
-				aria-label={t('breadcrumb.home', 'Home')}
-				disabled={atHome}
-				onclick={goHome}><Icon name="home" /></button
-			>
-			<button
-				class="mv-nav-btn"
-				data-testid="move-dialog-parent-btn"
-				title={t('dialogs.go_to_parent', 'Go to parent')}
-				aria-label={t('dialogs.go_to_parent', 'Go to parent')}
-				disabled={atHome}
-				onclick={goParent}><Icon name="level-up-alt" /></button
-			>
-			<nav class="mv-crumbs" aria-label="Breadcrumb">
-				{#each crumbs as c, i (c.id)}
-					{#if i > 0}<span class="mv-sep">/</span>{/if}
-					<button
-						class="mv-crumb"
-						data-testid={`move-dialog-crumb-${c.id}`}
-						onclick={() => gotoCrumb(i)}>{c.name}</button
-					>
-				{/each}
-			</nav>
-		</div>
-
-		{#if loading}
-			<p class="mv-status">{t('common.loading', 'Loading…')}</p>
-		{:else if folders.length === 0}
-			<p class="mv-status">{t('files.no_subfolders', 'No subfolders here.')}</p>
-		{:else}
-			<ul class="mv-list">
-				{#each folders as f (f.id)}
-					<li>
-						<button
-							class="mv-folder"
-							data-testid={`move-dialog-folder-${f.id}`}
-							disabled={targetIds.has(f.id) || action.busy}
-							onclick={() => enter(f)}
-						>
-							<Icon name="folder" /> <span>{f.name}</span>
-							<Icon name="chevron-right" class="mv-enter" />
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{/if}
+		<FolderBrowser
+			drives={writableDrives}
+			active={open && targets.length > 0}
+			bind:currentId
+			testid="move-dialog"
+			disabledFolderIds={targetIds}
+			busy={action.busy}
+			onnavigate={() => action.clearError()}
+		/>
 
 		{#if action.error}
 			<p class="form-error" id="move-dialog-error" role="alert">{action.error}</p>
@@ -291,148 +136,8 @@
 </Modal>
 
 <style>
-	/* Drive switcher: a chip strip across the top of the dialog. Hidden
-	   when only one writable drive is in scope (single-drive UX). */
-	.mv-drives {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.375rem;
-		margin-bottom: var(--space-3);
-		padding-bottom: var(--space-3);
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	.mv-drive {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.3rem 0.625rem;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-		background: var(--color-bg-input);
-		color: var(--color-text);
-		font: inherit;
-		font-size: 0.85rem;
-		cursor: pointer;
-		max-width: 14rem;
-	}
-
-	.mv-drive:hover:not(.mv-drive--active) {
-		background: var(--color-bg-hover);
-	}
-
-	.mv-drive--active {
-		background: var(--color-accent);
-		color: var(--color-on-accent);
-		border-color: var(--color-accent);
-		cursor: default;
-	}
-
-	.mv-drive span {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.mv-nav {
-		display: flex;
-		align-items: center;
-		gap: var(--space-1);
-		margin-bottom: var(--space-3);
-	}
-
-	.mv-nav-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 28px;
-		height: 28px;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-		background: var(--color-bg-input);
-		color: var(--color-text);
-		cursor: pointer;
-		flex: none;
-	}
-
-	.mv-nav-btn:hover:not(:disabled) {
-		background: var(--color-bg-hover);
-	}
-
-	.mv-nav-btn:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
-	}
-
-	.mv-crumbs {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.25rem;
-		min-width: 0;
-	}
-
-	.mv-crumb {
-		background: none;
-		border: none;
-		color: var(--color-accent-text, var(--color-primary));
-		cursor: pointer;
-		padding: 0.125rem 0.25rem;
-	}
-
-	.mv-sep {
-		color: var(--color-text-muted);
-	}
-
-	.mv-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		max-height: 50vh;
-		overflow: auto;
-	}
-
-	.mv-folder {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		width: 100%;
-		padding: 0.5rem 0.625rem;
-		border: none;
-		background: none;
-		color: var(--color-text);
-		cursor: pointer;
-		border-radius: var(--radius-md);
-		text-align: left;
-	}
-
-	.mv-folder:hover:not(:disabled) {
-		background: var(--color-bg-hover);
-	}
-
-	.mv-folder:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
-	}
-
-	.mv-folder span {
-		flex: 1;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	:global(.mv-enter) {
-		color: var(--color-text-muted);
-	}
-
-	.mv-status {
-		color: var(--color-text-muted);
-		padding: 1rem 0;
-		text-align: center;
-	}
-
 	/* `.form-error` lives in `lib/styles/base/forms.css` — one
 	   place for every dialog's error state. See
-	   `frontend/AGENTS.md § Dialog error UX`. */
+	   `frontend/AGENTS.md § Dialog error UX`. Navigation styles live in
+	   FolderBrowser. */
 </style>

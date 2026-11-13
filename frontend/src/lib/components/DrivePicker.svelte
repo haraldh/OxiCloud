@@ -8,7 +8,7 @@
 	import type { Drive } from '$lib/api/types';
 	import Icon from '$lib/icons/Icon.svelte';
 	import { t } from '$lib/i18n/index.svelte';
-	import { drives as drivesStore, driveIcon } from '$lib/stores/drives.svelte';
+	import { compareDrives, drives as drivesStore, driveIcon } from '$lib/stores/drives.svelte';
 	import { formatBytes } from '$lib/utils/format';
 
 	interface Props {
@@ -56,13 +56,7 @@
 	// Sorting: default-personal drive first, then secondary personals, then
 	// shared. Within each group, by name. Picker UX puts "home" at the top so
 	// the common case is one click.
-	const sortedDrives = $derived(
-		[...drivesStore.drives].sort((a, b) => {
-			const rank = (d: Drive) => (d.default_for_user ? 0 : d.kind === 'personal' ? 1 : 2);
-			const r = rank(a) - rank(b);
-			return r !== 0 ? r : a.name.localeCompare(b.name);
-		})
-	);
+	const sortedDrives = $derived([...drivesStore.drives].sort(compareDrives));
 
 	function isActive(d: Drive): boolean {
 		return firstFilesSegment === d.root_folder_id;

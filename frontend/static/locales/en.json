@@ -656,7 +656,9 @@
     "new_text_file_prompt": "Filename (e.g. notes.md)",
     "new_text_file_hint": "Include the extension in the filename (e.g. .md, .txt, .c, .py, .rs).",
     "new_text_file_binary_ext_title": "Non-text extension",
-    "new_text_file_binary_ext_message": "\"{{name}}\" doesn't look like a text file. The editor will open it as text — that usually breaks binary formats. Continue anyway?"
+    "new_text_file_binary_ext_message": "\"{{name}}\" doesn't look like a text file. The editor will open it as text — that usually breaks binary formats. Continue anyway?",
+    "pick_file": "Choose a file",
+    "empty_folder": "This folder is empty."
   },
   "dialogs": {
     "rename_folder": "Rename folder",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "Could not load this attachment.",
     "attachment_save": "Save to Files",
     "attachment_saved": "Saved to {{name}}",
-    "attachment_open_folder": "Open folder"
+    "attachment_open_folder": "Open folder",
+    "attach_device": "Attach a file",
+    "attach_files": "Send from Files",
+    "attachment_too_large": "This file is too large to send (limit {{max}})."
   },
   "passkeys": {
     "title": "Passkeys",

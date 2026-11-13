@@ -610,7 +610,9 @@
     "new_text_file_binary_ext_title": "Rozszerzenie nietekstowe",
     "new_text_file_binary_ext_message": "„{{name}}\" nie wygląda jak plik tekstowy. Edytor otworzy go jako tekst — zwykle psuje to formaty binarne. Mimo to kontynuować?",
     "confirm_delete_permanent": "Trwale usunąć „{{name}}\"? Tej operacji nie można cofnąć.",
-    "confirm_batch_delete_permanent": "Trwale usunąć {{n}} elementów? Tej operacji nie można cofnąć."
+    "confirm_batch_delete_permanent": "Trwale usunąć {{n}} elementów? Tej operacji nie można cofnąć.",
+    "pick_file": "Wybierz plik",
+    "empty_folder": "Ten folder jest pusty."
   },
   "dialogs": {
     "rename_folder": "Zmień nazwę folderu",
@@ -2308,7 +2310,10 @@
     "attachment_failed": "Nie udało się wczytać tego załącznika.",
     "attachment_save": "Zapisz w Plikach",
     "attachment_saved": "Zapisano w {{name}}",
-    "attachment_open_folder": "Otwórz folder"
+    "attachment_open_folder": "Otwórz folder",
+    "attach_device": "Załącz plik",
+    "attach_files": "Wyślij z Plików",
+    "attachment_too_large": "Ten plik jest za duży do wysłania (limit {{max}})."
   },
   "passkeys": {
     "title": "Klucze dostępu",
