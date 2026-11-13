@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "Ta instancja nie akceptuje rejestracji z tej domeny e-mail. Spróbuj innego adresu lub poproś administratora o dodanie Twojej domeny do listy dozwolonych.",
     "register_password_disabled": "Rejestracja z hasłem jest wyłączona na tej instancji. Pozostaw hasło puste, aby otrzymać link logowania e-mailem, lub zaloguj się za pomocą swojego dostawcy tożsamości.",
     "register_disabled": "Rejestracja jest zamknięta na tej instancji. Poproś administratora o zaproszenie.",
-    "account_deactivated": "Twoje konto zostało dezaktywowane. Skontaktuj się z administratorem."
+    "account_deactivated": "Twoje konto zostało dezaktywowane. Skontaktuj się z administratorem.",
+    "passkey_sign_in": "Zaloguj się kluczem dostępu",
+    "passkey_rejected": "Ten klucz dostępu nie został zaakceptowany. Mógł zostać usunięty z Twojego konta."
   },
   "storage": {
     "title": "Pamięć masowa",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "Widoczny w Przeglądaj pokoje, nieszyfrowany i nigdy niedostępny z innych serwerów.",
     "group_private_hint": "Tylko na zaproszenie i szyfrowany end-to-end.",
     "local_only": "Ten pokój pozostaje na tym serwerze, nawet jeśli później zostanie włączona federacja."
+  },
+  "passkeys": {
+    "title": "Klucze dostępu",
+    "desc": "Loguj się odciskiem palca, twarzą lub PIN-em urządzenia zamiast hasła. Kluczy dostępu nie da się wyłudzić, a Twoje hasło nadal działa.",
+    "add": "Dodaj klucz dostępu",
+    "name_label": "Nazwa klucza dostępu",
+    "name_placeholder": "Nazwa (np. Laptop, Telefon)",
+    "unsupported": "Ta przeglądarka nie może tworzyć kluczy dostępu. Nadal możesz zarządzać istniejącymi.",
+    "none": "Brak kluczy dostępu.",
+    "added": "Dodano klucz dostępu. Możesz teraz logować się za jego pomocą.",
+    "added_on": "Dodano {{date}}",
+    "last_used": "Ostatnio użyty: {{when}}",
+    "rename": "Zmień nazwę",
+    "rename_title": "Zmień nazwę klucza dostępu",
+    "remove": "Usuń",
+    "remove_title": "Usunąć „{{name}}”?",
+    "remove_message": "Nie będzie można już zalogować się tym kluczem. Sam klucz pozostanie na urządzeniu, dopóki go tam nie usuniesz.",
+    "last_factor": "To Twój jedyny sposób logowania. Najpierw dodaj inny klucz dostępu lub hasło.",
+    "duplicate": "Ten klucz dostępu jest już zarejestrowany.",
+    "invalid_name": "Użyj nazwy o długości od 1 do 64 znaków.",
+    "verification_failed": "Nie udało się zweryfikować klucza dostępu. Spróbuj ponownie.",
+    "not_allowed": "To konto nie może dodawać kluczy dostępu.",
+    "default_name": "Mój klucz dostępu"
   }
 }

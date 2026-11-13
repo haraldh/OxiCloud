@@ -61,7 +61,10 @@ const DEFAULT_FEATURES: ServerFeatures = {
 	shared_worker_bus: true,
 	// Chat is opt-in server-side and needs a homeserver URL besides, so a
 	// client without the config must not show a nav entry that can't work.
-	chat: false
+	chat: false,
+	// Passkeys need a server-side relying party; without the config the
+	// login page must not offer a button that can only fail.
+	passkeys: false
 };
 
 /** Pre-load default for the auth tunables. `8` matches the server's

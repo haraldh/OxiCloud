@@ -314,6 +314,10 @@ set -a
 # shellcheck source=../common/server.env
 source "$COMMON/server.env"
 OXICLOUD_SERVER_PORT=$SERVER_PORT
+# Public URL = the URL the tests use. Passkeys need it: WebAuthn refuses an
+# IP host (the 127.0.0.1 the server would otherwise derive) as a relying
+# party, so without it passkey sign-in stays off. See passkeys.hurl.
+OXICLOUD_BASE_URL=$base_url
 OXICLOUD_STORAGE_PATH="$REPO_ROOT/tests/api/storage"
 set +a
 
@@ -614,6 +618,7 @@ HURL_FILES=( \
   "$API_DIR/chat_discovery.hurl" \
   "$API_DIR/device_auth_flow.hurl" \
   "$API_DIR/idp_provider.hurl" \
+  "$API_DIR/passkeys.hurl" \
   "$API_DIR/external_mounts.hurl" \
   # Same mount fixtures, one surface each: REST (#793) and both WebDAV
   # surfaces (#792, #794). Kept adjacent to `external_mounts.hurl` so the

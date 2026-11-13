@@ -336,6 +336,13 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
         handlers::opaque_auth_handler::login_lookup,
         handlers::opaque_auth_handler::login_ke1,
         handlers::opaque_auth_handler::login_ke3,
+        handlers::passkey_handler::list,
+        handlers::passkey_handler::register_start,
+        handlers::passkey_handler::register_finish,
+        handlers::passkey_handler::rename,
+        handlers::passkey_handler::remove,
+        handlers::passkey_handler::login_start,
+        handlers::passkey_handler::login_finish,
         // Grant / ReBAC handlers (free functions)
         handlers::grant_handler::create_grant,
         handlers::grant_handler::revoke_grant,
@@ -446,6 +453,13 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
             crate::application::services::idp_service::ConsentInfoDto,
             crate::interfaces::api::handlers::idp_handler::IdpDecisionRequestDto,
             crate::interfaces::api::handlers::idp_handler::IdpDecisionResponseDto,
+            // Passkeys (WebAuthn).
+            crate::application::services::passkey_service::PasskeyInfo,
+            crate::interfaces::api::handlers::passkey_handler::PasskeyRegisterStartResponse,
+            crate::interfaces::api::handlers::passkey_handler::PasskeyRegisterFinishDto,
+            crate::interfaces::api::handlers::passkey_handler::PasskeyLoginStartResponse,
+            crate::interfaces::api::handlers::passkey_handler::PasskeyLoginFinishDto,
+            crate::interfaces::api::handlers::passkey_handler::PasskeyRenameDto,
             // App-password management.
             crate::application::dtos::app_password_dto::CreateAppPasswordRequestDto,
             crate::application::dtos::app_password_dto::AppPasswordCreatedResponseDto,

@@ -339,6 +339,11 @@ pub struct FeaturesDto {
     /// Chat through a Matrix homeserver: the SPA's `/chat` page and its
     /// nav entry. Off by default. See `crate::common::chat_config`.
     pub chat: bool,
+    /// Passkey sign-in is available: the login page offers it and the
+    /// profile lists the user's passkeys. True only when the flag is on
+    /// AND the service could be built (it needs a usable public URL).
+    /// See `FeaturesConfig::enable_passkeys`.
+    pub passkeys: bool,
 }
 
 /// `GET /api/config` — return the public server-configuration
@@ -465,6 +470,7 @@ pub async fn get_config(State(state): State<Arc<AppState>>) -> Json<ServerConfig
             markdown_collab: f.enable_markdown_collab,
             shared_worker_bus: f.enable_shared_worker_bus,
             chat: state.core.config.chat.enabled(),
+            passkeys: state.passkey_service.is_some(),
         },
         chat: ChatDto {
             homeserver_url: state.core.config.chat.homeserver_url.clone(),

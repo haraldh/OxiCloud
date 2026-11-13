@@ -34,6 +34,7 @@
 	import ConfirmButton from '$lib/components/ConfirmButton.svelte';
 	import { preferences } from '$lib/stores/preferences.svelte';
 	import { serverConfig } from '$lib/stores/serverConfig.svelte';
+	import PasskeysCard from '$lib/components/PasskeysCard.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import { isAtLeastAdmin } from '$lib/utils/roles';
 	import { ui } from '$lib/stores/ui.svelte';
@@ -879,6 +880,10 @@
 				</form>
 			{/if}
 		</div>
+
+		{#if serverConfig.features.passkeys}
+			<PasskeysCard />
+		{/if}
 
 		<!-- App passwords -->
 		{#if !appPwLoadFailed}

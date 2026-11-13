@@ -862,7 +862,9 @@
     "login_error_callback_failed": "SSO sign-in couldn't complete. Please try again.",
     "login_error_email_not_verified_at_idp": "Your identity provider reports that your email address is not verified. Confirm your email at your identity provider, then try signing in again.",
     "login_error_email_verification_required": "This server requires a verified email. Your identity provider did not include an email-verification claim. Contact your administrator.",
-    "login_error_generic": "SSO sign-in was refused. Please try again."
+    "login_error_generic": "SSO sign-in was refused. Please try again.",
+    "passkey_sign_in": "Sign in with a passkey",
+    "passkey_rejected": "This passkey was not accepted. It may have been removed from your account."
   },
   "storage": {
     "title": "Storage",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "Listed in Explore rooms, not encrypted, and never reachable from other servers.",
     "group_private_hint": "Invite-only and end-to-end encrypted.",
     "local_only": "This room stays on this server, even if federation is turned on later."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "desc": "Sign in with your fingerprint, face or device PIN instead of your password. Passkeys cannot be phished, and your password keeps working.",
+    "add": "Add passkey",
+    "name_label": "Passkey name",
+    "name_placeholder": "Name (e.g. Laptop, Phone)",
+    "unsupported": "This browser cannot create passkeys. You can still manage the ones you have.",
+    "none": "No passkeys yet.",
+    "added": "Passkey added. You can now use it to sign in.",
+    "added_on": "Added {{date}}",
+    "last_used": "Last used: {{when}}",
+    "rename": "Rename",
+    "rename_title": "Rename passkey",
+    "remove": "Remove",
+    "remove_title": "Remove “{{name}}”?",
+    "remove_message": "You will no longer be able to sign in with this passkey. The passkey itself stays on your device until you delete it there.",
+    "last_factor": "This is your only way to sign in. Add another passkey or a password first.",
+    "duplicate": "This passkey is already registered.",
+    "invalid_name": "Use a name of 1 to 64 characters.",
+    "verification_failed": "The passkey could not be verified. Please try again.",
+    "not_allowed": "This account cannot add passkeys.",
+    "default_name": "My passkey"
   }
 }

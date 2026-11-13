@@ -194,6 +194,7 @@ pub const KNOWN: &[(&str, &str)] = &[
     ("features", "OXICLOUD_ENABLE_CHAT"),
     ("features", "OXICLOUD_ENABLE_CONTACTS"),
     ("features", "OXICLOUD_ENABLE_CALENDARS"),
+    ("features", "OXICLOUD_ENABLE_PASSKEYS"),
     ("features", "OXICLOUD_ENABLE_CONTENT_SEARCH"),
     ("features", "OXICLOUD_ENABLE_EXTERNAL_MOUNTS"),
     ("features", "OXICLOUD_ENABLE_FACES"),

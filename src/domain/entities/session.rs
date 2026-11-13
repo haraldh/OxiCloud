@@ -25,6 +25,8 @@ pub enum SessionOrigin {
     /// want to know "this login came from a headless device flow", not
     /// conflate it with browser password entry.
     Device,
+    /// WebAuthn passkey sign-in (`docs/plan/passkeys.md`).
+    Passkey,
     Unknown,
 }
 
@@ -38,6 +40,7 @@ impl SessionOrigin {
             Self::MagicLink => "magic_link",
             Self::Oidc => "oidc",
             Self::Device => "device",
+            Self::Passkey => "passkey",
             Self::Unknown => "unknown",
         }
     }
@@ -56,6 +59,7 @@ impl SessionOrigin {
             "magic_link" => Self::MagicLink,
             "oidc" => Self::Oidc,
             "device" => Self::Device,
+            "passkey" => Self::Passkey,
             _ => Self::Unknown,
         }
     }

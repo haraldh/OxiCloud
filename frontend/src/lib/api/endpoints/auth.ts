@@ -13,6 +13,8 @@ import {
 	oidcExchange,
 	oidcLinkStart,
 	oidcUnlink,
+	passkeyLoginFinish,
+	passkeyLoginStart,
 	refreshToken as sdkRefreshToken,
 	register as sdkRegister,
 	sendMagicLink as sdkSendMagicLink,
@@ -37,7 +39,7 @@ const authLog = log.getLogger('oxi:auth');
  * for the matching contract: both paths share the same `ErrorResponseDto`
  * shape on non-2xx.
  */
-function apiErrorFromSdkError(e: unknown, path: string): ApiError {
+export function apiErrorFromSdkError(e: unknown, path: string): ApiError {
 	// Hey API throws two different shapes depending on the SDK call's
 	// `responseStyle`:
 	//   * `responseStyle: 'fields'` → throws a `{response, data}`
@@ -244,6 +246,43 @@ export async function bindDpopIfPossible(): Promise<boolean> {
 	} catch (err) {
 		authLog.debug('dpop: bind endpoint call failed', err);
 		return false;
+	}
+}
+
+/**
+ * Sign in with a passkey: the browser offers this site's passkeys, the
+ * user confirms (fingerprint, face, device PIN), and the server issues the
+ * same session (cookies, DPoP binding) as a password login. Throws the
+ * browser's DOMException when the user cancels (`isPasskeyCancelled`) and
+ * `ApiError` 401 `InvalidCredentials` for any refusal. See
+ * docs/plan/passkeys.md.
+ */
+export async function passkeyLogin(): Promise<AuthResponse> {
+	const { assertionToJson, toRequestOptions } = await import('$lib/auth/passkey');
+	let start;
+	try {
+		start = await passkeyLoginStart({ throwOnError: true });
+	} catch (e) {
+		throw apiErrorFromSdkError(e, '/api/auth/passkey/login/start');
+	}
+	const credential = await navigator.credentials.get({
+		publicKey: toRequestOptions(start.options)
+	});
+	if (!(credential instanceof PublicKeyCredential)) {
+		throw new Error('The browser returned no passkey');
+	}
+	const dpopJkt = await tryBindingThumbprint();
+	try {
+		return (await passkeyLoginFinish({
+			body: {
+				ceremonyId: start.ceremonyId,
+				credential: assertionToJson(credential),
+				...(dpopJkt ? { dpopJkt } : {})
+			},
+			throwOnError: true
+		})) as AuthResponse;
+	} catch (e) {
+		throw apiErrorFromSdkError(e, '/api/auth/passkey/login/finish');
 	}
 }
 

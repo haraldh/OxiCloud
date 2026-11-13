@@ -25,6 +25,7 @@ pub mod music_ports;
 pub mod notification_sink_ports;
 pub mod opaque_ports;
 pub mod outbound;
+pub mod passkey_ports;
 pub mod plugin_ports;
 pub mod recent_ports;
 pub mod resource_access_hook;

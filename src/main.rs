@@ -1064,6 +1064,33 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
                     rate_limit_login,
                 ))
                 .with_state(app_state.clone());
+        // Passkeys (docs/plan/passkeys.md): the caller's own passkeys, with
+        // the same layer stack as the OPAQUE register routes, and public
+        // sign-in behind the shared login rate limiter. Handlers answer
+        // 503 when the service isn't built, so mounting is unconditional.
+        let passkey_manage_protected =
+            oxicloud::interfaces::api::handlers::passkey_handler::passkey_manage_routes()
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    require_no_password_change_pending_layer,
+                ))
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    require_dpop_layer,
+                ))
+                .layer(axum::middleware::from_fn(csrf_middleware))
+                .layer(axum::middleware::from_fn_with_state(
+                    app_state.clone(),
+                    auth_middleware,
+                ))
+                .with_state(app_state.clone());
+        let passkey_login_public =
+            oxicloud::interfaces::api::handlers::passkey_handler::passkey_login_routes()
+                .layer(axum::middleware::from_fn_with_state(
+                    login_limiter.clone(),
+                    rate_limit_login,
+                ))
+                .with_state(app_state.clone());
         // OPAQUE aPAKE — public params (KSF + ciphersuite) — GET,
         // no rate limit, SPA fetches once at page load. Distinct
         // mount so no login limiter attaches to a non-login read.
@@ -1254,6 +1281,16 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
             .nest(
                 "/api/auth/opaque",
                 opaque_params_public.layer(access_log!("http::api::auth")),
+            )
+            // Passkeys — distinct prefixes for the signed-in and public
+            // mounts, for the same layer-bleed reason as OPAQUE above.
+            .nest(
+                "/api/auth/passkeys",
+                passkey_manage_protected.layer(access_log!("http::api::auth")),
+            )
+            .nest(
+                "/api/auth/passkey/login",
+                passkey_login_public.layer(access_log!("http::api::auth")),
             )
             // One-time setup endpoint — public, rate-limited
             .nest("/api", setup_router.layer(access_log!("http::api")))

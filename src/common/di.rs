@@ -2689,6 +2689,7 @@ impl AppServiceFactory {
             wopi_discovery_service: None,
             device_auth_service: None,
             idp_service: None,
+            passkey_service: None,
             app_password_service: None,
             path_resolver: None,
             webdav_lock_store:
@@ -3340,6 +3341,44 @@ impl AppServiceFactory {
                         issuer = %self.config.base_url(),
                         "OpenID provider enabled"
                     );
+                }
+
+                // Passkey sign-in (docs/plan/passkeys.md). Needs the user
+                // repository, so auth-only like the IdP above. A public URL
+                // the relying party can't use leaves the feature off, loudly,
+                // rather than refusing to boot: passwords keep working.
+                if self.config.features.enable_passkeys {
+                    let users = Arc::new(
+                        crate::infrastructure::repositories::pg::PasskeyUserDirectoryPg::new(
+                            Arc::new(crate::infrastructure::repositories::UserPgRepository::new(
+                                pool.clone(),
+                            )),
+                        ),
+                    );
+                    let store = Arc::new(
+                        crate::infrastructure::repositories::pg::PasskeyPgRepository::new(
+                            pool.clone(),
+                        ),
+                    );
+                    let public_url = self.config.base_url();
+                    match crate::application::services::passkey_service::PasskeyService::new(
+                        &public_url,
+                        store,
+                        users,
+                    ) {
+                        Ok(svc) => {
+                            app_state.passkey_service = Some(Arc::new(svc));
+                            tracing::info!(public_url = %public_url, "Passkey sign-in enabled");
+                        }
+                        // Warn, not error: the default public URL is an IP
+                        // (127.0.0.1), which WebAuthn refuses, so every
+                        // instance without OXICLOUD_BASE_URL lands here and
+                        // still works — passwords are unaffected.
+                        Err(e) => tracing::warn!(
+                            error = %e,
+                            "Passkey sign-in disabled: set OXICLOUD_BASE_URL to the public URL"
+                        ),
+                    }
                 }
 
                 // Expired device-code cleanup — periodic janitor so the
@@ -4185,6 +4224,10 @@ pub struct AppState {
     /// OxiCloud as OpenID Provider. `Some` iff `OXICLOUD_IDP_CLIENTS`
     /// names at least one client (and auth is enabled).
     pub idp_service: Option<Arc<crate::application::services::idp_service::IdpService>>,
+    /// Passkey sign-in. `Some` iff `OXICLOUD_ENABLE_PASSKEYS` (default on),
+    /// auth is enabled, and the public URL made a usable relying party.
+    pub passkey_service:
+        Option<Arc<crate::application::services::passkey_service::PasskeyService>>,
     pub app_password_service:
         Option<Arc<crate::application::services::app_password_service::AppPasswordService>>,
     pub path_resolver:

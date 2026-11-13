@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "Ce déploiement n'accepte pas les inscriptions depuis ce domaine. Essayez une autre adresse ou demandez à l'administrateur d'ajouter le vôtre à la liste autorisée.",
     "register_password_disabled": "L'inscription avec mot de passe est désactivée sur ce déploiement. Laissez le mot de passe vide pour recevoir un lien de connexion par e-mail, ou connectez-vous via votre fournisseur d'identité.",
     "register_disabled": "Les inscriptions sont fermées sur ce déploiement. Demandez une invitation à un administrateur.",
-    "account_deactivated": "Votre compte a été désactivé. Veuillez contacter votre administrateur."
+    "account_deactivated": "Votre compte a été désactivé. Veuillez contacter votre administrateur.",
+    "passkey_sign_in": "Se connecter avec une clé d'accès",
+    "passkey_rejected": "Cette clé d'accès n'a pas été acceptée. Elle a peut-être été retirée de votre compte."
   },
   "storage": {
     "title": "Stockage",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "Listé dans Explorer les salons, non chiffré et jamais accessible depuis d'autres serveurs.",
     "group_private_hint": "Sur invitation uniquement et chiffré de bout en bout.",
     "local_only": "Ce salon reste sur ce serveur, même si la fédération est activée plus tard."
+  },
+  "passkeys": {
+    "title": "Clés d'accès",
+    "desc": "Connectez-vous avec votre empreinte, votre visage ou le code PIN de l'appareil au lieu de votre mot de passe. Les clés d'accès sont insensibles à l'hameçonnage, et votre mot de passe reste valable.",
+    "add": "Ajouter une clé d'accès",
+    "name_label": "Nom de la clé d'accès",
+    "name_placeholder": "Nom (ex. Portable, Téléphone)",
+    "unsupported": "Ce navigateur ne peut pas créer de clés d'accès. Vous pouvez toujours gérer celles que vous avez.",
+    "none": "Aucune clé d'accès pour l'instant.",
+    "added": "Clé d'accès ajoutée. Vous pouvez maintenant l'utiliser pour vous connecter.",
+    "added_on": "Ajoutée le {{date}}",
+    "last_used": "Dernière utilisation : {{when}}",
+    "rename": "Renommer",
+    "rename_title": "Renommer la clé d'accès",
+    "remove": "Retirer",
+    "remove_title": "Retirer « {{name}} » ?",
+    "remove_message": "Vous ne pourrez plus vous connecter avec cette clé d'accès. La clé reste sur votre appareil jusqu'à ce que vous l'y supprimiez.",
+    "last_factor": "C'est votre seul moyen de connexion. Ajoutez d'abord une autre clé d'accès ou un mot de passe.",
+    "duplicate": "Cette clé d'accès est déjà enregistrée.",
+    "invalid_name": "Utilisez un nom de 1 à 64 caractères.",
+    "verification_failed": "La clé d'accès n'a pas pu être vérifiée. Veuillez réessayer.",
+    "not_allowed": "Ce compte ne peut pas ajouter de clés d'accès.",
+    "default_name": "Ma clé d'accès"
   }
 }

@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "Questa istanza non accetta registrazioni da quel dominio e-mail. Prova con un altro indirizzo o chiedi all'amministratore di aggiungere il tuo alla lista consentita.",
     "register_password_disabled": "La registrazione con password è disattivata su questa istanza. Lascia la password vuota per ricevere un link di accesso via e-mail, o accedi con il tuo provider di identità.",
     "register_disabled": "Le registrazioni sono chiuse su questa istanza. Chiedi un invito a un amministratore.",
-    "account_deactivated": "Il tuo account è stato disattivato. Contatta il tuo amministratore."
+    "account_deactivated": "Il tuo account è stato disattivato. Contatta il tuo amministratore.",
+    "passkey_sign_in": "Accedi con una passkey",
+    "passkey_rejected": "Questa passkey non è stata accettata. Potrebbe essere stata rimossa dal tuo account."
   },
   "storage": {
     "title": "Archiviazione",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "Elencata in Esplora stanze, non cifrata e mai raggiungibile da altri server.",
     "group_private_hint": "Solo su invito e cifrata end-to-end.",
     "local_only": "Questa stanza resta su questo server, anche se in seguito si attiva la federazione."
+  },
+  "passkeys": {
+    "title": "Passkey",
+    "desc": "Accedi con impronta, volto o PIN del dispositivo invece della password. Le passkey non possono essere carpite con il phishing e la tua password continua a funzionare.",
+    "add": "Aggiungi passkey",
+    "name_label": "Nome della passkey",
+    "name_placeholder": "Nome (es. Portatile, Telefono)",
+    "unsupported": "Questo browser non può creare passkey. Puoi comunque gestire quelle che hai.",
+    "none": "Ancora nessuna passkey.",
+    "added": "Passkey aggiunta. Ora puoi usarla per accedere.",
+    "added_on": "Aggiunta il {{date}}",
+    "last_used": "Ultimo uso: {{when}}",
+    "rename": "Rinomina",
+    "rename_title": "Rinomina passkey",
+    "remove": "Rimuovi",
+    "remove_title": "Rimuovere «{{name}}»?",
+    "remove_message": "Non potrai più accedere con questa passkey. La passkey resta sul tuo dispositivo finché non la elimini lì.",
+    "last_factor": "È il tuo unico modo per accedere. Aggiungi prima un'altra passkey o una password.",
+    "duplicate": "Questa passkey è già registrata.",
+    "invalid_name": "Usa un nome da 1 a 64 caratteri.",
+    "verification_failed": "Impossibile verificare la passkey. Riprova.",
+    "not_allowed": "Questo account non può aggiungere passkey.",
+    "default_name": "La mia passkey"
   }
 }

@@ -521,7 +521,13 @@ HTTP 200
 jsonpath "$.subject" contains "Sign in"
 jsonpath "$.text_body" matches "/magic/v1/[A-Za-z0-9_-]+"
 [Captures]
-login_magic_url: jsonpath "$.text_body" regex "(https?://[^\\s]+/magic/v1/[A-Za-z0-9_-]+)"
+# Opened on `127.0.0.1` while the send went to `localhost`: two cookie
+# jars, so this is the "other browser" — Hurl's one jar would otherwise
+# carry the challenge cookie from 15a and redeem straight away. This used
+# to hold only by accident, because the emailed link was built from the
+# derived 127.0.0.1 public URL; run.sh now sets OXICLOUD_BASE_URL to the
+# `localhost` URL (passkeys need a non-IP host), which made 15c-i a 302.
+login_magic_url: jsonpath "$.text_body" regex "(https?://[^\\s]+/magic/v1/[A-Za-z0-9_-]+)" replace "//localhost:" "//127.0.0.1:"
 
 # 15c-i — PR 22: the token is browser-bound. Hitting the
 #         redemption URL without the matching cookie shows the

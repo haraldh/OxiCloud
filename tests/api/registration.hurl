@@ -115,7 +115,13 @@ HTTP 200
 jsonpath "$.to" == "pr18-emailonly@example.com"
 jsonpath "$.text_body" matches "/magic/v1/[A-Za-z0-9_-]+"
 [Captures]
-pr18_magic_url: jsonpath "$.text_body" regex "(https?://[^\\s]+/magic/v1/[A-Za-z0-9_-]+)"
+# Redeemed on `127.0.0.1` while step 3 went to `localhost`, so Hurl's
+# jar does not carry the challenge cookie to step 5a — the "other
+# browser". This held only by accident while the emailed link was built
+# from the derived 127.0.0.1 public URL; run.sh now sets
+# OXICLOUD_BASE_URL to `localhost` (passkeys need a non-IP host), which
+# turned 5a into a straight 302. Step 5b sends the cookie explicitly.
+pr18_magic_url: jsonpath "$.text_body" regex "(https?://[^\\s]+/magic/v1/[A-Za-z0-9_-]+)" replace "//localhost:" "//127.0.0.1:"
 
 
 # ─────────────────────────────────────────────────────────────

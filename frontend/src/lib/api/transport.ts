@@ -52,6 +52,9 @@ const AUTH_PRIMITIVES = [
 	'/api/auth/oidc/',
 	'/api/auth/device/',
 	'/api/auth/opaque/',
+	// Passkey sign-in only; the signed-in `/api/auth/passkeys/…` routes
+	// keep the normal refresh-on-401 behaviour.
+	'/api/auth/passkey/',
 	'/api/auth/magic-link/',
 	'/api/auth/status',
 	'/api/auth/dpop/'

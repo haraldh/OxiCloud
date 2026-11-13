@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "本部署不接受来自该邮箱域名的注册。请尝试其他地址，或请管理员将您的域名加入允许列表。",
     "register_password_disabled": "本部署已禁用密码注册。请将密码留空以通过邮件接收登录链接，或使用您的身份提供商登录。",
     "register_disabled": "本部署已关闭注册。请向管理员索取邀请。",
-    "account_deactivated": "您的账户已被停用。请联系您的管理员。"
+    "account_deactivated": "您的账户已被停用。请联系您的管理员。",
+    "passkey_sign_in": "使用通行密钥登录",
+    "passkey_rejected": "此通行密钥未被接受。它可能已从您的帐户中移除。"
   },
   "storage": {
     "title": "存储空间",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "显示在“探索房间”中，不加密，且其他服务器永远无法访问。",
     "group_private_hint": "仅限邀请，端到端加密。",
     "local_only": "即使以后开启联邦，此房间也只保留在此服务器上。"
+  },
+  "passkeys": {
+    "title": "通行密钥",
+    "desc": "使用指纹、面容或设备 PIN 代替密码登录。通行密钥无法被钓鱼窃取，您的密码仍然有效。",
+    "add": "添加通行密钥",
+    "name_label": "通行密钥名称",
+    "name_placeholder": "名称（例如：笔记本、手机）",
+    "unsupported": "此浏览器无法创建通行密钥。您仍可管理已有的通行密钥。",
+    "none": "还没有通行密钥。",
+    "added": "已添加通行密钥。现在可以用它登录。",
+    "added_on": "添加于 {{date}}",
+    "last_used": "上次使用：{{when}}",
+    "rename": "重命名",
+    "rename_title": "重命名通行密钥",
+    "remove": "移除",
+    "remove_title": "移除“{{name}}”？",
+    "remove_message": "您将无法再使用此通行密钥登录。通行密钥本身会保留在设备上，直到您在设备上删除它。",
+    "last_factor": "这是您唯一的登录方式。请先添加另一个通行密钥或密码。",
+    "duplicate": "此通行密钥已注册。",
+    "invalid_name": "请使用 1 到 64 个字符的名称。",
+    "verification_failed": "无法验证通行密钥。请重试。",
+    "not_allowed": "此帐户无法添加通行密钥。",
+    "default_name": "我的通行密钥"
   }
 }

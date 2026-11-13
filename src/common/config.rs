@@ -2475,6 +2475,12 @@ pub struct FeaturesConfig {
     /// [`Self::enable_carddav`]: this is the browse UI, `enable_caldav`
     /// is the sync protocol.
     pub enable_calendars: bool,
+    /// Passkey (WebAuthn) sign-in and the per-user passkey list —
+    /// `docs/plan/passkeys.md`. Default: true. It only adds a way to sign
+    /// in; passwords keep working. The relying-party ID is the host of
+    /// `AppConfig::base_url()`, so the public URL must be final before
+    /// anyone registers a passkey. Env: `OXICLOUD_ENABLE_PASSKEYS`.
+    pub enable_passkeys: bool,
     /// Contacts browse surface — the `/api/contacts` REST API and the
     /// SPA's `/contacts` page. Default: true.
     /// Env: `OXICLOUD_ENABLE_CONTACTS`.
@@ -3121,6 +3127,7 @@ impl Default for FeaturesConfig {
             enable_caldav: true,           // CalDAV protocol surface
             enable_carddav: true,          // CardDAV protocol surface
             enable_calendars: true,        // Calendars browse UI (placeholder, see PR #853)
+            enable_passkeys: true,         // Passkey sign-in (WebAuthn)
             enable_contacts: true,         // Contacts browse UI + /api/contacts
             enable_nextcloud: false,       // NextCloud compat — opt-in, off by default
             // Back-compat with pre-multi-drive clients — bare `/webdav/`
@@ -4974,6 +4981,11 @@ impl AppConfig {
             && let Ok(parsed) = v.parse::<bool>()
         {
             config.features.enable_calendars = parsed;
+        }
+        if let Ok(v) = env::var("OXICLOUD_ENABLE_PASSKEYS")
+            && let Ok(parsed) = v.parse::<bool>()
+        {
+            config.features.enable_passkeys = parsed;
         }
         if let Ok(v) = env::var("OXICLOUD_NEXTCLOUD_INSTANCE_ID") {
             let trimmed = v.trim();

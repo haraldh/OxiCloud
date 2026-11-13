@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "Diese Instanz akzeptiert keine Registrierungen von dieser E-Mail-Domain. Versuchen Sie eine andere Adresse oder bitten Sie den Administrator, Ihre zur Zulassungsliste hinzuzufügen.",
     "register_password_disabled": "Die Registrierung mit Passwort ist auf dieser Instanz deaktiviert. Lassen Sie das Passwort leer, um einen Anmeldelink per E-Mail zu erhalten, oder melden Sie sich über Ihren Identitätsanbieter an.",
     "register_disabled": "Registrierungen sind auf dieser Instanz geschlossen. Bitten Sie einen Administrator um eine Einladung.",
-    "account_deactivated": "Ihr Konto wurde deaktiviert. Bitte kontaktieren Sie Ihren Administrator."
+    "account_deactivated": "Ihr Konto wurde deaktiviert. Bitte kontaktieren Sie Ihren Administrator.",
+    "passkey_sign_in": "Mit einem Passkey anmelden",
+    "passkey_rejected": "Dieser Passkey wurde nicht akzeptiert. Möglicherweise wurde er aus Ihrem Konto entfernt."
   },
   "storage": {
     "title": "Speicher",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "In „Räume entdecken“ aufgeführt, nicht verschlüsselt und nie von anderen Servern erreichbar.",
     "group_private_hint": "Nur auf Einladung und Ende-zu-Ende-verschlüsselt.",
     "local_only": "Dieser Raum bleibt auf diesem Server, auch wenn später Föderation eingeschaltet wird."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "desc": "Melden Sie sich mit Fingerabdruck, Gesicht oder Geräte-PIN statt mit Ihrem Passwort an. Passkeys lassen sich nicht abfischen, und Ihr Passwort funktioniert weiterhin.",
+    "add": "Passkey hinzufügen",
+    "name_label": "Name des Passkeys",
+    "name_placeholder": "Name (z. B. Laptop, Handy)",
+    "unsupported": "Dieser Browser kann keine Passkeys erstellen. Vorhandene können Sie weiterhin verwalten.",
+    "none": "Noch keine Passkeys.",
+    "added": "Passkey hinzugefügt. Sie können sich jetzt damit anmelden.",
+    "added_on": "Hinzugefügt am {{date}}",
+    "last_used": "Zuletzt verwendet: {{when}}",
+    "rename": "Umbenennen",
+    "rename_title": "Passkey umbenennen",
+    "remove": "Entfernen",
+    "remove_title": "„{{name}}“ entfernen?",
+    "remove_message": "Sie können sich mit diesem Passkey nicht mehr anmelden. Der Passkey selbst bleibt auf Ihrem Gerät, bis Sie ihn dort löschen.",
+    "last_factor": "Das ist Ihre einzige Anmeldemöglichkeit. Fügen Sie zuerst einen weiteren Passkey oder ein Passwort hinzu.",
+    "duplicate": "Dieser Passkey ist bereits registriert.",
+    "invalid_name": "Verwenden Sie einen Namen mit 1 bis 64 Zeichen.",
+    "verification_failed": "Der Passkey konnte nicht überprüft werden. Bitte versuchen Sie es erneut.",
+    "not_allowed": "Dieses Konto kann keine Passkeys hinzufügen.",
+    "default_name": "Mein Passkey"
   }
 }

@@ -228,6 +228,8 @@ ndarray = { version = "0.17.2", optional = true }
 # bumping either side.
 metrics = "0.24"
 metrics-exporter-prometheus = { version = "0.18", default-features = false }
+webauthn-rs = { version = "0.6.2", features = ["conditional-ui"] }
+webauthn-rs-proto = "0.6.2"
 
 [features]
 default = []
@@ -289,6 +291,7 @@ testcontainers-modules = { version = "0.13", features = ["postgres"] }
 # REJECTED for production — slower than sync on fast sinks and can lose
 # buffered tail lines at shutdown on slow ones (benches/ROUND11.md).
 tracing-appender = "0.2"
+webauthn-authenticator-rs = { version = "0.6.2", default-features = false, features = ["softpasskey"] }
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(integration_tests)'] }

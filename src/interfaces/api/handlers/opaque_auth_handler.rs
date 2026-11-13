@@ -827,22 +827,10 @@ pub async fn login_ke3(
     // the SPA reported "Login succeeded but the browser rejected the
     // session cookie" even on http+cookie_secure=false deployments.
     let mut response = (StatusCode::OK, Json(&session)).into_response();
-    cookie_auth::append_auth_cookies(
-        response.headers_mut(),
-        &session.access_token,
-        &session.refresh_token,
-        session.expires_in,
-        state.core.config.auth.refresh_token_expiry_secs,
-    );
-    cookie_auth::append_csrf_cookie(response.headers_mut(), session.expires_in);
     // Seed the SPA's DPoP-nonce cache so the first bound request after
     // login doesn't eat a `use_dpop_nonce` challenge → retry cycle.
     // No-op when `dpop_mode = off`.
-    cookie_auth::maybe_append_dpop_nonce_cookie(
-        response.headers_mut(),
-        &state.dpop_nonce_service,
-        state.core.config.auth.dpop_mode,
-    );
+    cookie_auth::append_login_cookies(response.headers_mut(), &state, &session);
     Ok(response)
 }
 

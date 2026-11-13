@@ -1,6 +1,7 @@
 # Passkeys (WebAuthn) for OxiCloud login
 
-**Status**: PLANNED (2026-11-12). Nothing implemented.
+**Status**: Phase 1 IMPLEMENTED (2026-11-12, branch `feat/passkeys`), with the
+deviations listed under "Phase 1 as built". Phases 2 and 3 planned.
 
 **Related**: `docs/architecture/auth-model.md` (lists native WebAuthn as a
 future feature and reserves the `mfa_enrolled` magic-link rejection),
@@ -246,6 +247,44 @@ door; Phase 2 must make every door check the policy.
    table enforced and pinned in Hurl.
 3. **Chat recovery key via PRF**: secrets table and routes, chat page
    integration.
+
+## Phase 1 as built
+
+Where the build differs from the design above, and why:
+
+- **Flag name** `OXICLOUD_ENABLE_PASSKEYS` (not `OXICLOUD_PASSKEYS_ENABLED`),
+  matching every other `OXICLOUD_ENABLE_*` feature flag.
+- **No recent-authentication check before registering.** `CurrentUser`
+  carries no login time (only the JWT's `sid`), so "session younger than N
+  minutes" needs new plumbing. Phase 1 relies on what already protects the
+  session (HttpOnly cookies, CSRF, DPoP binding) and audits every
+  registration (`passkey.registered`). Moved to Phase 2, where the same
+  step-up is needed anyway.
+- **Nextcloud login flow v2 "grant with my current session"** is not built
+  yet. Phase 1 keeps passwords, so nobody is locked out of linking a
+  desktop client; it becomes necessary before anyone may drop their
+  password, i.e. with Phase 2.
+- **Narrow user port.** `UserStoragePort` is not object-safe, so the
+  service reads users through `PasskeyUserPort` (as the IdP does). Its
+  `has_other_login` counts a password hash, an OPAQUE envelope or a linked
+  OIDC identity; magic links don't count.
+- **Externals cannot register passkeys** (`passkey.registration_rejected`,
+  reason `external_user`): they sign in by magic link and own nothing.
+- **Routes**: `/api/auth/passkeys` (signed in: `GET /`, `POST
+  /register/start`, `POST /register/finish`, `PATCH /{id}`, `DELETE /{id}`)
+  and `/api/auth/passkey/login` (public: `POST /start`, `POST /finish`,
+  behind the login rate limiter). The public prefix is in the SPA's
+  `AUTH_PRIMITIVES`, the signed-in one is not.
+- **Login cookies** now come from one helper,
+  `cookie_auth::append_login_cookies`, used by every login path (password,
+  OPAQUE, magic link, refresh, passkey).
+- **Tests**: Rust ceremonies against `webauthn-authenticator-rs`'s
+  `SoftPasskey` (dev-dependency) including counter write-back, replay,
+  cross-user handles, deactivated accounts, last-factor refusal and the
+  option JSON shape; Vitest for the browser conversions;
+  `tests/api/passkeys.hurl` for discovery, shapes and refusals. The Hurl
+  suite sets `OXICLOUD_BASE_URL` to its `localhost` URL because WebAuthn
+  refuses IP hosts.
 
 ## Open questions
 

@@ -454,22 +454,10 @@ pub async fn login(
 
             // ── Set HttpOnly cookies so the browser never stores tokens in JS ──
             let mut response = (StatusCode::OK, Json(&auth_response)).into_response();
-            cookie_auth::append_auth_cookies(
-                response.headers_mut(),
-                &auth_response.access_token,
-                &auth_response.refresh_token,
-                auth_response.expires_in,
-                state.core.config.auth.refresh_token_expiry_secs,
-            );
-            cookie_auth::append_csrf_cookie(response.headers_mut(), auth_response.expires_in);
             // Seed the SPA's DPoP-nonce cache so the first bound request
             // after login doesn't eat a `use_dpop_nonce` challenge → retry.
             // No-op when `dpop_mode = off`.
-            cookie_auth::maybe_append_dpop_nonce_cookie(
-                response.headers_mut(),
-                &state.dpop_nonce_service,
-                state.core.config.auth.dpop_mode,
-            );
+            cookie_auth::append_login_cookies(response.headers_mut(), &state, &auth_response);
 
             // Diagnostic: warn when Secure cookies are set but the request
             // arrived over plain HTTP, the browser will reject them (#241).
@@ -644,20 +632,8 @@ pub async fn refresh_token(
     tracing::info!("Token refresh successful, new token issued");
 
     let mut response = (StatusCode::OK, Json(&auth_response)).into_response();
-    cookie_auth::append_auth_cookies(
-        response.headers_mut(),
-        &auth_response.access_token,
-        &auth_response.refresh_token,
-        auth_response.expires_in,
-        state.core.config.auth.refresh_token_expiry_secs,
-    );
-    cookie_auth::append_csrf_cookie(response.headers_mut(), auth_response.expires_in);
     // Seed the SPA's DPoP-nonce cache — see the login handler above.
-    cookie_auth::maybe_append_dpop_nonce_cookie(
-        response.headers_mut(),
-        &state.dpop_nonce_service,
-        state.core.config.auth.dpop_mode,
-    );
+    cookie_auth::append_login_cookies(response.headers_mut(), &state, &auth_response);
     Ok(response)
 }
 
@@ -1805,20 +1781,8 @@ pub async fn oidc_exchange(
 
     // Set HttpOnly cookies for the browser
     let mut response = (StatusCode::OK, Json(&auth_response)).into_response();
-    cookie_auth::append_auth_cookies(
-        response.headers_mut(),
-        &auth_response.access_token,
-        &auth_response.refresh_token,
-        auth_response.expires_in,
-        state.core.config.auth.refresh_token_expiry_secs,
-    );
-    cookie_auth::append_csrf_cookie(response.headers_mut(), auth_response.expires_in);
     // Seed the SPA's DPoP-nonce cache — see the login handler above.
-    cookie_auth::maybe_append_dpop_nonce_cookie(
-        response.headers_mut(),
-        &state.dpop_nonce_service,
-        state.core.config.auth.dpop_mode,
-    );
+    cookie_auth::append_login_cookies(response.headers_mut(), &state, &auth_response);
     Ok(response)
 }
 

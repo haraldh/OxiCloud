@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "Deze omgeving accepteert geen aanmeldingen vanaf dat e-maildomein. Probeer een ander adres, of vraag de beheerder om jouwe aan de toegestane lijst toe te voegen.",
     "register_password_disabled": "Aanmelden met een wachtwoord is uitgeschakeld op deze omgeving. Laat het wachtwoord leeg om een inloglink per e-mail te ontvangen, of log in met je identiteitsprovider.",
     "register_disabled": "Aanmelden is gesloten op deze omgeving. Vraag een uitnodiging aan een beheerder.",
-    "account_deactivated": "Je account is gedeactiveerd. Neem contact op met je beheerder."
+    "account_deactivated": "Je account is gedeactiveerd. Neem contact op met je beheerder.",
+    "passkey_sign_in": "Inloggen met een passkey",
+    "passkey_rejected": "Deze passkey is niet geaccepteerd. Mogelijk is hij uit je account verwijderd."
   },
   "storage": {
     "title": "Opslag",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "Vermeld in Ruimtes verkennen, niet versleuteld en nooit bereikbaar vanaf andere servers.",
     "group_private_hint": "Alleen op uitnodiging en end-to-end versleuteld.",
     "local_only": "Deze ruimte blijft op deze server, ook als federatie later wordt ingeschakeld."
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "desc": "Log in met je vingerafdruk, gezicht of apparaat-pincode in plaats van je wachtwoord. Passkeys zijn niet te phishen, en je wachtwoord blijft werken.",
+    "add": "Passkey toevoegen",
+    "name_label": "Naam van de passkey",
+    "name_placeholder": "Naam (bijv. Laptop, Telefoon)",
+    "unsupported": "Deze browser kan geen passkeys aanmaken. Je kunt je bestaande passkeys wel beheren.",
+    "none": "Nog geen passkeys.",
+    "added": "Passkey toegevoegd. Je kunt er nu mee inloggen.",
+    "added_on": "Toegevoegd op {{date}}",
+    "last_used": "Laatst gebruikt: {{when}}",
+    "rename": "Hernoemen",
+    "rename_title": "Passkey hernoemen",
+    "remove": "Verwijderen",
+    "remove_title": "“{{name}}” verwijderen?",
+    "remove_message": "Je kunt niet meer inloggen met deze passkey. De passkey zelf blijft op je apparaat tot je hem daar verwijdert.",
+    "last_factor": "Dit is je enige manier om in te loggen. Voeg eerst een andere passkey of een wachtwoord toe.",
+    "duplicate": "Deze passkey is al geregistreerd.",
+    "invalid_name": "Gebruik een naam van 1 tot 64 tekens.",
+    "verification_failed": "De passkey kon niet worden geverifieerd. Probeer het opnieuw.",
+    "not_allowed": "Dit account kan geen passkeys toevoegen.",
+    "default_name": "Mijn passkey"
   }
 }

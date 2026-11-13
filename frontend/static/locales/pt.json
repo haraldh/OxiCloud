@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "Esta implantação não aceita inscrições desse domínio de e-mail. Tente outro endereço ou peça ao administrador para adicionar o seu à lista permitida.",
     "register_password_disabled": "A inscrição com senha está desativada nesta implantação. Deixe a senha em branco para receber um link de login por e-mail, ou faça login com seu provedor de identidade.",
     "register_disabled": "As inscrições estão fechadas nesta implantação. Peça um convite a um administrador.",
-    "account_deactivated": "Sua conta foi desativada. Por favor, entre em contato com seu administrador."
+    "account_deactivated": "Sua conta foi desativada. Por favor, entre em contato com seu administrador.",
+    "passkey_sign_in": "Iniciar sessão com uma chave de acesso",
+    "passkey_rejected": "Esta chave de acesso não foi aceite. Pode ter sido removida da sua conta."
   },
   "storage": {
     "title": "Armazenamento",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "Listada em Explorar salas, não encriptada e nunca acessível a partir de outros servidores.",
     "group_private_hint": "Apenas por convite e encriptada ponto a ponto.",
     "local_only": "Esta sala fica neste servidor, mesmo que a federação seja ativada mais tarde."
+  },
+  "passkeys": {
+    "title": "Chaves de acesso",
+    "desc": "Inicie sessão com a impressão digital, o rosto ou o PIN do dispositivo em vez da palavra-passe. As chaves de acesso não podem ser roubadas por phishing e a sua palavra-passe continua a funcionar.",
+    "add": "Adicionar chave de acesso",
+    "name_label": "Nome da chave de acesso",
+    "name_placeholder": "Nome (p. ex. Portátil, Telemóvel)",
+    "unsupported": "Este navegador não consegue criar chaves de acesso. Ainda pode gerir as que tem.",
+    "none": "Ainda não há chaves de acesso.",
+    "added": "Chave de acesso adicionada. Já pode usá-la para iniciar sessão.",
+    "added_on": "Adicionada a {{date}}",
+    "last_used": "Última utilização: {{when}}",
+    "rename": "Mudar o nome",
+    "rename_title": "Mudar o nome da chave de acesso",
+    "remove": "Remover",
+    "remove_title": "Remover «{{name}}»?",
+    "remove_message": "Deixará de poder iniciar sessão com esta chave de acesso. A chave fica no seu dispositivo até a eliminar lá.",
+    "last_factor": "É a sua única forma de iniciar sessão. Adicione primeiro outra chave de acesso ou uma palavra-passe.",
+    "duplicate": "Esta chave de acesso já está registada.",
+    "invalid_name": "Use um nome com 1 a 64 caracteres.",
+    "verification_failed": "Não foi possível verificar a chave de acesso. Tente novamente.",
+    "not_allowed": "Esta conta não pode adicionar chaves de acesso.",
+    "default_name": "A minha chave de acesso"
   }
 }

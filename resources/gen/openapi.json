@@ -6271,6 +6271,347 @@
         ]
       }
     },
+    "/api/auth/passkey/login/finish": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "passkey_login_finish",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyLoginFinishDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Session issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign-in refused",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkey/login/start": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "passkey_login_start",
+        "responses": {
+          "200": {
+            "description": "Request options for navigator.credentials.get()",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyLoginStartResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "passkey_list",
+        "responses": {
+          "200": {
+            "description": "The caller's passkeys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PasskeyInfo"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/register/finish": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "passkey_register_finish",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRegisterFinishDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Passkey registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Expired ceremony, unverifiable credential, or bad name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Credential already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/register/start": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "passkey_register_start",
+        "responses": {
+          "200": {
+            "description": "Creation options for navigator.credentials.create()",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyRegisterStartResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "External or inactive account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/passkeys/{id}": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "passkey_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Passkey id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed"
+          },
+          "404": {
+            "description": "No such passkey of the caller's",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "It is the account's only way to sign in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "passkey_rename",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Passkey id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRenameDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Renamed"
+          },
+          "400": {
+            "description": "Bad name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such passkey of the caller's",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/refresh": {
       "post": {
         "tags": [
@@ -18034,7 +18375,8 @@
           "nextcloud",
           "markdown_collab",
           "shared_worker_bus",
-          "chat"
+          "chat",
+          "passkeys"
         ],
         "properties": {
           "caldav": {
@@ -18080,6 +18422,10 @@
           "nextcloud": {
             "type": "boolean",
             "description": "NextCloud compatibility surface (`/index.php`, `/remote.php`,\n`/ocs/`, `/status.php`, NC login flow v2, NC trashbin). OFF by\ndefault — opt-in per deployment. See\n`FeaturesConfig::enable_nextcloud`."
+          },
+          "passkeys": {
+            "type": "boolean",
+            "description": "Passkey sign-in is available: the login page offers it and the\nprofile lists the user's passkeys. True only when the flag is on\nAND the service could be built (it needs a usable public URL).\nSee `FeaturesConfig::enable_passkeys`."
           },
           "photos": {
             "type": "boolean",
@@ -20361,6 +20707,126 @@
           }
         }
       },
+      "PasskeyInfo": {
+        "type": "object",
+        "description": "A passkey as the owner sees it in their profile.",
+        "required": [
+          "id",
+          "name",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_used_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PasskeyLoginFinishDto": {
+        "type": "object",
+        "required": [
+          "ceremonyId",
+          "credential"
+        ],
+        "properties": {
+          "ceremonyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credential": {
+            "type": "object",
+            "description": "The `PublicKeyCredential` from `navigator.credentials.get()`."
+          },
+          "dpopJkt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "DPoP key thumbprint to bind the new session to, as on the other\nlogin endpoints."
+          }
+        }
+      },
+      "PasskeyLoginStartResponse": {
+        "type": "object",
+        "required": [
+          "ceremonyId",
+          "options"
+        ],
+        "properties": {
+          "ceremonyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "options": {
+            "type": "object",
+            "description": "`PublicKeyCredentialRequestOptions` wrapped as `{ publicKey }`,\nbinary fields base64url. Empty allow list: the browser offers the\nuser's passkeys for this site."
+          }
+        }
+      },
+      "PasskeyRegisterFinishDto": {
+        "type": "object",
+        "required": [
+          "ceremonyId",
+          "name",
+          "credential"
+        ],
+        "properties": {
+          "ceremonyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credential": {
+            "type": "object",
+            "description": "The `PublicKeyCredential` from `navigator.credentials.create()`."
+          },
+          "name": {
+            "type": "string",
+            "description": "What the user calls this passkey (\"Laptop\", \"Phone\"), 1–64 chars."
+          }
+        }
+      },
+      "PasskeyRegisterStartResponse": {
+        "type": "object",
+        "required": [
+          "ceremonyId",
+          "options"
+        ],
+        "properties": {
+          "ceremonyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "options": {
+            "type": "object",
+            "description": "`PublicKeyCredentialCreationOptions` wrapped as `{ publicKey }`,\nbinary fields base64url."
+          }
+        }
+      },
+      "PasskeyRenameDto": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "PasswordAuthDto": {
         "type": "object",
         "description": "Password-login block within [`AuthDto`]. Mirrors the policy\n`AuthApplicationService::is_password_login_allowed()` — composes\n`OXICLOUD_AUTH_METHODS` with the AuthZ cross-check (an OIDC-master\ndeployment turns password login off even when the env list carries\n`password`). FE login page uses this to decide whether to render\nthe password form at all.",
@@ -21912,6 +22378,7 @@
           "magic_link",
           "oidc",
           "device",
+          "passkey",
           "unknown"
         ]
       },

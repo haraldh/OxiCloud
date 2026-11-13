@@ -2278,6 +2278,13 @@ export type FeaturesDto = {
      */
     nextcloud: boolean;
     /**
+     * Passkey sign-in is available: the login page offers it and the
+     * profile lists the user's passkeys. True only when the flag is on
+     * AND the service could be built (it needs a usable public URL).
+     * See `FeaturesConfig::enable_passkeys`.
+     */
+    passkeys: boolean;
+    /**
      * Photo library (`/api/photos`, `/photos` SPA route). The SPA hides
      * the top-nav "Photos" entry when this is false; sub-flags
      * `places` + `faces` are then moot. See
@@ -4110,6 +4117,72 @@ export type PaginationRequestDto = {
 };
 
 /**
+ * A passkey as the owner sees it in their profile.
+ */
+export type PasskeyInfo = {
+    created_at: string;
+    id: string;
+    last_used_at?: string | null;
+    name: string;
+};
+
+export type PasskeyLoginFinishDto = {
+    ceremonyId: string;
+    /**
+     * The `PublicKeyCredential` from `navigator.credentials.get()`.
+     */
+    credential: {
+        [key: string]: unknown;
+    };
+    /**
+     * DPoP key thumbprint to bind the new session to, as on the other
+     * login endpoints.
+     */
+    dpopJkt?: string | null;
+};
+
+export type PasskeyLoginStartResponse = {
+    ceremonyId: string;
+    /**
+     * `PublicKeyCredentialRequestOptions` wrapped as `{ publicKey }`,
+     * binary fields base64url. Empty allow list: the browser offers the
+     * user's passkeys for this site.
+     */
+    options: {
+        [key: string]: unknown;
+    };
+};
+
+export type PasskeyRegisterFinishDto = {
+    ceremonyId: string;
+    /**
+     * The `PublicKeyCredential` from `navigator.credentials.create()`.
+     */
+    credential: {
+        [key: string]: unknown;
+    };
+    /**
+     * What the user calls this passkey ("Laptop", "Phone"), 1–64 chars.
+     */
+    name: string;
+};
+
+export type PasskeyRegisterStartResponse = {
+    ceremonyId: string;
+    /**
+     * `PublicKeyCredentialCreationOptions` wrapped as `{ publicKey }`,
+     * binary fields base64url.
+     */
+    options: {
+        [key: string]: unknown;
+    };
+};
+
+export type PasskeyRenameDto = {
+    name: string;
+};
+
+/**
  * Password-login block within [`AuthDto`]. Mirrors the policy
  * `AuthApplicationService::is_password_login_allowed()` — composes
  * `OXICLOUD_AUTH_METHODS` with the AuthZ cross-check (an OIDC-master
@@ -5345,7 +5418,7 @@ export type ServerConfigDto = {
  * unknown`. `Unknown` is the fallback for pre-migration rows and any
  * future login path that hasn't been taught to stamp an origin yet.
  */
-export type SessionOrigin = 'password' | 'opaque' | 'magic_link' | 'oidc' | 'device' | 'unknown';
+export type SessionOrigin = 'password' | 'opaque' | 'magic_link' | 'oidc' | 'device' | 'passkey' | 'unknown';
 
 /**
  * Wire shape for `GET /api/admin/sessions`. Contains everything the
@@ -9921,6 +9994,227 @@ export type RegisterStartResponses = {
 };
 
 export type RegisterStartResponse = RegisterStartResponses[keyof RegisterStartResponses];
+
+export type PasskeyLoginFinishData = {
+    body: PasskeyLoginFinishDto;
+    path?: never;
+    query?: never;
+    url: '/api/auth/passkey/login/finish';
+};
+
+export type PasskeyLoginFinishErrors = {
+    /**
+     * Sign-in refused
+     */
+    401: ApiErrorBody;
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type PasskeyLoginFinishError = PasskeyLoginFinishErrors[keyof PasskeyLoginFinishErrors];
+
+export type PasskeyLoginFinishResponses = {
+    /**
+     * Session issued
+     */
+    200: AuthResponseDto;
+};
+
+export type PasskeyLoginFinishResponse = PasskeyLoginFinishResponses[keyof PasskeyLoginFinishResponses];
+
+export type PasskeyLoginStartData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/passkey/login/start';
+};
+
+export type PasskeyLoginStartErrors = {
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type PasskeyLoginStartError = PasskeyLoginStartErrors[keyof PasskeyLoginStartErrors];
+
+export type PasskeyLoginStartResponses = {
+    /**
+     * Request options for navigator.credentials.get()
+     */
+    200: PasskeyLoginStartResponse;
+};
+
+export type PasskeyLoginStartResponse2 = PasskeyLoginStartResponses[keyof PasskeyLoginStartResponses];
+
+export type PasskeyListData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/passkeys';
+};
+
+export type PasskeyListErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type PasskeyListError = PasskeyListErrors[keyof PasskeyListErrors];
+
+export type PasskeyListResponses = {
+    /**
+     * The caller's passkeys
+     */
+    200: Array<PasskeyInfo>;
+};
+
+export type PasskeyListResponse = PasskeyListResponses[keyof PasskeyListResponses];
+
+export type PasskeyRegisterFinishData = {
+    body: PasskeyRegisterFinishDto;
+    path?: never;
+    query?: never;
+    url: '/api/auth/passkeys/register/finish';
+};
+
+export type PasskeyRegisterFinishErrors = {
+    /**
+     * Expired ceremony, unverifiable credential, or bad name
+     */
+    400: ApiErrorBody;
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Credential already registered
+     */
+    409: ApiErrorBody;
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type PasskeyRegisterFinishError = PasskeyRegisterFinishErrors[keyof PasskeyRegisterFinishErrors];
+
+export type PasskeyRegisterFinishResponses = {
+    /**
+     * Passkey registered
+     */
+    201: PasskeyInfo;
+};
+
+export type PasskeyRegisterFinishResponse = PasskeyRegisterFinishResponses[keyof PasskeyRegisterFinishResponses];
+
+export type PasskeyRegisterStartData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/passkeys/register/start';
+};
+
+export type PasskeyRegisterStartErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * External or inactive account
+     */
+    403: ApiErrorBody;
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type PasskeyRegisterStartError = PasskeyRegisterStartErrors[keyof PasskeyRegisterStartErrors];
+
+export type PasskeyRegisterStartResponses = {
+    /**
+     * Creation options for navigator.credentials.create()
+     */
+    200: PasskeyRegisterStartResponse;
+};
+
+export type PasskeyRegisterStartResponse2 = PasskeyRegisterStartResponses[keyof PasskeyRegisterStartResponses];
+
+export type PasskeyRemoveData = {
+    body?: never;
+    path: {
+        /**
+         * Passkey id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/auth/passkeys/{id}';
+};
+
+export type PasskeyRemoveErrors = {
+    /**
+     * No such passkey of the caller's
+     */
+    404: ApiErrorBody;
+    /**
+     * It is the account's only way to sign in
+     */
+    409: ApiErrorBody;
+};
+
+export type PasskeyRemoveError = PasskeyRemoveErrors[keyof PasskeyRemoveErrors];
+
+export type PasskeyRemoveResponses = {
+    /**
+     * Removed
+     */
+    204: void;
+};
+
+export type PasskeyRemoveResponse = PasskeyRemoveResponses[keyof PasskeyRemoveResponses];
+
+export type PasskeyRenameData = {
+    body: PasskeyRenameDto;
+    path: {
+        /**
+         * Passkey id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/auth/passkeys/{id}';
+};
+
+export type PasskeyRenameErrors = {
+    /**
+     * Bad name
+     */
+    400: ApiErrorBody;
+    /**
+     * No such passkey of the caller's
+     */
+    404: ApiErrorBody;
+};
+
+export type PasskeyRenameError = PasskeyRenameErrors[keyof PasskeyRenameErrors];
+
+export type PasskeyRenameResponses = {
+    /**
+     * Renamed
+     */
+    204: void;
+};
+
+export type PasskeyRenameResponse = PasskeyRenameResponses[keyof PasskeyRenameResponses];
 
 export type RefreshTokenData = {
     /**

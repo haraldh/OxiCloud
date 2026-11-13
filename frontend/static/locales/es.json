@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "Esta instancia no acepta registros desde ese dominio de correo. Prueba con otra dirección o pide al administrador que añada el tuyo a la lista permitida.",
     "register_password_disabled": "El registro con contraseña está desactivado en esta instancia. Deja la contraseña en blanco para recibir un enlace de inicio de sesión por correo, o inicia sesión con tu proveedor de identidad.",
     "register_disabled": "Los registros están cerrados en esta instancia. Pide una invitación a un administrador.",
-    "account_deactivated": "Tu cuenta ha sido desactivada. Por favor, contacta con tu administrador."
+    "account_deactivated": "Tu cuenta ha sido desactivada. Por favor, contacta con tu administrador.",
+    "passkey_sign_in": "Iniciar sesión con una llave de acceso",
+    "passkey_rejected": "Esta llave de acceso no fue aceptada. Puede que se haya eliminado de tu cuenta."
   },
   "storage": {
     "title": "Almacenamiento",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "Aparece en Explorar salas, sin cifrar y nunca accesible desde otros servidores.",
     "group_private_hint": "Solo con invitación y cifrada de extremo a extremo.",
     "local_only": "Esta sala se queda en este servidor, aunque más adelante se active la federación."
+  },
+  "passkeys": {
+    "title": "Llaves de acceso",
+    "desc": "Inicia sesión con tu huella, tu cara o el PIN del dispositivo en lugar de tu contraseña. Las llaves de acceso no se pueden suplantar con phishing y tu contraseña sigue funcionando.",
+    "add": "Añadir llave de acceso",
+    "name_label": "Nombre de la llave de acceso",
+    "name_placeholder": "Nombre (p. ej. Portátil, Móvil)",
+    "unsupported": "Este navegador no puede crear llaves de acceso. Aún puedes gestionar las que tienes.",
+    "none": "Aún no hay llaves de acceso.",
+    "added": "Llave de acceso añadida. Ya puedes usarla para iniciar sesión.",
+    "added_on": "Añadida el {{date}}",
+    "last_used": "Último uso: {{when}}",
+    "rename": "Renombrar",
+    "rename_title": "Renombrar llave de acceso",
+    "remove": "Quitar",
+    "remove_title": "¿Quitar «{{name}}»?",
+    "remove_message": "Ya no podrás iniciar sesión con esta llave de acceso. La llave sigue en tu dispositivo hasta que la borres allí.",
+    "last_factor": "Es tu única forma de iniciar sesión. Añade primero otra llave de acceso o una contraseña.",
+    "duplicate": "Esta llave de acceso ya está registrada.",
+    "invalid_name": "Usa un nombre de 1 a 64 caracteres.",
+    "verification_failed": "No se pudo verificar la llave de acceso. Inténtalo de nuevo.",
+    "not_allowed": "Esta cuenta no puede añadir llaves de acceso.",
+    "default_name": "Mi llave de acceso"
   }
 }

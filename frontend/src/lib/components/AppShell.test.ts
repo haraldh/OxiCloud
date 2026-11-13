@@ -136,7 +136,8 @@ function resetFeatures() {
 		nextcloud: false,
 		markdown_collab: false,
 		shared_worker_bus: true,
-		chat: false
+		chat: false,
+		passkeys: false
 	};
 	serverConfig.chat = { homeserver_url: null };
 }

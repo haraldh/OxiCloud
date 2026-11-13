@@ -32,6 +32,7 @@ pub mod nextcloud_file_id_service;
 pub mod nextcloud_login_flow_service;
 pub mod notification_application_service;
 pub mod ops_banner_service;
+pub mod passkey_service;
 pub mod people_service;
 pub mod places_service;
 pub mod recent_service;

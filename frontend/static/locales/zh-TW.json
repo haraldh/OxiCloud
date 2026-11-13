@@ -816,7 +816,9 @@
     "register_domain_not_allowed": "本部署不接受來自該電子郵件網域的註冊。請嘗試其他地址，或請管理員將您的網域加入允許清單。",
     "register_password_disabled": "本部署已停用密碼註冊。請將密碼留空以透過電子郵件接收登入連結，或使用您的身分提供者登入。",
     "register_disabled": "本部署已關閉註冊。請向管理員索取邀請。",
-    "account_deactivated": "您的帳戶已被停用。請聯絡您的管理員。"
+    "account_deactivated": "您的帳戶已被停用。請聯絡您的管理員。",
+    "passkey_sign_in": "使用密碼金鑰登入",
+    "passkey_rejected": "此密碼金鑰未被接受。它可能已從您的帳號中移除。"
   },
   "storage": {
     "title": "儲存空間",
@@ -2291,5 +2293,28 @@
     "group_public_hint": "顯示在「探索聊天室」中，不加密，且其他伺服器永遠無法存取。",
     "group_private_hint": "僅限邀請，端對端加密。",
     "local_only": "即使之後開啟聯邦，此聊天室也只保留在此伺服器上。"
+  },
+  "passkeys": {
+    "title": "密碼金鑰",
+    "desc": "使用指紋、臉部或裝置 PIN 碼代替密碼登入。密碼金鑰無法被網路釣魚竊取，您的密碼仍然有效。",
+    "add": "新增密碼金鑰",
+    "name_label": "密碼金鑰名稱",
+    "name_placeholder": "名稱（例如：筆電、手機）",
+    "unsupported": "此瀏覽器無法建立密碼金鑰。您仍可管理現有的密碼金鑰。",
+    "none": "尚無密碼金鑰。",
+    "added": "已新增密碼金鑰。現在可以用它登入。",
+    "added_on": "新增於 {{date}}",
+    "last_used": "上次使用：{{when}}",
+    "rename": "重新命名",
+    "rename_title": "重新命名密碼金鑰",
+    "remove": "移除",
+    "remove_title": "移除「{{name}}」？",
+    "remove_message": "您將無法再使用此密碼金鑰登入。密碼金鑰本身會保留在裝置上，直到您在裝置上刪除它。",
+    "last_factor": "這是您唯一的登入方式。請先新增另一個密碼金鑰或密碼。",
+    "duplicate": "此密碼金鑰已註冊。",
+    "invalid_name": "請使用 1 到 64 個字元的名稱。",
+    "verification_failed": "無法驗證密碼金鑰。請再試一次。",
+    "not_allowed": "此帳號無法新增密碼金鑰。",
+    "default_name": "我的密碼金鑰"
   }
 }

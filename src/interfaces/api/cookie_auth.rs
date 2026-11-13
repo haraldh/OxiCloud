@@ -302,6 +302,31 @@ pub fn maybe_append_dpop_nonce_cookie(
     }
 }
 
+/// Every cookie a successful login sets: the HttpOnly access + refresh
+/// cookies, the double-submit CSRF cookie, and the DPoP nonce seed (no-op
+/// when DPoP is off). One helper so a new login path (OPAQUE, magic link,
+/// passkey, …) cannot forget one of them; the SPA gates its "login
+/// succeeded" branch on the CSRF cookie being present.
+pub fn append_login_cookies(
+    headers: &mut HeaderMap,
+    state: &crate::common::di::AppState,
+    auth: &crate::application::dtos::user_dto::AuthResponseDto,
+) {
+    append_auth_cookies(
+        headers,
+        &auth.access_token,
+        &auth.refresh_token,
+        auth.expires_in,
+        state.core.config.auth.refresh_token_expiry_secs,
+    );
+    append_csrf_cookie(headers, auth.expires_in);
+    maybe_append_dpop_nonce_cookie(
+        headers,
+        &state.dpop_nonce_service,
+        state.core.config.auth.dpop_mode,
+    );
+}
+
 /// Clear the CSRF cookie (on logout).
 pub fn append_clear_csrf_cookie(headers: &mut HeaderMap) {
     let secure = if cookie_secure() { "; Secure" } else { "" };

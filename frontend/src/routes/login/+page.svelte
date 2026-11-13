@@ -14,12 +14,15 @@
 		exchangeOidcCode,
 		fetchMe,
 		login,
+		passkeyLogin,
 		register,
 		sendMagicLink,
 		setupAdmin
 	} from '$lib/api/endpoints/auth';
 	import { i18n, setLocale, t, type Locale } from '$lib/i18n/index.svelte';
 	import { loginErrorMessage } from '$lib/auth/loginError';
+	import { isPasskeyCancelled, passkeysSupported } from '$lib/auth/passkey';
+	import type { AuthResponse } from '$lib/api/types';
 	import AppSplash from '$lib/components/AppSplash.svelte';
 	import LanguageSelect from '$lib/components/LanguageSelect.svelte';
 	import { session } from '$lib/stores/session.svelte';
@@ -188,6 +191,40 @@
 		);
 	}
 
+	/**
+	 * After any successful sign-in (password or passkey): make sure the
+	 * session cookie landed, publish the user, and leave the login page.
+	 */
+	async function enterApp(data: AuthResponse) {
+		if (!csrfCookiePresent()) {
+			error = t(
+				'auth.cookie_rejected',
+				'Login succeeded but the browser rejected the session cookie. If you are on HTTP, set OXICLOUD_COOKIE_SECURE=false or use HTTPS.'
+			);
+			return;
+		}
+		session.setUser(data.user);
+		postRegisterNotice = null;
+		// When the backend flags `force_password_change` the user's
+		// current credential is an admin-set temporary password;
+		// route them to the profile page (`?forcePasswordChange=1`
+		// lights up an in-page banner) instead of the requested
+		// destination. The redirect target is preserved as `next`
+		// so the profile flow can bounce back after they pick a
+		// real password.
+		if (data.force_password_change) {
+			const next = encodeURIComponent(redirectTarget);
+			await goto(resolve(`/profile?forcePasswordChange=1&next=${next}`), {
+				replaceState: true
+			});
+		} else {
+			// `resolveDynamic` IS `resolve` with the cast a runtime-chosen route
+			// needs; the rule cannot follow a helper. See its doc in appPath.ts.
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			await goto(resolveDynamic(redirectTarget), { replaceState: true });
+		}
+	}
+
 	async function onLogin(e: SubmitEvent) {
 		e.preventDefault();
 		error = '';
@@ -199,34 +236,7 @@
 		}
 		busy = true;
 		try {
-			const data = await login(username, password);
-			if (!csrfCookiePresent()) {
-				error = t(
-					'auth.cookie_rejected',
-					'Login succeeded but the browser rejected the session cookie. If you are on HTTP, set OXICLOUD_COOKIE_SECURE=false or use HTTPS.'
-				);
-				return;
-			}
-			session.setUser(data.user);
-			postRegisterNotice = null;
-			// When the backend flags `force_password_change` the user's
-			// current credential is an admin-set temporary password;
-			// route them to the profile page (`?forcePasswordChange=1`
-			// lights up an in-page banner) instead of the requested
-			// destination. The redirect target is preserved as `next`
-			// so the profile flow can bounce back after they pick a
-			// real password.
-			if (data.force_password_change) {
-				const next = encodeURIComponent(redirectTarget);
-				await goto(resolve(`/profile?forcePasswordChange=1&next=${next}`), {
-					replaceState: true
-				});
-			} else {
-				// `resolveDynamic` IS `resolve` with the cast a runtime-chosen route
-				// needs; the rule cannot follow a helper. See its doc in appPath.ts.
-				// eslint-disable-next-line svelte/no-navigation-without-resolve
-				await goto(resolveDynamic(redirectTarget), { replaceState: true });
-			}
+			await enterApp(await login(username, password));
 		} catch (err) {
 			if (err instanceof ApiError && err.errorType === 'EmailNotVerified') {
 				// Server auto-sent a verification magic-link on the
@@ -262,6 +272,35 @@
 				error = t(
 					'auth.account_deactivated',
 					'Your account has been deactivated. Please contact your administrator.'
+				);
+			} else {
+				error = err instanceof Error ? err.message : t('auth.login_error', 'Error logging in');
+			}
+		} finally {
+			busy = false;
+		}
+	}
+
+	const passkeyAvailable = $derived(serverConfig.features.passkeys && passkeysSupported());
+
+	async function onPasskeyLogin() {
+		error = '';
+		emailNotVerified = null;
+		magicStatus = null;
+		busy = true;
+		try {
+			await enterApp(await passkeyLogin());
+		} catch (err) {
+			if (isPasskeyCancelled(err)) return;
+			if (err instanceof ApiError && err.status === 0) {
+				error = t(
+					'auth.server_unreachable',
+					"Couldn't reach the server. Check your connection and try again."
+				);
+			} else if (err instanceof ApiError && isBadCredentials(err)) {
+				error = t(
+					'auth.passkey_rejected',
+					'This passkey was not accepted. It may have been removed from your account.'
 				);
 			} else {
 				error = err instanceof Error ? err.message : t('auth.login_error', 'Error logging in');
@@ -834,8 +873,23 @@
 						</form>
 					{/if}
 
-					{#if serverConfig.auth.oidc.enabled && serverConfig.auth.oidc.providers.length > 0}
+					{#if passkeyAvailable}
 						{#if passwordLoginEnabled}
+							<div class="auth-divider"><span>{t('auth.or', 'or')}</span></div>
+						{/if}
+						<button
+							class="auth-button auth-button-oidc"
+							type="button"
+							data-testid="login-passkey-btn"
+							disabled={busy}
+							onclick={() => void onPasskeyLogin()}
+						>
+							{t('auth.passkey_sign_in', 'Sign in with a passkey')}
+						</button>
+					{/if}
+
+					{#if serverConfig.auth.oidc.enabled && serverConfig.auth.oidc.providers.length > 0}
+						{#if passwordLoginEnabled && !passkeyAvailable}
 							<div class="auth-divider"><span>{t('auth.or', 'or')}</span></div>
 						{/if}
 						<!--
