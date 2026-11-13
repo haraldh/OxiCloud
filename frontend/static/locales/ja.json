@@ -1987,7 +1987,10 @@
     "grant_title": "アクセスを許可する",
     "invalid_token": "無効なセッショントークンです。",
     "success_body": "これでアプリケーションに戻ることができます。アプリケーションは接続されています。",
-    "success_title": "アクセスが許可されました"
+    "success_title": "アクセスが許可されました",
+    "continue_as": "{{name}} として続行",
+    "pick_drive": "このクライアントで同期するドライブはどれですか?",
+    "home": "ホーム"
   },
   "search": {
     "size_label": "サイズ",

@@ -3425,6 +3425,24 @@ export type LoginDto = {
 };
 
 /**
+ * One drive the user can link the client to. The first is home.
+ */
+export type LoginFlowDrive = {
+    id: string;
+    name: string;
+};
+
+/**
+ * What the page does next: follow `redirect`, or let the user pick one of
+ * `drives` and post the choice (form field `drive`) to `pick_action`.
+ */
+export type LoginFlowGrantResponse = {
+    drives?: Array<LoginFlowDrive> | null;
+    pick_action?: string | null;
+    redirect?: string | null;
+};
+
+/**
  * Magic-link login block within [`AuthDto`]. Mirrors
  * `AuthApplicationService::is_magic_link_login_allowed()`, which
  * composes `OXICLOUD_AUTH_METHODS` membership + SMTP wiring + the
@@ -13313,6 +13331,52 @@ export type IdpDecideResponses = {
 };
 
 export type IdpDecideResponse = IdpDecideResponses[keyof IdpDecideResponses];
+
+export type NextcloudLoginFlowGrantData = {
+    body?: never;
+    path: {
+        /**
+         * Login Flow v2 token from the client's browser URL
+         */
+        token: string;
+    };
+    query?: never;
+    url: '/api/nextcloud/login-flow/{token}/grant';
+};
+
+export type NextcloudLoginFlowGrantErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Confirm it's you first (`ReauthRequired`), or an external account
+     */
+    403: ApiErrorBody;
+    /**
+     * No such flow (expired or already used)
+     */
+    404: ApiErrorBody;
+    /**
+     * The account has no username to sign the client in with
+     */
+    409: ApiErrorBody;
+    /**
+     * Nextcloud compatibility is off
+     */
+    503: ApiErrorBody;
+};
+
+export type NextcloudLoginFlowGrantError = NextcloudLoginFlowGrantErrors[keyof NextcloudLoginFlowGrantErrors];
+
+export type NextcloudLoginFlowGrantResponses = {
+    /**
+     * Linked (`redirect`), or a drive must be picked (`drives`)
+     */
+    200: LoginFlowGrantResponse;
+};
+
+export type NextcloudLoginFlowGrantResponse = NextcloudLoginFlowGrantResponses[keyof NextcloudLoginFlowGrantResponses];
 
 export type ListNotificationsData = {
     body?: never;

@@ -1987,7 +1987,10 @@
     "grant_title": "Toegang verlenen",
     "invalid_token": "Ongeldige sessietoken.",
     "success_body": "U kunt nu terugkeren naar uw applicatie: deze is verbonden.",
-    "success_title": "Toegang verleend"
+    "success_title": "Toegang verleend",
+    "continue_as": "Doorgaan als {{name}}",
+    "pick_drive": "Welke schijf moet deze client synchroniseren?",
+    "home": "Persoonlijk"
   },
   "search": {
     "size_label": "Grootte",

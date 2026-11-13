@@ -1106,6 +1106,31 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
                 auth_middleware,
             ))
             .with_state(app_state.clone());
+        // Nextcloud Login Flow v2, "continue as the signed-in user" (Phase
+        // 2a): the grant mints an app password, so the full signed-in stack
+        // plus internal users only. The step-up gate is on the route itself.
+        let nc_login_flow_session_protected =
+            oxicloud::interfaces::nextcloud::login_v2_handler::login_flow_session_routes(
+                &app_state,
+            )
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                require_internal_user_layer,
+            ))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                require_no_password_change_pending_layer,
+            ))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                require_dpop_layer,
+            ))
+            .layer(axum::middleware::from_fn(csrf_middleware))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                auth_middleware,
+            ))
+            .with_state(app_state.clone());
         let passkey_login_public =
             oxicloud::interfaces::api::handlers::passkey_handler::passkey_login_routes()
                 .layer(axum::middleware::from_fn_with_state(
@@ -1317,6 +1342,10 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
             .nest(
                 "/api/auth/reauth",
                 reauth_protected.layer(access_log!("http::api::auth")),
+            )
+            .nest(
+                "/api/nextcloud/login-flow",
+                nc_login_flow_session_protected.layer(access_log!("http::api::auth")),
             )
             // One-time setup endpoint — public, rate-limited
             .nest("/api", setup_router.layer(access_log!("http::api")))

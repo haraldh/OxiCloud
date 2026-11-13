@@ -1987,7 +1987,10 @@
     "grant_title": "Przyznaj dostęp",
     "invalid_token": "Nieprawidłowy token sesji.",
     "success_body": "Możesz teraz wrócić do swojej aplikacji — jest ona połączona.",
-    "success_title": "Dostęp przyznany"
+    "success_title": "Dostęp przyznany",
+    "continue_as": "Kontynuuj jako {{name}}",
+    "pick_drive": "Który dysk ma synchronizować ten klient?",
+    "home": "Osobisty"
   },
   "search": {
     "size_label": "Rozmiar",

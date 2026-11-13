@@ -1987,7 +1987,10 @@
     "grant_title": "Concedi l'accesso",
     "invalid_token": "Token di sessione non valido.",
     "success_body": "Ora puoi tornare alla tua applicazione: è connessa.",
-    "success_title": "Accesso concesso"
+    "success_title": "Accesso concesso",
+    "continue_as": "Continua come {{name}}",
+    "pick_drive": "Quale unità deve sincronizzare questo client?",
+    "home": "Personale"
   },
   "search": {
     "size_label": "Dimensione",

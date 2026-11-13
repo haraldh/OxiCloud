@@ -1987,7 +1987,10 @@
     "grant_title": "授予存取權限",
     "invalid_token": "會話令牌無效。",
     "success_body": "現在您可以返回您的應用程式 - 它已連接。",
-    "success_title": "已授予存取權限"
+    "success_title": "已授予存取權限",
+    "continue_as": "以 {{name}} 身分繼續",
+    "pick_drive": "此用戶端應同步哪個磁碟機?",
+    "home": "個人"
   },
   "search": {
     "size_label": "大小",

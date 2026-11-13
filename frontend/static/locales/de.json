@@ -1987,7 +1987,10 @@
     "grant_title": "Zugriff gewähren",
     "invalid_token": "Ungültiges Sitzungstoken.",
     "success_body": "Sie können jetzt zu Ihrer Anwendung zurückkehren – sie ist verbunden.",
-    "success_title": "Zugriff gewährt"
+    "success_title": "Zugriff gewährt",
+    "continue_as": "Weiter als {{name}}",
+    "pick_drive": "Welches Laufwerk soll dieser Client synchronisieren?",
+    "home": "Persönlich"
   },
   "search": {
     "size_label": "Größe",

@@ -511,6 +511,7 @@ HURL_FILES=( \
   "$API_DIR/error_shape_normalized.hurl" \
   "$API_DIR/nc_status_capabilities.hurl" \
   "$API_DIR/nc_login_flow_v2.hurl" \
+  "$API_DIR/nc_login_flow_v2_session.hurl" \
   "$API_DIR/nc_login_flow_v2_drive_picker.hurl" \
   "$API_DIR/nc_ocs_user_info.hurl" \
   "$API_DIR/nc_avatar_preview.hurl" \

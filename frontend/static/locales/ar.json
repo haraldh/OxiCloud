@@ -1987,7 +1987,10 @@
     "grant_title": "منح الوصول",
     "invalid_token": "رمز الجلسة غير صالح.",
     "success_body": "يمكنك الآن العودة إلى تطبيقك، فهو متصل.",
-    "success_title": "تم منح الوصول"
+    "success_title": "تم منح الوصول",
+    "continue_as": "المتابعة باسم {{name}}",
+    "pick_drive": "أي محرك يجب أن يزامنه هذا العميل؟",
+    "home": "الشخصي"
   },
   "search": {
     "size_label": "الحجم",

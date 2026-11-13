@@ -2019,7 +2019,10 @@
     "invalid_token": "Invalid session token.",
     "sign_in_with": "Sign in with {{provider}}",
     "success_body": "You can now return to your application — it is connected.",
-    "success_title": "Access granted"
+    "success_title": "Access granted",
+    "continue_as": "Continue as {{name}}",
+    "pick_drive": "Which drive should this client sync?",
+    "home": "Home"
   },
   "search": {
     "clear_filters": "Clear filters",

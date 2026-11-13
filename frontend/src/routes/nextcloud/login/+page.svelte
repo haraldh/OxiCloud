@@ -5,6 +5,11 @@
 	import { page } from '$app/state';
 	import { serverConfig } from '$lib/stores/serverConfig.svelte';
 	import { t } from '$lib/i18n/index.svelte';
+	import { onMount } from 'svelte';
+	import { session } from '$lib/stores/session.svelte';
+	import { grantLoginFlow, type LoginFlowGrantResponse } from '$lib/api/endpoints/nextcloud';
+	import { isReauthRequired, withReauth } from '$lib/auth/reauth';
+	import { errorMessage } from '$lib/utils/errors';
 
 	// Nextcloud Login Flow v2. The form does a NATIVE POST to the backend flow
 	// endpoint so the server drives the redirect handshake — do not intercept it.
@@ -22,6 +27,38 @@
 	const oidcEnabled = $derived(serverConfig.auth.oidc.enabled);
 	const oidcProvider = $derived(serverConfig.auth.oidc.providers[0]?.provider_name || 'SSO');
 	const passwordLoginEnabled = $derived(serverConfig.auth.password.enabled);
+
+	// Already signed in here: offer to link the client to this account
+	// without a password (docs/plan/passkeys.md, Phase 2a). Always a
+	// click, never automatic — the flow token comes from whoever started
+	// the flow.
+	let signedInAs = $state<string | null>(null);
+	let granting = $state(false);
+	let grantError = $state<string | null>(null);
+	let picker = $state<LoginFlowGrantResponse | null>(null);
+
+	onMount(async () => {
+		await session.load();
+		const u = session.user;
+		signedInAs = u ? (u.username ?? u.email) : null;
+	});
+
+	async function grantWithSession() {
+		granting = true;
+		grantError = null;
+		try {
+			const res = await withReauth(() => grantLoginFlow(token));
+			if (res.redirect) {
+				window.location.assign(res.redirect);
+				return;
+			}
+			picker = res;
+		} catch (err) {
+			if (!isReauthRequired(err)) grantError = errorMessage(err);
+		} finally {
+			granting = false;
+		}
+	}
 </script>
 
 <svelte:head><title>{t('app.title', 'OxiCloud')}</title></svelte:head>
@@ -48,7 +85,44 @@
 			<div class="auth-error" style="display: block" role="alert">
 				{t('nextcloud.invalid_token', 'Invalid session token.')}
 			</div>
+		{:else if picker?.drives && picker.pick_action}
+			<!-- Native POST: the flow already holds the signed-in user. -->
+			<form
+				class="auth-form"
+				data-testid="nextcloud-drive-pick-form"
+				method="post"
+				action={picker.pick_action}
+			>
+				<p class="auth-subtitle">
+					{t('nextcloud.pick_drive', 'Which drive should this client sync?')}
+				</p>
+				{#each picker.drives as drive, i (drive.id)}
+					<label class="nc-drive">
+						<input type="radio" name="drive" value={drive.id} checked={i === 0} />
+						<span>{drive.name}</span>
+						{#if i === 0}<span class="nc-drive__home">{t('nextcloud.home', 'Home')}</span>{/if}
+					</label>
+				{/each}
+				<button class="auth-button" type="submit">{t('nextcloud.grant', 'Grant access')}</button>
+			</form>
 		{:else}
+			{#if signedInAs}
+				<button
+					class="auth-button"
+					data-testid="nextcloud-login-session-btn"
+					type="button"
+					disabled={granting}
+					onclick={() => void grantWithSession()}
+				>
+					{t('nextcloud.continue_as', { name: signedInAs }, 'Continue as {{name}}')}
+				</button>
+				{#if grantError}
+					<div class="auth-error" style="display: block" role="alert">{grantError}</div>
+				{/if}
+				{#if passwordLoginEnabled || oidcEnabled}
+					<div class="auth-divider"><span>{t('auth.or', 'or')}</span></div>
+				{/if}
+			{/if}
 			{#if passwordLoginEnabled}
 				<form
 					class="auth-form"
@@ -108,3 +182,19 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.nc-drive {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) 0;
+		color: var(--color-text);
+	}
+
+	.nc-drive__home {
+		margin-inline-start: auto;
+		color: var(--color-text-muted);
+		font-size: var(--text-sm);
+	}
+</style>

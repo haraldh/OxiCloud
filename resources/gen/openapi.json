@@ -12081,6 +12081,89 @@
         }
       }
     },
+    "/api/nextcloud/login-flow/{token}/grant": {
+      "post": {
+        "tags": [
+          "nextcloud"
+        ],
+        "summary": "POST `/api/nextcloud/login-flow/{token}/grant` — link the Nextcloud\nclient that started flow `{token}` to the signed-in account, without a\npassword. This is how a passkey-only account connects a desktop client.",
+        "description": "Always a deliberate click on the grant page: the flow token comes from\nwhoever started the flow, so granting it hands that client an app\npassword for this account.",
+        "operationId": "nextcloud_login_flow_grant",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Login Flow v2 token from the client's browser URL",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Linked (`redirect`), or a drive must be picked (`drives`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginFlowGrantResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Confirm it's you first (`ReauthRequired`), or an external account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such flow (expired or already used)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The account has no username to sign the client in with",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Nextcloud compatibility is off",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/notifications": {
       "get": {
         "tags": [
@@ -19917,6 +20000,49 @@
           "username": {
             "type": "string",
             "description": "Identifier the user typed. Accepts BOTH a username (no `@`) and\nan email address (`@` present). The server dispatches on\n`@`-in-input: with `@` it looks up by email; without, by\nusername. The two namespaces are provably disjoint (PR 16\nforbids `@` in usernames), so a single field handles both\nwithout ambiguity. The frontend submits whatever the user\ntyped in the \"Username or email\" field as-is."
+          }
+        }
+      },
+      "LoginFlowDrive": {
+        "type": "object",
+        "description": "One drive the user can link the client to. The first is home.",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginFlowGrantResponse": {
+        "type": "object",
+        "description": "What the page does next: follow `redirect`, or let the user pick one of\n`drives` and post the choice (form field `drive`) to `pick_action`.",
+        "properties": {
+          "drives": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LoginFlowDrive"
+            }
+          },
+          "pick_action": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "redirect": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },

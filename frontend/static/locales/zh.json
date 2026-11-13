@@ -1987,7 +1987,10 @@
     "grant_title": "授予访问权限",
     "invalid_token": "会话令牌无效。",
     "success_body": "您现在可以返回您的应用程序 - 它已连接。",
-    "success_title": "已授予访问权限"
+    "success_title": "已授予访问权限",
+    "continue_as": "以 {{name}} 身份继续",
+    "pick_drive": "此客户端应同步哪个驱动器?",
+    "home": "个人"
   },
   "search": {
     "size_label": "大小",

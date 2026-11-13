@@ -1987,7 +1987,10 @@
     "grant_title": "Accorder l'accès",
     "invalid_token": "Jeton de session invalide.",
     "success_body": "Vous pouvez maintenant revenir à votre application : elle est connectée.",
-    "success_title": "Accès accordé"
+    "success_title": "Accès accordé",
+    "continue_as": "Continuer en tant que {{name}}",
+    "pick_drive": "Quel lecteur ce client doit-il synchroniser ?",
+    "home": "Personnel"
   },
   "search": {
     "size_label": "Taille",

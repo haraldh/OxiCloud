@@ -347,6 +347,7 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
         handlers::reauth_handler::with_password,
         handlers::reauth_handler::passkey_start,
         handlers::reauth_handler::passkey_finish,
+        crate::interfaces::nextcloud::login_v2_handler::handle_session_grant,
         // Grant / ReBAC handlers (free functions)
         handlers::grant_handler::create_grant,
         handlers::grant_handler::revoke_grant,
@@ -468,6 +469,8 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
             crate::interfaces::api::handlers::reauth_handler::ReauthPasswordDto,
             crate::interfaces::api::handlers::reauth_handler::ReauthPasskeyStartResponse,
             crate::interfaces::api::handlers::reauth_handler::ReauthPasskeyFinishDto,
+            crate::interfaces::nextcloud::login_v2_handler::LoginFlowGrantResponse,
+            crate::interfaces::nextcloud::login_v2_handler::LoginFlowDrive,
             // App-password management.
             crate::application::dtos::app_password_dto::CreateAppPasswordRequestDto,
             crate::application::dtos::app_password_dto::AppPasswordCreatedResponseDto,

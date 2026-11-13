@@ -244,8 +244,47 @@ async fn resolve_drive_or_complete(
     token: &str,
     current_user: &CurrentUser,
     label: &'static str,
-    mut drives: Vec<crate::application::dtos::folder_dto::FolderDto>,
+    drives: Vec<crate::application::dtos::folder_dto::FolderDto>,
 ) -> Response {
+    flow_next_html(
+        token,
+        advance_flow(state, nextcloud, token, current_user, label, drives).await,
+    )
+}
+
+/// Where an authenticated Login Flow v2 goes next. Shared by the browser
+/// (HTML) paths and the signed-in SPA path (`handle_session_grant`, JSON),
+/// so all of them pick drives and mint the app password the same way.
+enum FlowNext {
+    /// Done (success page) or the flow vanished (error page).
+    Redirect(String),
+    /// Two or more drives: the user picks one. Home is first.
+    PickDrive(Vec<crate::application::dtos::folder_dto::FolderDto>),
+}
+
+fn flow_next_html(token: &str, next: Result<FlowNext, StatusCode>) -> Response {
+    match next {
+        Ok(FlowNext::Redirect(url)) => axum::response::Redirect::to(&url).into_response(),
+        Ok(FlowNext::PickDrive(drives)) => render_drive_picker(token, &drives),
+        Err(status) => status.into_response(),
+    }
+}
+
+fn session_expired_url() -> String {
+    format!(
+        "{}/nextcloud/error?type=session-expired",
+        crate::common::config::server_base_path()
+    )
+}
+
+async fn advance_flow(
+    state: &Arc<AppState>,
+    nextcloud: &crate::common::di::NextcloudServices,
+    token: &str,
+    current_user: &CurrentUser,
+    label: &'static str,
+    mut drives: Vec<crate::application::dtos::folder_dto::FolderDto>,
+) -> Result<FlowNext, StatusCode> {
     if drives.len() >= 2 {
         // Reorder so home is at index 0. The picker template ties
         // both the default-checked radio and the "Home" badge to
@@ -278,11 +317,7 @@ async fn resolve_drive_or_complete(
             // Flow token vanished (TTL?) between auth and here —
             // extremely unlikely but treat the same as any
             // session-expired case.
-            return axum::response::Redirect::to(&format!(
-                "{}/nextcloud/error?type=session-expired",
-                crate::common::config::server_base_path()
-            ))
-            .into_response();
+            return Ok(FlowNext::Redirect(session_expired_url()));
         }
         // Persist the label so `handle_drive_pick` can pass the correct
         // provenance string when it later calls `complete_flow`. Set
@@ -291,10 +326,10 @@ async fn resolve_drive_or_complete(
         nextcloud
             .login_flow
             .set_pending_app_password_label(token, label);
-        return render_drive_picker(token, &drives);
+        return Ok(FlowNext::PickDrive(drives));
     }
 
-    complete_flow(
+    complete_flow_target(
         state,
         &nextcloud.login_flow,
         token,
@@ -303,6 +338,7 @@ async fn resolve_drive_or_complete(
         label,
     )
     .await
+    .map(FlowNext::Redirect)
 }
 
 /// Complete an OIDC-authenticated NC Login Flow v2.
@@ -428,28 +464,28 @@ fn render_drive_picker(
 /// `drive_id` is `None` for the single-drive shortcut and for the
 /// home-drive choice on the picker; `Some(uuid)` for any other drive,
 /// in which case the NC login name carries the `~{uuid}` marker.
-async fn complete_flow(
+async fn complete_flow_target(
     state: &Arc<AppState>,
     login_flow: &crate::application::services::nextcloud_login_flow_service::NextcloudLoginFlowService,
     token: &str,
     user: &CurrentUser,
     drive_id: Option<&str>,
     // Persisted verbatim as `auth.app_passwords.label`. Callers pass
-    // `"Nextcloud"` for the password path and `"Nextcloud (OIDC)"` for
-    // the OIDC path so operators can distinguish provenance from the
-    // audit log alone.
+    // `"Nextcloud"` for the password path, `"Nextcloud (OIDC)"` for the
+    // OIDC path and `"Nextcloud (session)"` for the signed-in path so
+    // operators can distinguish provenance from the audit log alone.
     label: &str,
-) -> Response {
-    let nextcloud = match state.nextcloud.as_ref() {
-        Some(nc) => nc,
-        None => return StatusCode::SERVICE_UNAVAILABLE.into_response(),
-    };
+) -> Result<String, StatusCode> {
+    let nextcloud = state
+        .nextcloud
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
 
     let app_password = match nextcloud.app_passwords.create_nc(user.id, label).await {
         Ok((_id, password)) => password,
         Err(e) => {
             tracing::error!(error = %e, user = %user.username, "Login Flow v2: failed to create app password");
-            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+            return Err(StatusCode::INTERNAL_SERVER_ERROR);
         }
     };
 
@@ -491,21 +527,16 @@ async fn complete_flow(
         // "Open Nextcloud" fallback on the success page. Keep the
         // credentials out of the query string either way — the query
         // string reaches server access logs.
-        axum::response::Redirect::to(&format!(
+        Ok(format!(
             "{}/nextcloud/success",
             crate::common::config::server_base_path()
         ))
-        .into_response()
     } else {
         tracing::error!(
             user = %user.username,
             "Login Flow v2: complete() returned false — flow token not found"
         );
-        axum::response::Redirect::to(&format!(
-            "{}/nextcloud/error?type=session-expired",
-            crate::common::config::server_base_path()
-        ))
-        .into_response()
+        Ok(session_expired_url())
     }
 }
 
@@ -656,15 +687,19 @@ pub async fn handle_drive_pick(
         .take_pending_app_password_label(&token)
         .unwrap_or_else(|| "Nextcloud".to_string());
 
-    complete_flow(
-        &state,
-        &nextcloud.login_flow,
+    flow_next_html(
         &token,
-        &user,
-        drive_marker,
-        &label,
+        complete_flow_target(
+            &state,
+            &nextcloud.login_flow,
+            &token,
+            &user,
+            drive_marker,
+            &label,
+        )
+        .await
+        .map(FlowNext::Redirect),
     )
-    .await
 }
 
 /// GET /login/v2/flow/{token}/oidc — Start an OIDC authorization flow that is
@@ -740,4 +775,174 @@ fn parse_form(body: &str) -> HashMap<String, String> {
 
 fn parse_form_value(body: &str, key: &str) -> Option<String> {
     parse_form(body).remove(key)
+}
+
+// ── Grant with the current session (docs/plan/passkeys.md, Phase 2a) ──
+
+/// Signed-in SPA routes for Login Flow v2. Mount under
+/// `/api/nextcloud/login-flow` with the auth, CSRF, DPoP, internal-user and
+/// no-pending-password-change layers. The grant mints a long-lived app
+/// password, so it also needs a recent sign-in (`require_recent_auth_layer`).
+pub fn login_flow_session_routes(state: &Arc<AppState>) -> axum::Router<Arc<AppState>> {
+    axum::Router::new().route(
+        "/{token}/grant",
+        axum::routing::post(handle_session_grant).route_layer(
+            axum::middleware::from_fn_with_state(
+                state.clone(),
+                crate::interfaces::middleware::user::require_recent_auth_layer,
+            ),
+        ),
+    )
+}
+
+/// One drive the user can link the client to. The first is home.
+#[derive(serde::Serialize, utoipa::ToSchema)]
+pub struct LoginFlowDrive {
+    pub id: String,
+    pub name: String,
+}
+
+/// What the page does next: follow `redirect`, or let the user pick one of
+/// `drives` and post the choice (form field `drive`) to `pick_action`.
+#[derive(serde::Serialize, utoipa::ToSchema)]
+pub struct LoginFlowGrantResponse {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub redirect: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub drives: Option<Vec<LoginFlowDrive>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pick_action: Option<String>,
+}
+
+fn grant_error(status: StatusCode, message: &str, error_type: &'static str) -> Response {
+    crate::interfaces::errors::AppError::new(status, message, error_type).into_response()
+}
+
+/// POST `/api/nextcloud/login-flow/{token}/grant` — link the Nextcloud
+/// client that started flow `{token}` to the signed-in account, without a
+/// password. This is how a passkey-only account connects a desktop client.
+///
+/// Always a deliberate click on the grant page: the flow token comes from
+/// whoever started the flow, so granting it hands that client an app
+/// password for this account.
+#[utoipa::path(
+    post,
+    path = "/api/nextcloud/login-flow/{token}/grant",
+    operation_id = "nextcloud_login_flow_grant",
+    params(("token" = String, Path, description = "Login Flow v2 token from the client's browser URL")),
+    responses(
+        (status = 200, description = "Linked (`redirect`), or a drive must be picked (`drives`)", body = LoginFlowGrantResponse),
+        (status = 401, description = "Not signed in", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 403, description = "Confirm it's you first (`ReauthRequired`), or an external account", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 404, description = "No such flow (expired or already used)", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 409, description = "The account has no username to sign the client in with", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 503, description = "Nextcloud compatibility is off", body = crate::interfaces::errors::ApiErrorBody),
+    ),
+    tag = "nextcloud"
+)]
+pub async fn handle_session_grant(
+    State(state): State<Arc<AppState>>,
+    Path(token): Path<String>,
+    crate::interfaces::middleware::auth::AuthUser(user): crate::interfaces::middleware::auth::AuthUser,
+) -> Response {
+    let Some(nextcloud) = state.nextcloud.as_ref() else {
+        return grant_error(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "Nextcloud compatibility is not enabled",
+            "NextcloudDisabled",
+        );
+    };
+    if !nextcloud.login_flow.flow_exists(&token) {
+        tracing::info!(
+            target: "audit",
+            event = "nc_login_flow.session_grant_rejected",
+            reason = "unknown_flow",
+            user_id = %user.id,
+            "👮🏻‍♂️ NC session grant refused: no such login flow"
+        );
+        return grant_error(
+            StatusCode::NOT_FOUND,
+            "This sign-in request has expired or was already used",
+            "LoginFlowNotFound",
+        );
+    }
+    // The client signs in as `username[~drive]`; an account without one
+    // (email-only) cannot be expressed. Same invariant the drive pick
+    // checks.
+    if user.username.is_empty() {
+        tracing::info!(
+            target: "audit",
+            event = "nc_login_flow.session_grant_rejected",
+            reason = "no_username",
+            user_id = %user.id,
+            "👮🏻‍♂️ NC session grant refused: account has no username"
+        );
+        return grant_error(
+            StatusCode::CONFLICT,
+            "Set a username in your profile before linking a Nextcloud client",
+            "UsernameRequired",
+        );
+    }
+    let drives = match state
+        .applications
+        .folder_service
+        .list_folders_with_perms(None, user.id)
+        .await
+    {
+        Ok(d) => d,
+        Err(e) => {
+            tracing::error!(error = %e, user = %user.username, "Login Flow v2: failed to list drives");
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        }
+    };
+    // Same principal shape the password path builds: an app password is
+    // never DPoP-bound.
+    let principal = CurrentUser {
+        dpop_jkt: None,
+        ..(*user).clone()
+    };
+    let next = advance_flow(
+        &state,
+        nextcloud,
+        &token,
+        &principal,
+        "Nextcloud (session)",
+        drives,
+    )
+    .await;
+    match next {
+        Ok(FlowNext::Redirect(url)) => {
+            tracing::info!(
+                target: "audit",
+                event = "nc_login_flow.session_granted",
+                user_id = %user.id,
+                "🔑 Nextcloud client linked with the signed-in session"
+            );
+            Json(LoginFlowGrantResponse {
+                redirect: Some(url),
+                drives: None,
+                pick_action: None,
+            })
+            .into_response()
+        }
+        Ok(FlowNext::PickDrive(drives)) => Json(LoginFlowGrantResponse {
+            redirect: None,
+            drives: Some(
+                drives
+                    .into_iter()
+                    .map(|f| LoginFlowDrive {
+                        id: f.id,
+                        name: f.name,
+                    })
+                    .collect(),
+            ),
+            pick_action: Some(format!(
+                "{}/login/v2/flow/{}/drive",
+                crate::common::config::server_base_path(),
+                token
+            )),
+        })
+        .into_response(),
+        Err(status) => status.into_response(),
+    }
 }
