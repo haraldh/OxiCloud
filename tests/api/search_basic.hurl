@@ -230,12 +230,17 @@ HTTP 201
 canary_file_id: jsonpath "$.id"
 
 
-# Drain the content-index worker. 2s exceeds the 1500ms flush
-# interval comfortably; raise if a slower CI machine flakes.
+# Wait for the content-index worker by polling, not by a fixed delay.
+# A single 2500ms delay passed when this file ran alone but failed in
+# the full suite: the uploads of every earlier scenario are still in the
+# worker's queue, so one flush interval (1500ms) is not enough. Retrying
+# until the asserts hold keeps the test fast alone and correct in bulk.
 GET {{base_url}}/api/search?query=ContentIndexCanaryXyzzy2026Drive
 Authorization: Bearer {{admin_token}}
 [Options]
-delay: 2500ms
+delay: 1500ms
+retry: 20
+retry-interval: 500ms
 
 HTTP 200
 [Asserts]

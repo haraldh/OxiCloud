@@ -23,4 +23,4 @@ jsonpath "$.features.chat" exists
 jsonpath "$.features.chat" isBoolean
 jsonpath "$.features.chat" == false
 jsonpath "$.chat" exists
-jsonpath "$.chat.homeserver_url" isNull
+jsonpath "$.chat.homeserver_url" == null

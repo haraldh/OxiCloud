@@ -611,6 +611,7 @@ HURL_FILES=( \
   "$API_DIR/dto_shape_regression_guards.hurl" \
   "$API_DIR/shared_worker_bus_discovery.hurl" \
   "$API_DIR/auth_config_discovery.hurl" \
+  "$API_DIR/chat_discovery.hurl" \
   "$API_DIR/device_auth_flow.hurl" \
   "$API_DIR/idp_provider.hurl" \
   "$API_DIR/external_mounts.hurl" \
