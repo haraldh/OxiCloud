@@ -37,6 +37,7 @@
     hurl
     netcat-gnu                # provides `nc`
     b3sum                     # storage-integrity check in tests/api/run.sh
+    xq-xml                    # `xq` (sibprogrammer/xq): XPath checks in tests/webdav/*.sh
   ];
 
   # Dev Postgres on :5432, matching DATABASE_URL in example.env

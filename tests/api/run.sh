@@ -325,7 +325,7 @@ wipe_storage "$OXICLOUD_STORAGE_PATH"
 # ── 3. Start OxiCloud server ──────────────────────────────────────────────────
 
 BUILD_TARGET="${BUILD_TARGET:-debug}"
-OXICLOUD_BIN="$REPO_ROOT/target/$BUILD_TARGET/oxicloud"
+OXICLOUD_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/oxicloud"
 
 # Build synchronously (no time cap — clean builds take minutes) BEFORE
 # starting the server, so the `/ready` poll below only times what we
@@ -803,7 +803,7 @@ fi
 # Gated for the same reason as the DPoP phase below — it builds its own binary.
 # Selector name: `opaque`.
 if selected opaque; then
-OPAQUE_HELPER_BIN="$REPO_ROOT/target/$BUILD_TARGET/opaque-hurl-helper"
+OPAQUE_HELPER_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/opaque-hurl-helper"
 if [[ ! -x "$OPAQUE_HELPER_BIN" ]]; then
   case "$BUILD_TARGET" in
     debug)   cargo_build_logged "opaque-hurl-helper (debug)"             --features test_utils --bin opaque-hurl-helper || die "opaque-hurl-helper build failed" ;;
@@ -831,7 +831,7 @@ fi
 # its own binary — on a selective run that cargo build dwarfs the scenario you
 # are actually iterating on. Selector name: `dpop`.
 if selected dpop; then
-DPOP_HELPER_BIN="$REPO_ROOT/target/$BUILD_TARGET/dpop-hurl-helper"
+DPOP_HELPER_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/dpop-hurl-helper"
 if [[ ! -x "$DPOP_HELPER_BIN" ]]; then
   case "$BUILD_TARGET" in
     debug)   cargo_build_logged "dpop-hurl-helper (debug)"             --features test_utils --bin dpop-hurl-helper || die "dpop-hurl-helper build failed" ;;

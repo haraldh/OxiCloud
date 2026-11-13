@@ -302,7 +302,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BUILD_TARGET="${BUILD_TARGET:-debug}"
-HELPER_BIN="$REPO_ROOT/target/$BUILD_TARGET/rt-hurl-helper"
+HELPER_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/rt-hurl-helper"
 
 # ── Shared cargo-build wrapper (quiet on success, tailable while it runs) ────
 # shellcheck disable=SC1091

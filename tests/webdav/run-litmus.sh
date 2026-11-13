@@ -63,7 +63,7 @@ rm -rf "$OXICLOUD_STORAGE_PATH"
 mkdir -p "$OXICLOUD_STORAGE_PATH"
 
 BUILD_TARGET="${BUILD_TARGET:-debug}"
-OXICLOUD_BIN="$REPO_ROOT/target/$BUILD_TARGET/oxicloud"
+OXICLOUD_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/oxicloud"
 
 if [[ -x "$OXICLOUD_BIN" ]]; then
     log "Starting pre-built OxiCloud ($BUILD_TARGET) on port $SERVER_PORT..."
@@ -74,7 +74,7 @@ else
     # `--features plugins` to share one artifact with every other build of
     # this binary — see `tests/common/cargo_build.sh`.
     cargo build --features plugins 2>&1
-    "$REPO_ROOT/target/debug/oxicloud" --config "$COMMON/server.env" &
+    "${CARGO_TARGET_DIR:-$REPO_ROOT/target}/debug/oxicloud" --config "$COMMON/server.env" &
 fi
 SERVER_PID=$!
 

@@ -63,7 +63,7 @@ rm -rf "$OXICLOUD_STORAGE_PATH"
 mkdir -p "$OXICLOUD_STORAGE_PATH"
 
 BUILD_TARGET="${BUILD_TARGET:-debug}"
-OXICLOUD_BIN="$REPO_ROOT/target/$BUILD_TARGET/oxicloud"
+OXICLOUD_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/oxicloud"
 
 if [[ -x "$OXICLOUD_BIN" ]]; then
   log "Starting pre-built OxiCloud server ($BUILD_TARGET) on port $SERVER_PORT..."

@@ -106,7 +106,7 @@ fi
 log "Building oxicloud with --features bundled-assets..."
 (cd "$REPO_ROOT" && cargo build --features bundled-assets --bin oxicloud 2>&1 | tail -n 5) \
   || die "cargo build --features bundled-assets failed"
-OXICLOUD_BIN="$REPO_ROOT/target/debug/oxicloud"
+OXICLOUD_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/debug/oxicloud"
 [[ -x "$OXICLOUD_BIN" ]] || die "Binary missing after build: $OXICLOUD_BIN"
 
 # ── 3. Start test Postgres ───────────────────────────────────────────

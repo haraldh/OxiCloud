@@ -153,7 +153,7 @@ fi
 
 # ── 4. Build OxiCloud once ─────────────────────────────────────────────────
 BUILD_TARGET="${BUILD_TARGET:-debug}"
-OXICLOUD_BIN="$REPO_ROOT/target/$BUILD_TARGET/oxicloud"
+OXICLOUD_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/oxicloud"
 
 if [[ ! -x "$OXICLOUD_BIN" ]]; then
   log "Building OxiCloud server ($BUILD_TARGET)..."

@@ -96,7 +96,7 @@ source "$COMMON/wipe-storage.sh"
 wipe_storage "$OXICLOUD_STORAGE_PATH"
 
 BUILD_TARGET="${BUILD_TARGET:-debug}"
-OXICLOUD_BIN="$REPO_ROOT/target/$BUILD_TARGET/oxicloud"
+OXICLOUD_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/oxicloud"
 
 # Use the binary if it's already there — CI downloads the pre-built release
 # artifact. `just test-nextcloudcmd` runs `cargo build` first, so local runs

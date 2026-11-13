@@ -72,7 +72,7 @@ wipe_storage "$OXICLOUD_STORAGE_PATH"
 # ── 3. Start OxiCloud server ──────────────────────────────────────────────────
 
 BUILD_TARGET="${BUILD_TARGET:-debug}"
-OXICLOUD_BIN="$REPO_ROOT/target/$BUILD_TARGET/oxicloud"
+OXICLOUD_BIN="${CARGO_TARGET_DIR:-$REPO_ROOT/target}/$BUILD_TARGET/oxicloud"
 
 # `--config` pins the env file the binary reads AND suppresses the default
 # `.env` probe in main.rs, so a developer's repo-root `.env` can never leak
