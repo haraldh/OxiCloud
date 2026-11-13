@@ -2305,7 +2305,10 @@
     "attachment_play": "Lire",
     "attachment_show": "Afficher",
     "attachment_download": "Télécharger",
-    "attachment_failed": "Impossible de charger cette pièce jointe."
+    "attachment_failed": "Impossible de charger cette pièce jointe.",
+    "attachment_save": "Enregistrer dans Fichiers",
+    "attachment_saved": "Enregistré dans {{name}}",
+    "attachment_open_folder": "Ouvrir le dossier"
   },
   "passkeys": {
     "title": "Clés d'accès",

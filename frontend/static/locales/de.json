@@ -2305,7 +2305,10 @@
     "attachment_play": "Abspielen",
     "attachment_show": "Anzeigen",
     "attachment_download": "Herunterladen",
-    "attachment_failed": "Dieser Anhang konnte nicht geladen werden."
+    "attachment_failed": "Dieser Anhang konnte nicht geladen werden.",
+    "attachment_save": "In Dateien speichern",
+    "attachment_saved": "Gespeichert unter {{name}}",
+    "attachment_open_folder": "Ordner öffnen"
   },
   "passkeys": {
     "title": "Passkeys",

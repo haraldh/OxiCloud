@@ -2305,7 +2305,10 @@
     "attachment_play": "再生",
     "attachment_show": "表示",
     "attachment_download": "ダウンロード",
-    "attachment_failed": "この添付ファイルを読み込めませんでした。"
+    "attachment_failed": "この添付ファイルを読み込めませんでした。",
+    "attachment_save": "ファイルに保存",
+    "attachment_saved": "{{name}} に保存しました",
+    "attachment_open_folder": "フォルダーを開く"
   },
   "passkeys": {
     "title": "パスキー",

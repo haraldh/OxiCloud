@@ -2305,7 +2305,10 @@
     "attachment_play": "Afspelen",
     "attachment_show": "Tonen",
     "attachment_download": "Downloaden",
-    "attachment_failed": "Deze bijlage kon niet worden geladen."
+    "attachment_failed": "Deze bijlage kon niet worden geladen.",
+    "attachment_save": "Opslaan in Bestanden",
+    "attachment_saved": "Opgeslagen in {{name}}",
+    "attachment_open_folder": "Map openen"
   },
   "passkeys": {
     "title": "Passkeys",

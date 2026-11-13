@@ -2305,7 +2305,10 @@
     "attachment_play": "播放",
     "attachment_show": "显示",
     "attachment_download": "下载",
-    "attachment_failed": "无法加载此附件。"
+    "attachment_failed": "无法加载此附件。",
+    "attachment_save": "保存到文件",
+    "attachment_saved": "已保存到 {{name}}",
+    "attachment_open_folder": "打开文件夹"
   },
   "passkeys": {
     "title": "通行密钥",

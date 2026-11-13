@@ -2305,7 +2305,10 @@
     "attachment_play": "Reproducir",
     "attachment_show": "Mostrar",
     "attachment_download": "Descargar",
-    "attachment_failed": "No se pudo cargar este adjunto."
+    "attachment_failed": "No se pudo cargar este adjunto.",
+    "attachment_save": "Guardar en Archivos",
+    "attachment_saved": "Guardado en {{name}}",
+    "attachment_open_folder": "Abrir carpeta"
   },
   "passkeys": {
     "title": "Llaves de acceso",

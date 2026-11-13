@@ -2305,7 +2305,10 @@
     "attachment_play": "پخش",
     "attachment_show": "نمایش",
     "attachment_download": "دانلود",
-    "attachment_failed": "این پیوست بارگیری نشد."
+    "attachment_failed": "این پیوست بارگیری نشد.",
+    "attachment_save": "ذخیره در فایل‌ها",
+    "attachment_saved": "در {{name}} ذخیره شد",
+    "attachment_open_folder": "باز کردن پوشه"
   },
   "passkeys": {
     "title": "کلیدهای عبور",

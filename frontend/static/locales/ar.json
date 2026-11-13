@@ -2305,7 +2305,10 @@
     "attachment_play": "تشغيل",
     "attachment_show": "عرض",
     "attachment_download": "تنزيل",
-    "attachment_failed": "تعذّر تحميل هذا المرفق."
+    "attachment_failed": "تعذّر تحميل هذا المرفق.",
+    "attachment_save": "حفظ في الملفات",
+    "attachment_saved": "حُفظ في {{name}}",
+    "attachment_open_folder": "فتح المجلد"
   },
   "passkeys": {
     "title": "مفاتيح المرور",

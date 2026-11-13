@@ -2305,7 +2305,10 @@
     "attachment_play": "Odtwórz",
     "attachment_show": "Pokaż",
     "attachment_download": "Pobierz",
-    "attachment_failed": "Nie udało się wczytać tego załącznika."
+    "attachment_failed": "Nie udało się wczytać tego załącznika.",
+    "attachment_save": "Zapisz w Plikach",
+    "attachment_saved": "Zapisano w {{name}}",
+    "attachment_open_folder": "Otwórz folder"
   },
   "passkeys": {
     "title": "Klucze dostępu",

@@ -11,6 +11,11 @@
 	import { formatBytes } from '$lib/utils/format';
 	import type { Attachment } from '$lib/chat/attachment';
 	import type { ChatClient } from '$lib/chat/matrix.svelte';
+	import { saveToChatFolder, CHAT_FOLDER_NAME } from '$lib/chat/saveToFiles';
+	import { ui } from '$lib/stores/ui.svelte';
+	import { errorMessage } from '$lib/utils/errors';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	interface Props {
 		attachment: Attachment;
@@ -59,6 +64,37 @@
 		a.href = url;
 		a.download = attachment.name || 'attachment';
 		a.click();
+	}
+
+	let saving = $state(false);
+
+	/** Keep a copy in the user's files (the `Chat` folder). */
+	async function saveToFiles() {
+		saving = true;
+		try {
+			const { blob } = await chat.media(attachment.source, attachment.mimetype);
+			const saved = await saveToChatFolder(blob, attachment.name, attachment.mimetype);
+			ui.notify(
+				t(
+					'chat.attachment_saved',
+					{ name: `${CHAT_FOLDER_NAME}/${saved.name}` },
+					'Saved to {{name}}'
+				),
+				'info',
+				6000,
+				true,
+				{
+					action: {
+						label: t('chat.attachment_open_folder', 'Open folder'),
+						onClick: () => goto(resolve(`/files/${saved.folderId}`))
+					}
+				}
+			);
+		} catch (err) {
+			ui.notify(errorMessage(err), 'error');
+		} finally {
+			saving = false;
+		}
 	}
 
 	$effect(() => {
@@ -116,6 +152,17 @@
 			</Button>
 		</div>
 	{/if}
+	<div class="att__actions">
+		<Button
+			small
+			icon="folder-plus"
+			disabled={saving}
+			onclick={() => void saveToFiles()}
+			data-testid="chat-attachment-save"
+		>
+			{t('chat.attachment_save', 'Save to Files')}
+		</Button>
+	</div>
 	{#if failed}
 		<p class="att__error" role="alert">
 			{t('chat.attachment_failed', 'Could not load this attachment.')}
@@ -155,6 +202,11 @@
 		align-items: center;
 		gap: var(--space-2);
 		color: var(--color-text);
+	}
+
+	.att__actions {
+		display: flex;
+		gap: var(--space-2);
 	}
 
 	.att__name {

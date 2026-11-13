@@ -185,9 +185,9 @@ export class ChatClient {
 	#ownerId: string;
 	#homeserverUrl: string;
 	#ssKey: [string, Uint8Array<ArrayBuffer>] | null = null;
-	/** Downloaded (and decrypted) attachments as `blob:` URLs, by mxc URL. */
+	/** Downloaded (and decrypted) attachments with their `blob:` URLs, by mxc URL. */
 	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- a download cache, never read reactively
-	#media = new Map<string, Promise<string>>();
+	#media = new Map<string, Promise<{ blob: Blob; url: string }>>();
 	#unsubscribe: (() => void) | null = null;
 
 	constructor(ownerId: string, homeserverUrl: string) {
@@ -261,19 +261,22 @@ export class ChatClient {
 	}
 
 	#releaseMedia(): void {
-		for (const url of this.#media.values()) {
-			void url.then(URL.revokeObjectURL, () => {});
+		for (const m of this.#media.values()) {
+			void m.then(
+				(x) => URL.revokeObjectURL(x.url),
+				() => {}
+			);
 		}
 		this.#media.clear();
 	}
 
 	/**
-	 * A `blob:` URL for an attachment's bytes: downloaded through
-	 * authenticated media with this session's token and, in encrypted
-	 * rooms, decrypted here (the homeserver only ever has ciphertext).
-	 * Cached for the session; a failure is not cached, so a retry refetches.
+	 * An attachment's bytes: downloaded through authenticated media with
+	 * this session's token and, in encrypted rooms, decrypted here (the
+	 * homeserver only ever has ciphertext). Cached for the session with a
+	 * `blob:` URL; a failure is not cached, so a retry refetches.
 	 */
-	mediaUrl(src: AttachmentSource, mimetype?: string): Promise<string> {
+	media(src: AttachmentSource, mimetype?: string): Promise<{ blob: Blob; url: string }> {
 		const key = sourceUrl(src);
 		const cached = this.#media.get(key);
 		if (cached) return cached;
@@ -283,7 +286,12 @@ export class ChatClient {
 		return pending;
 	}
 
-	async #download(src: AttachmentSource, mimetype?: string): Promise<string> {
+	/** `media()` as a `blob:` URL, for `<img>`, `<video>` and downloads. */
+	async mediaUrl(src: AttachmentSource, mimetype?: string): Promise<string> {
+		return (await this.media(src, mimetype)).url;
+	}
+
+	async #download(src: AttachmentSource, mimetype?: string): Promise<{ blob: Blob; url: string }> {
 		const client = this.#need();
 		const path = mediaDownloadPath(sourceUrl(src));
 		if (!path) throw new Error('Unsupported media URL');
@@ -299,7 +307,8 @@ export class ChatClient {
 			mimetype && /^(image|video|audio)\//.test(mimetype) && !mimetype.includes('svg')
 				? mimetype
 				: 'application/octet-stream';
-		return URL.createObjectURL(new Blob([bytes], { type }));
+		const blob = new Blob([bytes], { type });
+		return { blob, url: URL.createObjectURL(blob) };
 	}
 
 	async #start(session: ChatSession): Promise<void> {

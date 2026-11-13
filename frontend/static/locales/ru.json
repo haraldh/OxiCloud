@@ -2305,7 +2305,10 @@
     "attachment_play": "Воспроизвести",
     "attachment_show": "Показать",
     "attachment_download": "Скачать",
-    "attachment_failed": "Не удалось загрузить вложение."
+    "attachment_failed": "Не удалось загрузить вложение.",
+    "attachment_save": "Сохранить в Файлы",
+    "attachment_saved": "Сохранено в {{name}}",
+    "attachment_open_folder": "Открыть папку"
   },
   "passkeys": {
     "title": "Ключи доступа",

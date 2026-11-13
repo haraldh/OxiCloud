@@ -2305,7 +2305,10 @@
     "attachment_play": "Play",
     "attachment_show": "Show",
     "attachment_download": "Download",
-    "attachment_failed": "Could not load this attachment."
+    "attachment_failed": "Could not load this attachment.",
+    "attachment_save": "Save to Files",
+    "attachment_saved": "Saved to {{name}}",
+    "attachment_open_folder": "Open folder"
   },
   "passkeys": {
     "title": "Passkeys",

@@ -2305,7 +2305,10 @@
     "attachment_play": "चलाएँ",
     "attachment_show": "दिखाएँ",
     "attachment_download": "डाउनलोड करें",
-    "attachment_failed": "यह अटैचमेंट लोड नहीं हो सका।"
+    "attachment_failed": "यह अटैचमेंट लोड नहीं हो सका।",
+    "attachment_save": "फ़ाइलों में सहेजें",
+    "attachment_saved": "{{name}} में सहेजा गया",
+    "attachment_open_folder": "फ़ोल्डर खोलें"
   },
   "passkeys": {
     "title": "पासकी",

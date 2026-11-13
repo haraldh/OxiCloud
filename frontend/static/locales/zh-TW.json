@@ -2305,7 +2305,10 @@
     "attachment_play": "播放",
     "attachment_show": "顯示",
     "attachment_download": "下載",
-    "attachment_failed": "無法載入此附件。"
+    "attachment_failed": "無法載入此附件。",
+    "attachment_save": "儲存到檔案",
+    "attachment_saved": "已儲存到 {{name}}",
+    "attachment_open_folder": "開啟資料夾"
   },
   "passkeys": {
     "title": "密碼金鑰",
