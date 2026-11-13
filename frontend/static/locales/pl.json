@@ -2316,5 +2316,15 @@
     "verification_failed": "Nie udało się zweryfikować klucza dostępu. Spróbuj ponownie.",
     "not_allowed": "To konto nie może dodawać kluczy dostępu.",
     "default_name": "Mój klucz dostępu"
+  },
+  "reauth": {
+    "title": "Potwierdź, że to Ty",
+    "message": "Za chwilę zmienisz sposób logowania. Najpierw potwierdź, że to Ty.",
+    "use_passkey": "Użyj klucza dostępu",
+    "use_password": "Użyj hasła",
+    "confirm": "Potwierdź",
+    "passkey_cancelled": "Nie użyto klucza dostępu. Spróbuj ponownie lub anuluj.",
+    "rejected": "Nie udało się. Spróbuj ponownie.",
+    "unavailable": "Wyloguj się, zaloguj ponownie i spróbuj jeszcze raz. To konto nie ma tu klucza dostępu ani hasła do potwierdzenia."
   }
 }

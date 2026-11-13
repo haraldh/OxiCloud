@@ -111,6 +111,12 @@ pub struct Session {
     /// on session rotation (silent refresh), so its resolution is
     /// capped at the access-token TTL. See `docs/plan/sessions.md`.
     last_seen_at: DateTime<Utc>,
+    /// When the user last proved who they are in this session family:
+    /// set at mint, carried over on refresh rotation (unlike
+    /// `created_at`), moved forward by a step-up re-authentication.
+    /// `None` = unknown (rows older than the column), treated as stale.
+    /// See `docs/plan/passkeys.md`, "Phase 2a plan".
+    authenticated_at: Option<DateTime<Utc>>,
 }
 
 impl Session {
@@ -144,7 +150,16 @@ impl Session {
             dpop_jkt: None,
             origin,
             last_seen_at: now,
+            authenticated_at: Some(now),
         }
+    }
+
+    /// Set the last-authenticated time: the repository fills it from the
+    /// row, refresh rotation copies the parent's so a silent refresh never
+    /// counts as proving identity again.
+    pub fn with_authenticated_at(mut self, at: Option<DateTime<Utc>>) -> Self {
+        self.authenticated_at = at;
+        self
     }
 
     /// Bind the session to a DPoP-Nonce browser keypair. Called by every
@@ -212,6 +227,7 @@ impl Session {
             dpop_jkt,
             origin,
             last_seen_at,
+            authenticated_at: None,
         }
     }
 
@@ -279,6 +295,17 @@ impl Session {
     pub fn last_seen_at(&self) -> DateTime<Utc> {
         self.last_seen_at
     }
+
+    pub fn authenticated_at(&self) -> Option<DateTime<Utc>> {
+        self.authenticated_at
+    }
+
+    /// The user proved who they are within `window` before `now`. Unknown
+    /// (`None`) and future stamps count as stale.
+    pub fn is_recently_authenticated(&self, now: DateTime<Utc>, window: Duration) -> bool {
+        self.authenticated_at
+            .is_some_and(|at| at <= now && now - at <= window)
+    }
 }
 
 #[cfg(test)]
@@ -295,6 +322,23 @@ mod tests {
             Uuid::new_v4(),
             SessionOrigin::Unknown,
         )
+    }
+
+    #[test]
+    fn new_session_counts_as_freshly_authenticated() {
+        let s = fresh_session();
+        assert!(s.is_recently_authenticated(Utc::now(), Duration::minutes(10)));
+    }
+
+    #[test]
+    fn stale_unknown_and_future_stamps_are_not_recent() {
+        let now = Utc::now();
+        let window = Duration::minutes(10);
+        let at = |t| fresh_session().with_authenticated_at(t);
+        assert!(!at(Some(now - Duration::minutes(11))).is_recently_authenticated(now, window));
+        assert!(!at(None).is_recently_authenticated(now, window));
+        assert!(!at(Some(now + Duration::minutes(1))).is_recently_authenticated(now, window));
+        assert!(at(Some(now - Duration::minutes(9))).is_recently_authenticated(now, window));
     }
 
     #[test]

@@ -1069,7 +1069,7 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
         // sign-in behind the shared login rate limiter. Handlers answer
         // 503 when the service isn't built, so mounting is unconditional.
         let passkey_manage_protected =
-            oxicloud::interfaces::api::handlers::passkey_handler::passkey_manage_routes()
+            oxicloud::interfaces::api::handlers::passkey_handler::passkey_manage_routes(&app_state)
                 .layer(axum::middleware::from_fn_with_state(
                     app_state.clone(),
                     require_no_password_change_pending_layer,
@@ -1084,6 +1084,28 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
                     auth_middleware,
                 ))
                 .with_state(app_state.clone());
+        // Step-up "confirm it's you" (Phase 2a): signed in, same stack as
+        // the passkey management routes, plus the login limiter because the
+        // password route checks a password.
+        let reauth_protected = oxicloud::interfaces::api::handlers::reauth_handler::reauth_routes()
+            .layer(axum::middleware::from_fn_with_state(
+                login_limiter.clone(),
+                rate_limit_login,
+            ))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                require_no_password_change_pending_layer,
+            ))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                require_dpop_layer,
+            ))
+            .layer(axum::middleware::from_fn(csrf_middleware))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                auth_middleware,
+            ))
+            .with_state(app_state.clone());
         let passkey_login_public =
             oxicloud::interfaces::api::handlers::passkey_handler::passkey_login_routes()
                 .layer(axum::middleware::from_fn_with_state(
@@ -1291,6 +1313,10 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
             .nest(
                 "/api/auth/passkey/login",
                 passkey_login_public.layer(access_log!("http::api::auth")),
+            )
+            .nest(
+                "/api/auth/reauth",
+                reauth_protected.layer(access_log!("http::api::auth")),
             )
             // One-time setup endpoint — public, rate-limited
             .nest("/api", setup_router.layer(access_log!("http::api")))

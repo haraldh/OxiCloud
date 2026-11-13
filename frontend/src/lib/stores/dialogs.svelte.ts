@@ -42,6 +42,10 @@ export interface FormField {
 	value?: string;
 	placeholder?: string;
 	multiline?: boolean;
+	/** Single-line input type; `password` masks it. Default `text`. */
+	type?: 'text' | 'password';
+	/** Autocomplete hint, e.g. `current-password`. Default `off`. */
+	autocomplete?: AutoFill;
 }
 
 export interface FormOptions {

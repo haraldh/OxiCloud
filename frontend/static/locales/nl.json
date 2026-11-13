@@ -2316,5 +2316,15 @@
     "verification_failed": "De passkey kon niet worden geverifieerd. Probeer het opnieuw.",
     "not_allowed": "Dit account kan geen passkeys toevoegen.",
     "default_name": "Mijn passkey"
+  },
+  "reauth": {
+    "title": "Bevestig dat jij het bent",
+    "message": "Je gaat wijzigen hoe je inlogt. Bevestig eerst dat jij het bent.",
+    "use_passkey": "Passkey gebruiken",
+    "use_password": "Wachtwoord gebruiken",
+    "confirm": "Bevestigen",
+    "passkey_cancelled": "Er is geen passkey gebruikt. Probeer het opnieuw of annuleer.",
+    "rejected": "Dat werkte niet. Probeer het opnieuw.",
+    "unavailable": "Log uit, log opnieuw in en probeer het dan nog eens. Dit account heeft hier geen passkey of wachtwoord om mee te bevestigen."
   }
 }

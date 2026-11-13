@@ -23,6 +23,13 @@ use crate::interfaces::middleware::user::{LiveRole, resolve_live_role};
 #[derive(Clone, Copy, Debug)]
 pub struct CookieAuthenticated;
 
+/// The session behind a JWT-authenticated request (the token's `sid`
+/// claim). Absent for app-password / Basic requests and for tokens minted
+/// without a `sid`, which therefore can never pass a step-up check
+/// (`require_recent_auth_layer`, docs/plan/passkeys.md Phase 2a).
+#[derive(Clone, Copy, Debug)]
+pub struct AuthSessionId(pub Uuid);
+
 // Newtype over Arc<CurrentUser> for zero-allocation extraction.
 // `Deref<Target = CurrentUser>` lets handlers access `.id`, `.username`,
 // `.email`, `.role` transparently — no signature changes needed.
@@ -402,6 +409,9 @@ pub async fn auth_middleware(
                             });
                             record_principal_on_span(&current_user);
                             request.extensions_mut().insert(current_user);
+                            if let Some(sid) = claims.sid {
+                                request.extensions_mut().insert(AuthSessionId(sid));
+                            }
                             // Bump per-session liveness for the
                             // Prometheus gauges. O(1) DashMap upsert
                             // — no I/O on this hot path. The `sid`
@@ -538,6 +548,9 @@ pub async fn auth_middleware(
                                 record_principal_on_span(&current_user);
                                 request.extensions_mut().insert(current_user);
                                 request.extensions_mut().insert(CookieAuthenticated);
+                                if let Some(sid) = claims.sid {
+                                    request.extensions_mut().insert(AuthSessionId(sid));
+                                }
                                 // Cookie-auth branch stamps the same
                                 // way as the Bearer branch above —
                                 // see that site for the O(1) /

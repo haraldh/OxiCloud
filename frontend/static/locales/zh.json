@@ -2316,5 +2316,15 @@
     "verification_failed": "无法验证通行密钥。请重试。",
     "not_allowed": "此帐户无法添加通行密钥。",
     "default_name": "我的通行密钥"
+  },
+  "reauth": {
+    "title": "确认是你本人",
+    "message": "你即将更改登录方式。请先确认是你本人。",
+    "use_passkey": "使用通行密钥",
+    "use_password": "使用密码",
+    "confirm": "确认",
+    "passkey_cancelled": "未使用通行密钥。请重试或取消。",
+    "rejected": "未成功。请重试。",
+    "unavailable": "请退出并重新登录后再试。此帐户在这里没有可用于确认的通行密钥或密码。"
   }
 }

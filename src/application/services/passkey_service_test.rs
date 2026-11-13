@@ -361,3 +361,81 @@ async fn option_json_matches_what_the_browser_needs() {
     );
     assert_eq!(login["publicKey"]["userVerification"], "required");
 }
+
+// ── step-up re-authentication (Phase 2a) ────────────────────────────
+
+async fn confirm(f: &Fixture, auth: &mut SoftPasskey, user: Uuid) -> (Uuid, PublicKeyCredential) {
+    let (cid, rcr) = f.svc.start_reauth(user).await.unwrap();
+    // Allow-list flow: the challenge already names the user's passkeys.
+    (cid, auth.do_authentication(origin(), rcr).unwrap())
+}
+
+#[tokio::test]
+async fn own_passkey_confirms_and_updates_the_counter() {
+    let f = fixture();
+    let user = f.users.add(|_| {});
+    let mut auth = authenticator();
+    register(&f, &mut auth, user).await;
+    assert!(f.svc.has_passkeys(user).await.unwrap());
+
+    let (cid, cred) = confirm(&f, &mut auth, user).await;
+    f.svc.finish_reauth(user, cid, &cred).await.unwrap();
+    assert_eq!(*f.store.uses.lock().unwrap(), 1);
+    // Single use.
+    assert!(matches!(
+        f.svc.finish_reauth(user, cid, &cred).await,
+        Err(PasskeyError::CeremonyExpired)
+    ));
+}
+
+#[tokio::test]
+async fn confirming_needs_a_passkey() {
+    let f = fixture();
+    let user = f.users.add(|_| {});
+    assert!(!f.svc.has_passkeys(user).await.unwrap());
+    assert!(matches!(
+        f.svc.start_reauth(user).await,
+        Err(PasskeyError::UnknownCredential)
+    ));
+}
+
+/// A stolen session of Alice must not be confirmable with Mallory's
+/// passkey: neither by finishing Alice's ceremony as Mallory, nor by
+/// answering Alice's ceremony with an assertion from Mallory's key.
+#[tokio::test]
+async fn only_the_callers_own_passkey_confirms() {
+    let f = fixture();
+    let alice = f.users.add(|_| {});
+    let mallory = f.users.add(|_| {});
+    let mut alice_key = authenticator();
+    let mut mallory_key = authenticator();
+    register(&f, &mut alice_key, alice).await;
+    register(&f, &mut mallory_key, mallory).await;
+
+    let (alice_cid, alice_cred) = confirm(&f, &mut alice_key, alice).await;
+    assert!(matches!(
+        f.svc.finish_reauth(mallory, alice_cid, &alice_cred).await,
+        Err(PasskeyError::CeremonyExpired)
+    ));
+
+    let (alice_cid, _) = f.svc.start_reauth(alice).await.unwrap();
+    let (_, mallory_cred) = confirm(&f, &mut mallory_key, mallory).await;
+    assert!(matches!(
+        f.svc.finish_reauth(alice, alice_cid, &mallory_cred).await,
+        Err(PasskeyError::VerificationFailed)
+    ));
+}
+
+#[tokio::test]
+async fn deactivated_account_cannot_confirm() {
+    let f = fixture();
+    let user = f.users.add(|_| {});
+    let mut auth = authenticator();
+    register(&f, &mut auth, user).await;
+    let (cid, cred) = confirm(&f, &mut auth, user).await;
+    f.users.set(user, |u| u.is_active = false);
+    assert!(matches!(
+        f.svc.finish_reauth(user, cid, &cred).await,
+        Err(PasskeyError::AccountInactive)
+    ));
+}

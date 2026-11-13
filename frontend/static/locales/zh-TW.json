@@ -2316,5 +2316,15 @@
     "verification_failed": "無法驗證密碼金鑰。請再試一次。",
     "not_allowed": "此帳號無法新增密碼金鑰。",
     "default_name": "我的密碼金鑰"
+  },
+  "reauth": {
+    "title": "確認是您本人",
+    "message": "您即將變更登入方式。請先確認是您本人。",
+    "use_passkey": "使用密碼金鑰",
+    "use_password": "使用密碼",
+    "confirm": "確認",
+    "passkey_cancelled": "未使用密碼金鑰。請重試或取消。",
+    "rejected": "未成功。請重試。",
+    "unavailable": "請登出並重新登入後再試。此帳戶在這裡沒有可用於確認的密碼金鑰或密碼。"
   }
 }

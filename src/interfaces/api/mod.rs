@@ -343,6 +343,10 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
         handlers::passkey_handler::remove,
         handlers::passkey_handler::login_start,
         handlers::passkey_handler::login_finish,
+        handlers::reauth_handler::methods,
+        handlers::reauth_handler::with_password,
+        handlers::reauth_handler::passkey_start,
+        handlers::reauth_handler::passkey_finish,
         // Grant / ReBAC handlers (free functions)
         handlers::grant_handler::create_grant,
         handlers::grant_handler::revoke_grant,
@@ -460,6 +464,10 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
             crate::interfaces::api::handlers::passkey_handler::PasskeyLoginStartResponse,
             crate::interfaces::api::handlers::passkey_handler::PasskeyLoginFinishDto,
             crate::interfaces::api::handlers::passkey_handler::PasskeyRenameDto,
+            crate::interfaces::api::handlers::reauth_handler::ReauthMethods,
+            crate::interfaces::api::handlers::reauth_handler::ReauthPasswordDto,
+            crate::interfaces::api::handlers::reauth_handler::ReauthPasskeyStartResponse,
+            crate::interfaces::api::handlers::reauth_handler::ReauthPasskeyFinishDto,
             // App-password management.
             crate::application::dtos::app_password_dto::CreateAppPasswordRequestDto,
             crate::application::dtos::app_password_dto::AppPasswordCreatedResponseDto,

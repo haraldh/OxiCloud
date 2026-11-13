@@ -29,6 +29,11 @@ use std::sync::RwLock;
 use std::time::Duration;
 use uuid::Uuid;
 
+/// How long a sign-in or step-up counts as fresh for sensitive account
+/// changes (adding or removing a passkey, recovery codes, removing the
+/// password). docs/plan/passkeys.md, Phase 2a.
+pub const STEP_UP_WINDOW_MINUTES: i64 = 10;
+
 /// Decision returned by `classify_email_verification` — encodes the full
 /// (email_verified × require_verified_email) matrix the OIDC callback's
 /// email-verification gate needs. Pure function of two inputs; extracted
@@ -2294,6 +2299,110 @@ impl AuthApplicationService {
         })
     }
 
+    // ── Step-up re-authentication (docs/plan/passkeys.md, Phase 2a) ──
+
+    /// Whether `session_id` is a live session of `user_id` whose user proved
+    /// who they are within [`STEP_UP_WINDOW_MINUTES`]. Any other answer
+    /// (unknown, revoked, another user's, stale) is `false`.
+    pub async fn is_recently_authenticated(
+        &self,
+        user_id: Uuid,
+        session_id: Uuid,
+    ) -> Result<bool, DomainError> {
+        let session = match self.session_storage.get_session_by_id(session_id).await {
+            Ok(s) => s,
+            Err(e) if e.kind == ErrorKind::NotFound => return Ok(false),
+            Err(e) => return Err(e),
+        };
+        Ok(session.user_id() == user_id
+            && !session.is_revoked()
+            && !session.is_expired()
+            && session.is_recently_authenticated(
+                chrono::Utc::now(),
+                chrono::Duration::minutes(STEP_UP_WINDOW_MINUTES),
+            ))
+    }
+
+    /// Which step-up methods `user_id` can use: a password exists to check
+    /// against (passkeys are answered by the passkey service).
+    pub async fn can_reauth_with_password(&self, user_id: Uuid) -> Result<bool, DomainError> {
+        let user = self.user_storage.get_user_by_id(user_id).await?;
+        Ok(user.is_active() && user.password_hash().is_some())
+    }
+
+    /// Step-up with the account password: verifies it against the stored
+    /// hash (as `change_password` does) and stamps the session.
+    pub async fn reauth_with_password(
+        &self,
+        user_id: Uuid,
+        session_id: Uuid,
+        password: &str,
+    ) -> Result<(), DomainError> {
+        let reject = |reason: &'static str| {
+            tracing::info!(
+                target: "audit",
+                event = "auth.reauth_rejected",
+                reason,
+                method = "password",
+                user_id = %user_id,
+                "👮🏻‍♂️ step-up re-authentication refused ({reason})"
+            );
+            DomainError::new(ErrorKind::AccessDenied, "Auth", "Invalid credentials")
+        };
+        let user = self.user_storage.get_user_by_id(user_id).await?;
+        if !user.is_active() {
+            return Err(reject("account_deactivated"));
+        }
+        let Some(hash) = user.password_hash() else {
+            return Err(reject("no_password"));
+        };
+        if !self.password_hasher.verify_password(password, hash).await? {
+            return Err(reject("bad_password"));
+        }
+        self.mark_reauthenticated(user_id, session_id, "password")
+            .await
+    }
+
+    /// Stamp a successful step-up on the caller's session. `method` names
+    /// what was checked, for the audit line. Fails when the session is gone
+    /// (revoked between the check and now).
+    pub async fn mark_reauthenticated(
+        &self,
+        user_id: Uuid,
+        session_id: Uuid,
+        method: &'static str,
+    ) -> Result<(), DomainError> {
+        if !self
+            .session_storage
+            .mark_session_authenticated(session_id, user_id)
+            .await?
+        {
+            tracing::info!(
+                target: "audit",
+                event = "auth.reauth_rejected",
+                reason = "session_gone",
+                method,
+                user_id = %user_id,
+                session_id = %session_id,
+                "👮🏻‍♂️ step-up re-authentication refused: session no longer live"
+            );
+            return Err(DomainError::new(
+                ErrorKind::AccessDenied,
+                "Auth",
+                "Session is no longer valid",
+            ));
+        }
+        tracing::info!(
+            target: "audit",
+            event = "auth.reauthenticated",
+            method,
+            user_id = %user_id,
+            session_id = %session_id,
+            "🔐 step-up re-authentication"
+        );
+        Ok(())
+    }
+
     pub async fn refresh_token(
         &self,
         dto: RefreshTokenDto,
@@ -2387,6 +2496,10 @@ impl AuthApplicationService {
         if let Some(jkt) = session.dpop_jkt() {
             new_session = new_session.with_dpop_jkt(jkt.to_string());
         }
+        // A silent refresh proves nothing new about the user: keep the
+        // family's last-authenticated time, or every rotation would reset
+        // the step-up window (docs/plan/passkeys.md, Phase 2a).
+        new_session = new_session.with_authenticated_at(session.authenticated_at());
         // Carry over the OIDC provenance so RP-initiated logout still
         // works after a refresh. Without this, an OIDC session rotates
         // into a row with `oidc_id_token = NULL` on the very first

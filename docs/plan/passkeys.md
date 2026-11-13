@@ -1,7 +1,8 @@
 # Passkeys (WebAuthn) for OxiCloud login
 
 **Status**: Phase 1 IMPLEMENTED (2026-11-12, branch `feat/passkeys`), with the
-deviations listed under "Phase 1 as built". Phases 2 and 3 planned.
+deviations listed under "Phase 1 as built". Phase 2a IN PROGRESS (branch
+`feat/passkeys-phase2`, see "Phase 2a plan"); 2b and 3 planned.
 
 **Related**: `docs/architecture/auth-model.md` (lists native WebAuthn as a
 future feature and reserves the `mfa_enrolled` magic-link rejection),
@@ -285,6 +286,58 @@ Where the build differs from the design above, and why:
   `tests/api/passkeys.hurl` for discovery, shapes and refusals. The Hurl
   suite sets `OXICLOUD_BASE_URL` to its `localhost` URL because WebAuthn
   refuses IP hosts.
+
+## Phase 2 split
+
+Phase 2 is two independent parts, built in this order (decided 2026-11-13):
+
+- **2a, living without a password**: step-up re-authentication, Nextcloud
+  login flow v2 "grant with my current session", recovery codes, removing
+  the password. After 2a a user can run an account on passkeys alone.
+- **2b, passkey as second factor**: per-user and admin policy (per role:
+  off / optional / required for admins / required for everyone), the step
+  after the password, magic-link `mfa_enrolled`, every entry-point row
+  enforced, admin passkey reset. Reuses 2a's step-up.
+
+## Phase 2a plan
+
+1. **Step-up ("confirm it's you").** `auth.sessions.authenticated_at`
+   records when the user last proved who they are: set when a session is
+   minted, carried over on refresh rotation (unlike `created_at`), moved
+   forward by a re-authentication. `NULL` on rows that predate the column
+   counts as stale.
+   - `POST /api/auth/reauth/password` (`{password}`, checked against the
+     Argon2 hash like `change_password`) and `POST
+     /api/auth/reauth/passkey/{start,finish}` (a passkey of the caller's own
+     account). Both stamp the caller's session; refusals audit
+     `auth.reauth_rejected`.
+   - Window: 10 minutes. Sensitive routes answer 403 `ReauthRequired`
+     when the stamp is older; the SPA catches that, shows a "Confirm it's
+     you" dialog (passkey, or password when the account has one) and
+     retries the request once.
+   - Gated in 2a: register a passkey, remove a passkey, generate recovery
+     codes, remove the password.
+2. **Login flow v2 with the current session.** The `/nextcloud/login`
+   page, when the browser is signed in, offers "Continue as <name>". It
+   calls `POST /api/nextcloud/login-flow/{token}/grant` (session, CSRF),
+   which completes the flow through the same `resolve_drive_or_complete`
+   as the password and OIDC paths (label `Nextcloud (session)`). With two
+   or more drives the response lists them and the page posts the choice to
+   the existing `/login/v2/flow/{token}/drive`. The button is a click,
+   never automatic: the flow token comes from whoever started the flow.
+3. **Recovery codes.** 10 codes of 16 random base32 characters (80 bits),
+   shown once. Stored as SHA-256, not Argon2: the codes are
+   high-entropy, so a slow hash adds no protection and would make every
+   attempt cost ten Argon2 runs. Generating a new set deletes the old one.
+   `POST /api/auth/recovery/login` (`{username, code}`, login rate
+   limiter) burns the code and mints a session with origin `recovery`
+   that is freshly authenticated, so the user can add a passkey at once.
+   Profile shows how many codes are left.
+4. **Remove the password.** `DELETE /api/auth/password` (step-up) clears
+   `password_hash` and the OPAQUE envelope when the user keeps at least
+   two passkeys, or one passkey plus unused recovery codes. OIDC-linked
+   accounts are refused (the IdP owns their login). An admin password
+   reset gives the password back.
 
 ## Open questions
 

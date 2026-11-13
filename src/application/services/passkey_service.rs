@@ -24,9 +24,9 @@ use serde::Serialize;
 use utoipa::ToSchema;
 use uuid::Uuid;
 use webauthn_rs::prelude::{
-    CreationChallengeResponse, DiscoverableAuthentication, Passkey, PasskeyRegistration,
-    PublicKeyCredential, RegisterPublicKeyCredential, RequestChallengeResponse, Url, Webauthn,
-    WebauthnBuilder,
+    CreationChallengeResponse, DiscoverableAuthentication, Passkey, PasskeyAuthentication,
+    PasskeyRegistration, PublicKeyCredential, RegisterPublicKeyCredential,
+    RequestChallengeResponse, Url, Webauthn, WebauthnBuilder,
 };
 use webauthn_rs_proto::ResidentKeyRequirement;
 
@@ -112,6 +112,11 @@ struct PendingRegistration {
     state: PasskeyRegistration,
 }
 
+struct PendingReauth {
+    user_id: Uuid,
+    state: PasskeyAuthentication,
+}
+
 pub struct PasskeyService {
     webauthn: Webauthn,
     store: Arc<dyn PasskeyStorePort>,
@@ -122,6 +127,8 @@ pub struct PasskeyService {
     /// the removed value is not reliable (same pattern as
     /// `OpaqueLoginExchange`).
     logins: Cache<Uuid, Arc<std::sync::Mutex<Option<DiscoverableAuthentication>>>>,
+    /// Step-up ceremonies (Phase 2a): bound to the signed-in caller.
+    reauths: Cache<Uuid, Arc<PendingReauth>>,
 }
 
 impl PasskeyService {
@@ -153,6 +160,10 @@ impl PasskeyService {
                 .max_capacity(MAX_INFLIGHT)
                 .build(),
             logins: Cache::builder()
+                .time_to_live(CEREMONY_TTL)
+                .max_capacity(MAX_INFLIGHT)
+                .build(),
+            reauths: Cache::builder()
                 .time_to_live(CEREMONY_TTL)
                 .max_capacity(MAX_INFLIGHT)
                 .build(),
@@ -373,6 +384,86 @@ impl PasskeyService {
         Ok(user_id)
     }
 
+    // ── step-up (signed in, Phase 2a) ────────────────────────────────
+
+    /// Whether the caller has any passkey to confirm with.
+    pub async fn has_passkeys(&self, caller_id: Uuid) -> Result<bool, PasskeyError> {
+        Ok(!self.store.list_for_user(caller_id).await?.is_empty())
+    }
+
+    /// Challenge for "confirm it's you": only the caller's own credentials
+    /// are allowed, so the browser offers nothing else and another
+    /// account's passkey cannot answer it.
+    pub async fn start_reauth(
+        &self,
+        caller_id: Uuid,
+    ) -> Result<(Uuid, RequestChallengeResponse), PasskeyError> {
+        let keys = self
+            .store
+            .list_for_user(caller_id)
+            .await?
+            .iter()
+            .filter_map(|p| decode(&p.passkey))
+            .collect::<Vec<_>>();
+        if keys.is_empty() {
+            return Err(self.reject_reauth(caller_id, PasskeyError::UnknownCredential));
+        }
+        let (rcr, state) = self
+            .webauthn
+            .start_passkey_authentication(&keys)
+            .map_err(|e| {
+                PasskeyError::Internal(DomainError::internal_error("Passkey", e.to_string()))
+            })?;
+        let id = Uuid::new_v4();
+        self.reauths.insert(
+            id,
+            Arc::new(PendingReauth {
+                user_id: caller_id,
+                state,
+            }),
+        );
+        Ok((id, rcr))
+    }
+
+    /// Verify a step-up assertion. On `Ok` the caller stamps the session.
+    pub async fn finish_reauth(
+        &self,
+        caller_id: Uuid,
+        ceremony_id: Uuid,
+        credential: &PublicKeyCredential,
+    ) -> Result<(), PasskeyError> {
+        let pending = self
+            .reauths
+            .remove(&ceremony_id)
+            .filter(|p| p.user_id == caller_id)
+            .ok_or_else(|| self.reject_reauth(caller_id, PasskeyError::CeremonyExpired))?;
+        let result = self
+            .webauthn
+            .finish_passkey_authentication(credential, &pending.state)
+            .map_err(|e| {
+                tracing::debug!(target: "oxicloud::passkey", error = %e, "step-up did not verify");
+                self.reject_reauth(caller_id, PasskeyError::VerificationFailed)
+            })?;
+        let stored = self
+            .store
+            .find_by_credential_id(result.cred_id().as_ref())
+            .await?
+            .filter(|p| p.user_id == caller_id)
+            .ok_or_else(|| self.reject_reauth(caller_id, PasskeyError::UnknownCredential))?;
+        if !self.user(caller_id).await?.is_active {
+            return Err(self.reject_reauth(caller_id, PasskeyError::AccountInactive));
+        }
+        let mut passkey = decode(&stored.passkey).ok_or_else(|| {
+            PasskeyError::Internal(DomainError::internal_error(
+                "Passkey",
+                format!("stored passkey {} does not deserialize", stored.id),
+            ))
+        })?;
+        passkey.update_credential(&result);
+        self.store.record_use(stored.id, &encode(&passkey)?).await?;
+        Ok(())
+    }
+
     // ── helpers ──────────────────────────────────────────────────────
 
     /// The signed-in caller's own row; absence means the session outlived
@@ -391,6 +482,18 @@ impl PasskeyService {
             reason = e.reason(),
             user_id = %user_id,
             "👮🏻‍♂️ passkey registration rejected"
+        );
+        e
+    }
+
+    fn reject_reauth(&self, user_id: Uuid, e: PasskeyError) -> PasskeyError {
+        tracing::info!(
+            target: "audit",
+            event = "auth.reauth_rejected",
+            reason = e.reason(),
+            method = "passkey",
+            user_id = %user_id,
+            "👮🏻‍♂️ step-up re-authentication refused"
         );
         e
     }

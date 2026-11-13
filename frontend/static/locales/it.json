@@ -2316,5 +2316,15 @@
     "verification_failed": "Impossibile verificare la passkey. Riprova.",
     "not_allowed": "Questo account non può aggiungere passkey.",
     "default_name": "La mia passkey"
+  },
+  "reauth": {
+    "title": "Conferma che sei tu",
+    "message": "Stai per cambiare il modo in cui accedi. Prima conferma che sei tu.",
+    "use_passkey": "Usa passkey",
+    "use_password": "Usa password",
+    "confirm": "Conferma",
+    "passkey_cancelled": "Non è stata usata nessuna passkey. Riprova o annulla.",
+    "rejected": "Non ha funzionato. Riprova.",
+    "unavailable": "Esci, accedi di nuovo e riprova. Questo account qui non ha né passkey né password per confermare."
   }
 }

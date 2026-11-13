@@ -619,6 +619,7 @@ HURL_FILES=( \
   "$API_DIR/device_auth_flow.hurl" \
   "$API_DIR/idp_provider.hurl" \
   "$API_DIR/passkeys.hurl" \
+  "$API_DIR/step_up.hurl" \
   "$API_DIR/external_mounts.hurl" \
   # Same mount fixtures, one surface each: REST (#793) and both WebDAV
   # surfaces (#792, #794). Kept adjacent to `external_mounts.hurl` so the

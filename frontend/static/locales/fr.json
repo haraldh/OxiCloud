@@ -2316,5 +2316,15 @@
     "verification_failed": "La clé d'accès n'a pas pu être vérifiée. Veuillez réessayer.",
     "not_allowed": "Ce compte ne peut pas ajouter de clés d'accès.",
     "default_name": "Ma clé d'accès"
+  },
+  "reauth": {
+    "title": "Confirmez que c’est vous",
+    "message": "Vous allez modifier votre façon de vous connecter. Confirmez d’abord que c’est vous.",
+    "use_passkey": "Utiliser une clé d’accès",
+    "use_password": "Utiliser le mot de passe",
+    "confirm": "Confirmer",
+    "passkey_cancelled": "Aucune clé d’accès n’a été utilisée. Réessayez ou annulez.",
+    "rejected": "Cela n’a pas fonctionné. Veuillez réessayer.",
+    "unavailable": "Déconnectez-vous, reconnectez-vous, puis réessayez. Ce compte n’a ici ni clé d’accès ni mot de passe pour confirmer."
   }
 }

@@ -6492,7 +6492,7 @@
             }
           },
           "403": {
-            "description": "External or inactive account",
+            "description": "External or inactive account (`PasskeyNotAllowed`), or the session must confirm it's the user first (`ReauthRequired`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -6535,6 +6535,16 @@
         "responses": {
           "204": {
             "description": "Removed"
+          },
+          "403": {
+            "description": "The session must confirm it's the user first (`ReauthRequired`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
           },
           "404": {
             "description": "No such passkey of the caller's",
@@ -6601,6 +6611,172 @@
           },
           "404": {
             "description": "No such passkey of the caller's",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reauth": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "reauth_methods",
+        "responses": {
+          "200": {
+            "description": "How the caller can confirm it's them",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReauthMethods"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reauth/passkey/finish": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "reauth_passkey_finish",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReauthPasskeyFinishDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Confirmed; sensitive actions are open for the step-up window"
+          },
+          "401": {
+            "description": "Did not verify, or not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "This session cannot confirm (app password)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reauth/passkey/start": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "reauth_passkey_start",
+        "responses": {
+          "200": {
+            "description": "Request options for navigator.credentials.get()",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReauthPasskeyStartResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No passkey to confirm with, or not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reauth/password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "reauth_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReauthPasswordDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Confirmed; sensitive actions are open for the step-up window"
+          },
+          "401": {
+            "description": "Wrong password, no password, or not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "This session cannot confirm (app password)",
             "content": {
               "application/json": {
                 "schema": {
@@ -21301,6 +21477,74 @@
               "string",
               "null"
             ]
+          }
+        }
+      },
+      "ReauthMethods": {
+        "type": "object",
+        "description": "What the caller can confirm with.",
+        "required": [
+          "password",
+          "passkey",
+          "window_minutes"
+        ],
+        "properties": {
+          "passkey": {
+            "type": "boolean",
+            "description": "The account has at least one passkey and passkeys are enabled."
+          },
+          "password": {
+            "type": "boolean",
+            "description": "The account has a password to check against."
+          },
+          "window_minutes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "How long a confirmation lasts, in minutes."
+          }
+        }
+      },
+      "ReauthPasskeyFinishDto": {
+        "type": "object",
+        "required": [
+          "ceremonyId",
+          "credential"
+        ],
+        "properties": {
+          "ceremonyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credential": {
+            "type": "object"
+          }
+        }
+      },
+      "ReauthPasskeyStartResponse": {
+        "type": "object",
+        "required": [
+          "ceremonyId",
+          "options"
+        ],
+        "properties": {
+          "ceremonyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "options": {
+            "type": "object",
+            "description": "`PublicKeyCredentialRequestOptions` wrapped as `{ publicKey }`,\nallowing only the caller's own passkeys."
+          }
+        }
+      },
+      "ReauthPasswordDto": {
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string"
           }
         }
       },

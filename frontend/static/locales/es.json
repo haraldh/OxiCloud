@@ -2316,5 +2316,15 @@
     "verification_failed": "No se pudo verificar la llave de acceso. Inténtalo de nuevo.",
     "not_allowed": "Esta cuenta no puede añadir llaves de acceso.",
     "default_name": "Mi llave de acceso"
+  },
+  "reauth": {
+    "title": "Confirma que eres tú",
+    "message": "Vas a cambiar cómo inicias sesión. Primero confirma que eres tú.",
+    "use_passkey": "Usar llave de acceso",
+    "use_password": "Usar contraseña",
+    "confirm": "Confirmar",
+    "passkey_cancelled": "No se usó ninguna llave de acceso. Inténtalo de nuevo o cancela.",
+    "rejected": "No ha funcionado. Inténtalo de nuevo.",
+    "unavailable": "Cierra sesión, vuelve a iniciarla y reinténtalo. Esta cuenta no tiene aquí llave de acceso ni contraseña para confirmar."
   }
 }

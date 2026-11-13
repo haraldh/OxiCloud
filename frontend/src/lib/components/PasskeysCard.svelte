@@ -16,6 +16,7 @@
 		type PasskeyInfo
 	} from '$lib/api/endpoints/passkeys';
 	import { isPasskeyCancelled, passkeysSupported } from '$lib/auth/passkey';
+	import { isReauthRequired, withReauth } from '$lib/auth/reauth';
 	import { confirmDialog, promptDialog } from '$lib/stores/dialogs.svelte';
 	import { formatDate } from '$lib/utils/display';
 	import { relativeTimeAgo } from '$lib/utils/time';
@@ -85,12 +86,14 @@
 		error = null;
 		notice = null;
 		try {
-			await addPasskey(name);
+			await withReauth(() => addPasskey(name));
 			notice = t('passkeys.added', 'Passkey added. You can now use it to sign in.');
 			newName = defaultName();
 			await load();
 		} catch (err) {
-			if (!isPasskeyCancelled(err)) error = messageFor(err);
+			// Cancelled at the browser prompt or at "Confirm it's you":
+			// nothing to report.
+			if (!isPasskeyCancelled(err) && !isReauthRequired(err)) error = messageFor(err);
 		} finally {
 			busy = false;
 		}
@@ -127,10 +130,10 @@
 		error = null;
 		notice = null;
 		try {
-			await removePasskey(p.id);
+			await withReauth(() => removePasskey(p.id));
 			await load();
 		} catch (err) {
-			error = messageFor(err);
+			if (!isReauthRequired(err)) error = messageFor(err);
 		}
 	}
 

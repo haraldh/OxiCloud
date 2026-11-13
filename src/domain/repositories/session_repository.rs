@@ -155,4 +155,13 @@ pub trait SessionRepository: Send + Sync + 'static {
     /// stolen the cookie of a bound session cannot re-bind to their
     /// own key.
     async fn bind_dpop_jkt(&self, session_id: Uuid, dpop_jkt: &str) -> SessionRepositoryResult<()>;
+
+    /// Stamp `authenticated_at = now()` on a live session of `user_id`
+    /// after a step-up re-authentication. Returns whether a row matched;
+    /// a revoked session, or one of another user, matches nothing.
+    async fn mark_session_authenticated(
+        &self,
+        session_id: Uuid,
+        user_id: Uuid,
+    ) -> SessionRepositoryResult<bool>;
 }

@@ -27,6 +27,7 @@ pub mod opaque_auth_handler;
 pub mod passkey_handler;
 pub mod people_handler;
 pub mod photos_handler;
+pub mod reauth_handler;
 pub mod recent_handler;
 pub mod rt_ticket_handler;
 pub mod rt_ws;

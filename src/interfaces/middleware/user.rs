@@ -435,6 +435,63 @@ pub async fn require_no_password_change_pending_layer(
     next.run(request).await
 }
 
+/// Step-up gate (docs/plan/passkeys.md, Phase 2a): the request's session
+/// must have proved who the user is within
+/// [`STEP_UP_WINDOW_MINUTES`](crate::application::services::auth_application_service::STEP_UP_WINDOW_MINUTES).
+/// Otherwise 403 `ReauthRequired`, which the SPA answers with a "Confirm
+/// it's you" dialog and a retry.
+///
+/// A scope question about the caller's session, not a grant on a resource,
+/// so it lives in the router like `require_dpop_layer`. Must run after the
+/// auth middleware. Fails closed: no session id (app password, a token
+/// without `sid`), no auth service, or a lookup error all refuse.
+pub async fn require_recent_auth_layer(
+    State(state): State<Arc<AppState>>,
+    request: Request,
+    next: Next,
+) -> Response {
+    let caller_id = request
+        .extensions()
+        .get::<Arc<CurrentUser>>()
+        .map(|cu| cu.id);
+    let session_id = request
+        .extensions()
+        .get::<crate::interfaces::middleware::auth::AuthSessionId>()
+        .map(|s| s.0);
+    let svc = state
+        .auth_service
+        .as_ref()
+        .map(|s| &*s.auth_application_service);
+
+    let reason = match (caller_id, session_id, svc) {
+        (None, _, _) => return next.run(request).await, // the auth layer answers 401
+        (Some(_), None, _) => "no_session",
+        (Some(_), Some(_), None) => "auth_disabled",
+        (Some(uid), Some(sid), Some(svc)) => match svc.is_recently_authenticated(uid, sid).await {
+            Ok(true) => return next.run(request).await,
+            Ok(false) => "stale",
+            Err(e) => {
+                tracing::error!(error = %e, "step-up check failed");
+                "lookup_failed"
+            }
+        },
+    };
+    tracing::info!(
+        target: "audit",
+        event = "auth.reauth_required",
+        reason,
+        caller_id = ?caller_id,
+        path = %request.uri().path(),
+        "👮🏻‍♂️ sensitive action refused until the user confirms who they are"
+    );
+    AppError::new(
+        StatusCode::FORBIDDEN,
+        "Confirm it's you before changing how you sign in",
+        "ReauthRequired",
+    )
+    .into_response()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -542,6 +542,15 @@ pub trait SessionStoragePort: Send + Sync + 'static {
     /// Returns `NotFound` when the id doesn't match any row.
     async fn get_session_by_id(&self, session_id: Uuid) -> Result<Session, DomainError>;
 
+    /// Stamp a step-up re-authentication on the caller's own live session
+    /// (`docs/plan/passkeys.md`, Phase 2a). `false` when no live session of
+    /// `user_id` has that id.
+    async fn mark_session_authenticated(
+        &self,
+        session_id: Uuid,
+        user_id: Uuid,
+    ) -> Result<bool, DomainError>;
+
     /// Paginated cross-user listing for the admin sessions panel.
     /// `user_id_filter` narrows to a single user when `Some`; `None`
     /// spans all users. `include_revoked = false` (the default UX)

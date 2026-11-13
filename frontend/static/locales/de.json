@@ -2316,5 +2316,15 @@
     "verification_failed": "Der Passkey konnte nicht überprüft werden. Bitte versuchen Sie es erneut.",
     "not_allowed": "Dieses Konto kann keine Passkeys hinzufügen.",
     "default_name": "Mein Passkey"
+  },
+  "reauth": {
+    "title": "Bestätigen Sie, dass Sie es sind",
+    "message": "Sie ändern gleich, wie Sie sich anmelden. Bestätigen Sie zuerst, dass Sie es sind.",
+    "use_passkey": "Passkey verwenden",
+    "use_password": "Passwort verwenden",
+    "confirm": "Bestätigen",
+    "passkey_cancelled": "Es wurde kein Passkey verwendet. Versuchen Sie es erneut oder brechen Sie ab.",
+    "rejected": "Das hat nicht funktioniert. Bitte versuchen Sie es erneut.",
+    "unavailable": "Melden Sie sich ab und wieder an und versuchen Sie es dann erneut. Dieses Konto hat hier keinen Passkey und kein Passwort zur Bestätigung."
   }
 }

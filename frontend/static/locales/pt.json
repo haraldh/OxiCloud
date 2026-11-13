@@ -2316,5 +2316,15 @@
     "verification_failed": "Não foi possível verificar a chave de acesso. Tente novamente.",
     "not_allowed": "Esta conta não pode adicionar chaves de acesso.",
     "default_name": "A minha chave de acesso"
+  },
+  "reauth": {
+    "title": "Confirme que é você",
+    "message": "Você vai alterar a forma como entra. Primeiro confirme que é você.",
+    "use_passkey": "Usar chave de acesso",
+    "use_password": "Usar senha",
+    "confirm": "Confirmar",
+    "passkey_cancelled": "Nenhuma chave de acesso foi usada. Tente novamente ou cancele.",
+    "rejected": "Não funcionou. Tente novamente.",
+    "unavailable": "Saia, entre novamente e tente outra vez. Esta conta não tem aqui chave de acesso nem senha para confirmar."
   }
 }

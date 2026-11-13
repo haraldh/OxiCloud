@@ -4507,6 +4507,46 @@ export type PublicUserDto = {
 };
 
 /**
+ * What the caller can confirm with.
+ */
+export type ReauthMethods = {
+    /**
+     * The account has at least one passkey and passkeys are enabled.
+     */
+    passkey: boolean;
+    /**
+     * The account has a password to check against.
+     */
+    password: boolean;
+    /**
+     * How long a confirmation lasts, in minutes.
+     */
+    window_minutes: number;
+};
+
+export type ReauthPasskeyFinishDto = {
+    ceremonyId: string;
+    credential: {
+        [key: string]: unknown;
+    };
+};
+
+export type ReauthPasskeyStartResponse = {
+    ceremonyId: string;
+    /**
+     * `PublicKeyCredentialRequestOptions` wrapped as `{ publicKey }`,
+     * allowing only the caller's own passkeys.
+     */
+    options: {
+        [key: string]: unknown;
+    };
+};
+
+export type ReauthPasswordDto = {
+    password: string;
+};
+
+/**
  * DTO for recent items, enriched with item metadata via SQL JOIN
  * so the frontend does not need N+1 requests to resolve names/sizes.
  */
@@ -10128,7 +10168,7 @@ export type PasskeyRegisterStartErrors = {
      */
     401: ApiErrorBody;
     /**
-     * External or inactive account
+     * External or inactive account (`PasskeyNotAllowed`), or the session must confirm it's the user first (`ReauthRequired`)
      */
     403: ApiErrorBody;
     /**
@@ -10161,6 +10201,10 @@ export type PasskeyRemoveData = {
 };
 
 export type PasskeyRemoveErrors = {
+    /**
+     * The session must confirm it's the user first (`ReauthRequired`)
+     */
+    403: ApiErrorBody;
     /**
      * No such passkey of the caller's
      */
@@ -10215,6 +10259,122 @@ export type PasskeyRenameResponses = {
 };
 
 export type PasskeyRenameResponse = PasskeyRenameResponses[keyof PasskeyRenameResponses];
+
+export type ReauthMethodsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/reauth';
+};
+
+export type ReauthMethodsErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+};
+
+export type ReauthMethodsError = ReauthMethodsErrors[keyof ReauthMethodsErrors];
+
+export type ReauthMethodsResponses = {
+    /**
+     * How the caller can confirm it's them
+     */
+    200: ReauthMethods;
+};
+
+export type ReauthMethodsResponse = ReauthMethodsResponses[keyof ReauthMethodsResponses];
+
+export type ReauthPasskeyFinishData = {
+    body: ReauthPasskeyFinishDto;
+    path?: never;
+    query?: never;
+    url: '/api/auth/reauth/passkey/finish';
+};
+
+export type ReauthPasskeyFinishErrors = {
+    /**
+     * Did not verify, or not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * This session cannot confirm (app password)
+     */
+    403: ApiErrorBody;
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type ReauthPasskeyFinishError = ReauthPasskeyFinishErrors[keyof ReauthPasskeyFinishErrors];
+
+export type ReauthPasskeyFinishResponses = {
+    /**
+     * Confirmed; sensitive actions are open for the step-up window
+     */
+    204: void;
+};
+
+export type ReauthPasskeyFinishResponse = ReauthPasskeyFinishResponses[keyof ReauthPasskeyFinishResponses];
+
+export type ReauthPasskeyStartData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/reauth/passkey/start';
+};
+
+export type ReauthPasskeyStartErrors = {
+    /**
+     * No passkey to confirm with, or not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Passkeys disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type ReauthPasskeyStartError = ReauthPasskeyStartErrors[keyof ReauthPasskeyStartErrors];
+
+export type ReauthPasskeyStartResponses = {
+    /**
+     * Request options for navigator.credentials.get()
+     */
+    200: ReauthPasskeyStartResponse;
+};
+
+export type ReauthPasskeyStartResponse2 = ReauthPasskeyStartResponses[keyof ReauthPasskeyStartResponses];
+
+export type ReauthPasswordData = {
+    body: ReauthPasswordDto;
+    path?: never;
+    query?: never;
+    url: '/api/auth/reauth/password';
+};
+
+export type ReauthPasswordErrors = {
+    /**
+     * Wrong password, no password, or not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * This session cannot confirm (app password)
+     */
+    403: ApiErrorBody;
+};
+
+export type ReauthPasswordError = ReauthPasswordErrors[keyof ReauthPasswordErrors];
+
+export type ReauthPasswordResponses = {
+    /**
+     * Confirmed; sensitive actions are open for the step-up window
+     */
+    204: void;
+};
+
+export type ReauthPasswordResponse = ReauthPasswordResponses[keyof ReauthPasswordResponses];
 
 export type RefreshTokenData = {
     /**

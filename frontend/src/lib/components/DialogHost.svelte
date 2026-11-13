@@ -116,11 +116,11 @@
 								disabled={dialogs.busy}></textarea>
 						{:else}
 							<input
-								type="text"
+								type={field.type ?? 'text'}
 								data-testid={`dialog-host-input-${field.key}`}
 								bind:value={values[field.key]}
 								placeholder={field.placeholder ?? ''}
-								autocomplete="off"
+								autocomplete={field.autocomplete ?? 'off'}
 								disabled={dialogs.busy}
 							/>
 						{/if}

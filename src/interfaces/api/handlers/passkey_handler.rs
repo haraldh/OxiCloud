@@ -36,12 +36,30 @@ use crate::interfaces::errors::AppError;
 use crate::interfaces::middleware::auth::CurrentUserId;
 
 /// Signed-in management routes. Mount under `/api/auth/passkeys`.
-pub fn passkey_manage_routes() -> Router<Arc<AppState>> {
+///
+/// Adding and removing a passkey changes how the account signs in, so
+/// both need a recent sign-in or step-up (`require_recent_auth_layer`,
+/// Phase 2a). The ceremony started under that check carries it to
+/// `register/finish`; listing and renaming need none.
+pub fn passkey_manage_routes(state: &Arc<AppState>) -> Router<Arc<AppState>> {
+    let step_up = || {
+        axum::middleware::from_fn_with_state(
+            state.clone(),
+            crate::interfaces::middleware::user::require_recent_auth_layer,
+        )
+    };
     Router::new()
         .route("/", axum::routing::get(list))
-        .route("/register/start", post(register_start))
+        .route(
+            "/register/start",
+            post(register_start).route_layer(step_up()),
+        )
         .route("/register/finish", post(register_finish))
-        .route("/{id}", patch(rename).delete(remove))
+        .route("/{id}", patch(rename))
+        .route(
+            "/{id}",
+            axum::routing::delete(remove).route_layer(step_up()),
+        )
 }
 
 /// Public sign-in routes. Mount under `/api/auth/passkey/login`.
@@ -101,7 +119,7 @@ pub struct PasskeyRenameDto {
     pub name: String,
 }
 
-fn service(state: &AppState) -> Result<&Arc<PasskeyService>, AppError> {
+pub(crate) fn service(state: &AppState) -> Result<&Arc<PasskeyService>, AppError> {
     state.passkey_service.as_ref().ok_or_else(|| {
         AppError::new(
             StatusCode::SERVICE_UNAVAILABLE,
@@ -173,7 +191,7 @@ pub async fn list(
     responses(
         (status = 200, description = "Creation options for navigator.credentials.create()", body = PasskeyRegisterStartResponse),
         (status = 401, description = "Not signed in", body = crate::interfaces::errors::ApiErrorBody),
-        (status = 403, description = "External or inactive account", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 403, description = "External or inactive account (`PasskeyNotAllowed`), or the session must confirm it's the user first (`ReauthRequired`)", body = crate::interfaces::errors::ApiErrorBody),
         (status = 503, description = "Passkeys disabled", body = crate::interfaces::errors::ApiErrorBody),
     ),
     tag = "auth"
@@ -251,6 +269,7 @@ pub async fn rename(
     params(("id" = Uuid, Path, description = "Passkey id")),
     responses(
         (status = 204, description = "Removed"),
+        (status = 403, description = "The session must confirm it's the user first (`ReauthRequired`)", body = crate::interfaces::errors::ApiErrorBody),
         (status = 404, description = "No such passkey of the caller's", body = crate::interfaces::errors::ApiErrorBody),
         (status = 409, description = "It is the account's only way to sign in", body = crate::interfaces::errors::ApiErrorBody),
     ),

@@ -203,7 +203,11 @@ impl DeviceAuthService {
             self.token_service.refresh_token_expiry_days(),
             Uuid::new_v4(),
             crate::domain::entities::session::SessionOrigin::Device,
-        );
+        )
+        // The device never proved who the user is; the approving browser
+        // did. A device session must confirm before sensitive actions
+        // (docs/plan/passkeys.md, Phase 2a).
+        .with_authenticated_at(None);
         let access_token =
             self.token_service
                 .generate_access_token(&user, Some(session.id()), None)?;

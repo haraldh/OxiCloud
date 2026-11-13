@@ -2316,5 +2316,15 @@
     "verification_failed": "The passkey could not be verified. Please try again.",
     "not_allowed": "This account cannot add passkeys.",
     "default_name": "My passkey"
+  },
+  "reauth": {
+    "title": "Confirm it’s you",
+    "message": "You are about to change how you sign in. Confirm it’s you first.",
+    "use_passkey": "Use passkey",
+    "use_password": "Use password",
+    "confirm": "Confirm",
+    "passkey_cancelled": "No passkey was used. Try again or cancel.",
+    "rejected": "That did not work. Please try again.",
+    "unavailable": "Sign out and sign in again, then retry. This account has no passkey or password to confirm with here."
   }
 }
