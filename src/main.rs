@@ -1131,6 +1131,34 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
                 auth_middleware,
             ))
             .with_state(app_state.clone());
+        // Recovery codes (Phase 2a): the caller's own set (signed-in stack;
+        // generating sits behind the step-up gate on the route) and public
+        // sign-in with a code behind the login limiter.
+        let recovery_codes_protected =
+            oxicloud::interfaces::api::handlers::recovery_code_handler::recovery_code_manage_routes(
+                &app_state,
+            )
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                require_no_password_change_pending_layer,
+            ))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                require_dpop_layer,
+            ))
+            .layer(axum::middleware::from_fn(csrf_middleware))
+            .layer(axum::middleware::from_fn_with_state(
+                app_state.clone(),
+                auth_middleware,
+            ))
+            .with_state(app_state.clone());
+        let recovery_login_public =
+            oxicloud::interfaces::api::handlers::recovery_code_handler::recovery_login_routes()
+                .layer(axum::middleware::from_fn_with_state(
+                    login_limiter.clone(),
+                    rate_limit_login,
+                ))
+                .with_state(app_state.clone());
         let passkey_login_public =
             oxicloud::interfaces::api::handlers::passkey_handler::passkey_login_routes()
                 .layer(axum::middleware::from_fn_with_state(
@@ -1342,6 +1370,14 @@ async fn run(config: common::config::AppConfig) -> Result<(), Box<dyn std::error
             .nest(
                 "/api/auth/reauth",
                 reauth_protected.layer(access_log!("http::api::auth")),
+            )
+            .nest(
+                "/api/auth/recovery-codes",
+                recovery_codes_protected.layer(access_log!("http::api::auth")),
+            )
+            .nest(
+                "/api/auth/recovery",
+                recovery_login_public.layer(access_log!("http::api::auth")),
             )
             .nest(
                 "/api/nextcloud/login-flow",

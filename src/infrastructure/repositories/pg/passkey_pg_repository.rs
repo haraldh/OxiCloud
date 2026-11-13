@@ -149,17 +149,20 @@ impl PasskeyUserDirectoryPg {
     }
 }
 
-#[async_trait]
-impl PasskeyUserPort for PasskeyUserDirectoryPg {
-    async fn find_user(&self, id: Uuid) -> Result<Option<PasskeyUserView>, DomainError> {
-        let u = match self.users.get_user_by_id(id).await {
+impl PasskeyUserDirectoryPg {
+    /// `Ok(None)` only for NotFound: a read failure is never proof of
+    /// absence.
+    async fn view(
+        &self,
+        found: Result<crate::domain::entities::user::User, DomainError>,
+    ) -> Result<Option<PasskeyUserView>, DomainError> {
+        let u = match found {
             Ok(u) => u,
-            // A read failure is never proof of absence; only NotFound is.
             Err(e) if e.kind == ErrorKind::NotFound => return Ok(None),
             Err(e) => return Err(e),
         };
         let has_other_login =
-            u.has_login_credential() || self.users.is_opaque_registered(id).await?;
+            u.has_login_credential() || self.users.is_opaque_registered(u.id()).await?;
         Ok(Some(PasskeyUserView {
             id: u.id(),
             account_name: u.username().unwrap_or(u.email()).to_string(),
@@ -168,5 +171,16 @@ impl PasskeyUserPort for PasskeyUserDirectoryPg {
             is_external: u.is_external(),
             has_other_login,
         }))
+    }
+}
+
+#[async_trait]
+impl PasskeyUserPort for PasskeyUserDirectoryPg {
+    async fn find_user(&self, id: Uuid) -> Result<Option<PasskeyUserView>, DomainError> {
+        self.view(self.users.get_user_by_id(id).await).await
+    }
+
+    async fn find_user_by_name(&self, name: &str) -> Result<Option<PasskeyUserView>, DomainError> {
+        self.view(self.users.get_user_by_username(name).await).await
     }
 }

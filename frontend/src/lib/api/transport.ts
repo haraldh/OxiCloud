@@ -55,6 +55,9 @@ const AUTH_PRIMITIVES = [
 	// Passkey sign-in only; the signed-in `/api/auth/passkeys/…` routes
 	// keep the normal refresh-on-401 behaviour.
 	'/api/auth/passkey/',
+	// Recovery-code sign-in. `/api/auth/recovery-codes` (signed in) does not
+	// match: no trailing slash after "recovery" there.
+	'/api/auth/recovery/',
 	'/api/auth/magic-link/',
 	'/api/auth/status',
 	'/api/auth/dpop/'
@@ -109,7 +112,8 @@ function isCrossOrigin(urlStr: string, origin: string): boolean {
 	}
 }
 
-function bypassesRetry(urlStr: string): boolean {
+/** Exported for tests: auth primitives never trigger a refresh-and-retry. */
+export function bypassesRetry(urlStr: string): boolean {
 	return AUTH_PRIMITIVES.some((p) => urlStr.includes(p)) || urlStr.includes('/api/s/');
 }
 

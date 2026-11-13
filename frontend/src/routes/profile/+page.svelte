@@ -35,6 +35,7 @@
 	import { preferences } from '$lib/stores/preferences.svelte';
 	import { serverConfig } from '$lib/stores/serverConfig.svelte';
 	import PasskeysCard from '$lib/components/PasskeysCard.svelte';
+	import RecoveryCodesCard from '$lib/components/RecoveryCodesCard.svelte';
 	import { session } from '$lib/stores/session.svelte';
 	import { isAtLeastAdmin } from '$lib/utils/roles';
 	import { ui } from '$lib/stores/ui.svelte';
@@ -883,6 +884,7 @@
 
 		{#if serverConfig.features.passkeys}
 			<PasskeysCard />
+			{#if !session.user?.is_external}<RecoveryCodesCard />{/if}
 		{/if}
 
 		<!-- App passwords -->

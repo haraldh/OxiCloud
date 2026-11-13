@@ -818,7 +818,12 @@
     "register_disabled": "本部署已关闭注册。请向管理员索取邀请。",
     "account_deactivated": "您的账户已被停用。请联系您的管理员。",
     "passkey_sign_in": "使用通行密钥登录",
-    "passkey_rejected": "此通行密钥未被接受。它可能已从您的帐户中移除。"
+    "passkey_rejected": "此通行密钥未被接受。它可能已从您的帐户中移除。",
+    "recovery_rejected": "此恢复代码未被接受。请检查用户名和代码;每个代码只能使用一次。",
+    "recovery_code": "恢复代码",
+    "recovery_sign_in": "使用恢复代码登录",
+    "recovery_lost": "丢失了通行密钥?",
+    "recovery_use": "使用恢复代码"
   },
   "storage": {
     "title": "存储空间",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "未使用通行密钥。请重试或取消。",
     "rejected": "未成功。请重试。",
     "unavailable": "请退出并重新登录后再试。此帐户在这里没有可用于确认的通行密钥或密码。"
+  },
+  "recovery": {
+    "title": "恢复代码",
+    "desc": "如果你丢失了所有通行密钥,可以改用其中一个代码登录。每个代码只能使用一次。请将它们保存在远离设备的安全位置。",
+    "shown_once": "请立即保存这些代码。它们不会再次显示。",
+    "copy": "复制",
+    "copied": "已复制",
+    "download": "下载",
+    "done": "我已保存",
+    "remaining": "还剩 {{count}} 个未使用的代码。",
+    "none": "还没有恢复代码。",
+    "create": "创建代码",
+    "regenerate": "创建新代码",
+    "replace_title": "要创建新的恢复代码吗?",
+    "replace_message": "你当前的恢复代码将失效。",
+    "file_header": "OxiCloud 恢复代码 — 每个代码只能使用一次。"
   }
 }

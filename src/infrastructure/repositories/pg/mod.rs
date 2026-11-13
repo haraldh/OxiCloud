@@ -22,6 +22,7 @@ mod opaque_pg_repository;
 mod passkey_pg_repository;
 pub mod playlist_pg_repository;
 mod recent_items_pg_repository;
+mod recovery_code_pg_repository;
 mod session_pg_repository;
 mod settings_pg_repository;
 mod share_pg_repository;
@@ -63,6 +64,7 @@ pub use playlist_pg_repository::{
     AudioMetadataPgRepository, PlaylistItemPgRepository, PlaylistPgRepository,
 };
 pub use recent_items_pg_repository::RecentItemsPgRepository;
+pub use recovery_code_pg_repository::RecoveryCodePgRepository;
 pub use session_pg_repository::SessionPgRepository;
 pub use settings_pg_repository::SettingsPgRepository;
 pub use share_pg_repository::SharePgRepository;

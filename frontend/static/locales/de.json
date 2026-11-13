@@ -818,7 +818,12 @@
     "register_disabled": "Registrierungen sind auf dieser Instanz geschlossen. Bitten Sie einen Administrator um eine Einladung.",
     "account_deactivated": "Ihr Konto wurde deaktiviert. Bitte kontaktieren Sie Ihren Administrator.",
     "passkey_sign_in": "Mit einem Passkey anmelden",
-    "passkey_rejected": "Dieser Passkey wurde nicht akzeptiert. Möglicherweise wurde er aus Ihrem Konto entfernt."
+    "passkey_rejected": "Dieser Passkey wurde nicht akzeptiert. Möglicherweise wurde er aus Ihrem Konto entfernt.",
+    "recovery_rejected": "Dieser Wiederherstellungscode wurde nicht akzeptiert. Prüfen Sie Benutzername und Code; jeder Code funktioniert nur einmal.",
+    "recovery_code": "Wiederherstellungscode",
+    "recovery_sign_in": "Mit Wiederherstellungscode anmelden",
+    "recovery_lost": "Passkey verloren?",
+    "recovery_use": "Wiederherstellungscode verwenden"
   },
   "storage": {
     "title": "Speicher",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "Es wurde kein Passkey verwendet. Versuchen Sie es erneut oder brechen Sie ab.",
     "rejected": "Das hat nicht funktioniert. Bitte versuchen Sie es erneut.",
     "unavailable": "Melden Sie sich ab und wieder an und versuchen Sie es dann erneut. Dieses Konto hat hier keinen Passkey und kein Passwort zur Bestätigung."
+  },
+  "recovery": {
+    "title": "Wiederherstellungscodes",
+    "desc": "Wenn Sie alle Passkeys verlieren, melden Sie sich stattdessen mit einem dieser Codes an. Jeder Code funktioniert nur einmal. Bewahren Sie sie sicher und getrennt von Ihren Geräten auf.",
+    "shown_once": "Speichern Sie diese Codes jetzt. Sie werden nicht noch einmal angezeigt.",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "download": "Herunterladen",
+    "done": "Ich habe sie gespeichert",
+    "remaining": "Noch {{count}} unbenutzte Codes.",
+    "none": "Noch keine Wiederherstellungscodes.",
+    "create": "Codes erstellen",
+    "regenerate": "Neue Codes erstellen",
+    "replace_title": "Neue Wiederherstellungscodes erstellen?",
+    "replace_message": "Ihre bisherigen Wiederherstellungscodes funktionieren dann nicht mehr.",
+    "file_header": "OxiCloud-Wiederherstellungscodes – jeder funktioniert nur einmal."
   }
 }

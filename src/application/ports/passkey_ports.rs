@@ -73,4 +73,7 @@ pub struct PasskeyUserView {
 pub trait PasskeyUserPort: Send + Sync + 'static {
     /// `Ok(None)` only when the user does not exist.
     async fn find_user(&self, id: Uuid) -> Result<Option<PasskeyUserView>, DomainError>;
+    /// By sign-in name, as the password login looks users up. `Ok(None)`
+    /// only when no such user exists. Used by recovery-code sign-in.
+    async fn find_user_by_name(&self, name: &str) -> Result<Option<PasskeyUserView>, DomainError>;
 }

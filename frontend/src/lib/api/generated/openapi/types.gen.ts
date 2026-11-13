@@ -4645,6 +4645,34 @@ export type RecentResourceItemDto = {
     resource_type: ResourceTypeDto;
 };
 
+export type RecoveryCodeStatusDto = {
+    /**
+     * When the current set was made; absent when there is none.
+     */
+    generated_at?: string | null;
+    /**
+     * Unused codes left.
+     */
+    remaining: number;
+};
+
+export type RecoveryCodesDto = {
+    /**
+     * The new codes, shown once. Each signs in once.
+     */
+    codes: Array<string>;
+};
+
+export type RecoveryLoginDto = {
+    code: string;
+    /**
+     * DPoP key thumbprint to bind the new session to, as on the other
+     * login endpoints.
+     */
+    dpopJkt?: string | null;
+    username: string;
+};
+
 export type RefreshTokenDto = {
     refresh_token: string;
 };
@@ -5476,7 +5504,7 @@ export type ServerConfigDto = {
  * unknown`. `Unknown` is the fallback for pre-migration rows and any
  * future login path that hasn't been taught to stamp an origin yet.
  */
-export type SessionOrigin = 'password' | 'opaque' | 'magic_link' | 'oidc' | 'device' | 'passkey' | 'unknown';
+export type SessionOrigin = 'password' | 'opaque' | 'magic_link' | 'oidc' | 'device' | 'passkey' | 'recovery' | 'unknown';
 
 /**
  * Wire shape for `GET /api/admin/sessions`. Contains everything the
@@ -10312,11 +10340,11 @@ export type ReauthPasskeyFinishData = {
 
 export type ReauthPasskeyFinishErrors = {
     /**
-     * Did not verify, or not signed in
+     * Not signed in
      */
     401: ApiErrorBody;
     /**
-     * This session cannot confirm (app password)
+     * Did not verify (`InvalidCredentials`), or this session cannot confirm (`ReauthUnavailable`)
      */
     403: ApiErrorBody;
     /**
@@ -10345,9 +10373,13 @@ export type ReauthPasskeyStartData = {
 
 export type ReauthPasskeyStartErrors = {
     /**
-     * No passkey to confirm with, or not signed in
+     * Not signed in
      */
     401: ApiErrorBody;
+    /**
+     * No passkey to confirm with (`InvalidCredentials`)
+     */
+    403: ApiErrorBody;
     /**
      * Passkeys disabled
      */
@@ -10374,11 +10406,11 @@ export type ReauthPasswordData = {
 
 export type ReauthPasswordErrors = {
     /**
-     * Wrong password, no password, or not signed in
+     * Not signed in
      */
     401: ApiErrorBody;
     /**
-     * This session cannot confirm (app password)
+     * Wrong or no password (`InvalidCredentials`), or this session cannot confirm (`ReauthUnavailable`)
      */
     403: ApiErrorBody;
 };
@@ -10393,6 +10425,97 @@ export type ReauthPasswordResponses = {
 };
 
 export type ReauthPasswordResponse = ReauthPasswordResponses[keyof ReauthPasswordResponses];
+
+export type RecoveryCodesStatusData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/recovery-codes';
+};
+
+export type RecoveryCodesStatusErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Passkeys (and so recovery codes) disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type RecoveryCodesStatusError = RecoveryCodesStatusErrors[keyof RecoveryCodesStatusErrors];
+
+export type RecoveryCodesStatusResponses = {
+    /**
+     * How many codes are left
+     */
+    200: RecoveryCodeStatusDto;
+};
+
+export type RecoveryCodesStatusResponse = RecoveryCodesStatusResponses[keyof RecoveryCodesStatusResponses];
+
+export type RecoveryCodesGenerateData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/recovery-codes';
+};
+
+export type RecoveryCodesGenerateErrors = {
+    /**
+     * Not signed in
+     */
+    401: ApiErrorBody;
+    /**
+     * Confirm it's you first (`ReauthRequired`), or a guest account
+     */
+    403: ApiErrorBody;
+    /**
+     * Passkeys (and so recovery codes) disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type RecoveryCodesGenerateError = RecoveryCodesGenerateErrors[keyof RecoveryCodesGenerateErrors];
+
+export type RecoveryCodesGenerateResponses = {
+    /**
+     * A new set; the old one no longer works
+     */
+    200: RecoveryCodesDto;
+};
+
+export type RecoveryCodesGenerateResponse = RecoveryCodesGenerateResponses[keyof RecoveryCodesGenerateResponses];
+
+export type RecoveryLoginData = {
+    body: RecoveryLoginDto;
+    path?: never;
+    query?: never;
+    url: '/api/auth/recovery/login';
+};
+
+export type RecoveryLoginErrors = {
+    /**
+     * Unknown user, wrong or used code
+     */
+    401: ApiErrorBody;
+    /**
+     * Passkeys (and so recovery codes) disabled
+     */
+    503: ApiErrorBody;
+};
+
+export type RecoveryLoginError = RecoveryLoginErrors[keyof RecoveryLoginErrors];
+
+export type RecoveryLoginResponses = {
+    /**
+     * Signed in; same body and cookies as a password login
+     */
+    200: AuthResponseDto;
+};
+
+export type RecoveryLoginResponse = RecoveryLoginResponses[keyof RecoveryLoginResponses];
 
 export type RefreshTokenData = {
     /**

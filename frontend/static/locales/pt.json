@@ -818,7 +818,12 @@
     "register_disabled": "As inscrições estão fechadas nesta implantação. Peça um convite a um administrador.",
     "account_deactivated": "Sua conta foi desativada. Por favor, entre em contato com seu administrador.",
     "passkey_sign_in": "Iniciar sessão com uma chave de acesso",
-    "passkey_rejected": "Esta chave de acesso não foi aceite. Pode ter sido removida da sua conta."
+    "passkey_rejected": "Esta chave de acesso não foi aceite. Pode ter sido removida da sua conta.",
+    "recovery_rejected": "Este código de recuperação não foi aceito. Verifique o nome de usuário e o código; cada código funciona uma vez.",
+    "recovery_code": "Código de recuperação",
+    "recovery_sign_in": "Entrar com código de recuperação",
+    "recovery_lost": "Perdeu sua chave de acesso?",
+    "recovery_use": "Usar um código de recuperação"
   },
   "storage": {
     "title": "Armazenamento",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "Nenhuma chave de acesso foi usada. Tente novamente ou cancele.",
     "rejected": "Não funcionou. Tente novamente.",
     "unavailable": "Saia, entre novamente e tente outra vez. Esta conta não tem aqui chave de acesso nem senha para confirmar."
+  },
+  "recovery": {
+    "title": "Códigos de recuperação",
+    "desc": "Se você perder todas as chaves de acesso, entre com um destes códigos. Cada código funciona uma vez. Guarde-os em local seguro, longe dos seus dispositivos.",
+    "shown_once": "Salve estes códigos agora. Eles não serão mostrados novamente.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "download": "Baixar",
+    "done": "Já salvei",
+    "remaining": "Restam {{count}} códigos não usados.",
+    "none": "Ainda não há códigos de recuperação.",
+    "create": "Criar códigos",
+    "regenerate": "Criar novos códigos",
+    "replace_title": "Criar novos códigos de recuperação?",
+    "replace_message": "Seus códigos de recuperação atuais deixarão de funcionar.",
+    "file_header": "Códigos de recuperação do OxiCloud — cada um funciona uma vez."
   }
 }

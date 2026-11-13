@@ -27,6 +27,8 @@ pub enum SessionOrigin {
     Device,
     /// WebAuthn passkey sign-in (`docs/plan/passkeys.md`).
     Passkey,
+    /// Single-use recovery code (`docs/plan/passkeys.md`, Phase 2a).
+    Recovery,
     Unknown,
 }
 
@@ -41,6 +43,7 @@ impl SessionOrigin {
             Self::Oidc => "oidc",
             Self::Device => "device",
             Self::Passkey => "passkey",
+            Self::Recovery => "recovery",
             Self::Unknown => "unknown",
         }
     }
@@ -60,6 +63,7 @@ impl SessionOrigin {
             "oidc" => Self::Oidc,
             "device" => Self::Device,
             "passkey" => Self::Passkey,
+            "recovery" => Self::Recovery,
             _ => Self::Unknown,
         }
     }

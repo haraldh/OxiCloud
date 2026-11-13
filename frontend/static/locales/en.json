@@ -864,7 +864,12 @@
     "login_error_email_verification_required": "This server requires a verified email. Your identity provider did not include an email-verification claim. Contact your administrator.",
     "login_error_generic": "SSO sign-in was refused. Please try again.",
     "passkey_sign_in": "Sign in with a passkey",
-    "passkey_rejected": "This passkey was not accepted. It may have been removed from your account."
+    "passkey_rejected": "This passkey was not accepted. It may have been removed from your account.",
+    "recovery_rejected": "This recovery code was not accepted. Check the username and the code; each code works once.",
+    "recovery_code": "Recovery code",
+    "recovery_sign_in": "Sign in with recovery code",
+    "recovery_lost": "Lost your passkey?",
+    "recovery_use": "Use a recovery code"
   },
   "storage": {
     "title": "Storage",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "No passkey was used. Try again or cancel.",
     "rejected": "That did not work. Please try again.",
     "unavailable": "Sign out and sign in again, then retry. This account has no passkey or password to confirm with here."
+  },
+  "recovery": {
+    "title": "Recovery codes",
+    "desc": "If you lose every passkey, sign in with one of these codes instead. Each code works once. Keep them somewhere safe, away from your devices.",
+    "shown_once": "Save these codes now. They will not be shown again.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "download": "Download",
+    "done": "I have saved them",
+    "remaining": "{{count}} unused codes left.",
+    "none": "No recovery codes yet.",
+    "create": "Create codes",
+    "regenerate": "Create new codes",
+    "replace_title": "Create new recovery codes?",
+    "replace_message": "Your current recovery codes will stop working.",
+    "file_header": "OxiCloud recovery codes — each works once."
   }
 }

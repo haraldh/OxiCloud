@@ -98,11 +98,13 @@ fn session(sid: Option<Extension<AuthSessionId>>) -> Result<Uuid, AppError> {
     })
 }
 
-/// Every refusal answers like a wrong password; the reason is in the
-/// audit log (`auth.reauth_rejected`).
+/// Every refusal answers the same; the reason is in the audit log
+/// (`auth.reauth_rejected`). 403, not 401: the caller IS signed in, and the
+/// SPA treats a 401 as an expired session (refresh, retry, sign out), so a
+/// mistyped password must not look like one.
 fn rejected() -> AppError {
     AppError::new(
-        StatusCode::UNAUTHORIZED,
+        StatusCode::FORBIDDEN,
         "Could not confirm it's you",
         "InvalidCredentials",
     )
@@ -144,8 +146,8 @@ pub async fn methods(
     request_body = ReauthPasswordDto,
     responses(
         (status = 204, description = "Confirmed; sensitive actions are open for the step-up window"),
-        (status = 401, description = "Wrong password, no password, or not signed in", body = crate::interfaces::errors::ApiErrorBody),
-        (status = 403, description = "This session cannot confirm (app password)", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 401, description = "Not signed in", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 403, description = "Wrong or no password (`InvalidCredentials`), or this session cannot confirm (`ReauthUnavailable`)", body = crate::interfaces::errors::ApiErrorBody),
     ),
     tag = "auth"
 )]
@@ -172,7 +174,8 @@ pub async fn with_password(
     operation_id = "reauth_passkey_start",
     responses(
         (status = 200, description = "Request options for navigator.credentials.get()", body = ReauthPasskeyStartResponse),
-        (status = 401, description = "No passkey to confirm with, or not signed in", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 401, description = "Not signed in", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 403, description = "No passkey to confirm with (`InvalidCredentials`)", body = crate::interfaces::errors::ApiErrorBody),
         (status = 503, description = "Passkeys disabled", body = crate::interfaces::errors::ApiErrorBody),
     ),
     tag = "auth"
@@ -198,8 +201,8 @@ pub async fn passkey_start(
     request_body = ReauthPasskeyFinishDto,
     responses(
         (status = 204, description = "Confirmed; sensitive actions are open for the step-up window"),
-        (status = 401, description = "Did not verify, or not signed in", body = crate::interfaces::errors::ApiErrorBody),
-        (status = 403, description = "This session cannot confirm (app password)", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 401, description = "Not signed in", body = crate::interfaces::errors::ApiErrorBody),
+        (status = 403, description = "Did not verify (`InvalidCredentials`), or this session cannot confirm (`ReauthUnavailable`)", body = crate::interfaces::errors::ApiErrorBody),
         (status = 503, description = "Passkeys disabled", body = crate::interfaces::errors::ApiErrorBody),
     ),
     tag = "auth"

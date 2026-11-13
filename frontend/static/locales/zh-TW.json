@@ -818,7 +818,12 @@
     "register_disabled": "本部署已關閉註冊。請向管理員索取邀請。",
     "account_deactivated": "您的帳戶已被停用。請聯絡您的管理員。",
     "passkey_sign_in": "使用密碼金鑰登入",
-    "passkey_rejected": "此密碼金鑰未被接受。它可能已從您的帳號中移除。"
+    "passkey_rejected": "此密碼金鑰未被接受。它可能已從您的帳號中移除。",
+    "recovery_rejected": "此復原碼未被接受。請檢查使用者名稱與代碼;每個代碼只能使用一次。",
+    "recovery_code": "復原碼",
+    "recovery_sign_in": "使用復原碼登入",
+    "recovery_lost": "遺失密碼金鑰?",
+    "recovery_use": "使用復原碼"
   },
   "storage": {
     "title": "儲存空間",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "未使用密碼金鑰。請重試或取消。",
     "rejected": "未成功。請重試。",
     "unavailable": "請登出並重新登入後再試。此帳戶在這裡沒有可用於確認的密碼金鑰或密碼。"
+  },
+  "recovery": {
+    "title": "復原碼",
+    "desc": "如果您遺失所有密碼金鑰,可改用其中一個代碼登入。每個代碼只能使用一次。請將它們保存在遠離裝置的安全位置。",
+    "shown_once": "請立即儲存這些代碼。它們不會再次顯示。",
+    "copy": "複製",
+    "copied": "已複製",
+    "download": "下載",
+    "done": "我已儲存",
+    "remaining": "尚餘 {{count}} 個未使用的代碼。",
+    "none": "尚無復原碼。",
+    "create": "建立代碼",
+    "regenerate": "建立新代碼",
+    "replace_title": "要建立新的復原碼嗎?",
+    "replace_message": "您目前的復原碼將會失效。",
+    "file_header": "OxiCloud 復原碼 — 每個代碼只能使用一次。"
   }
 }

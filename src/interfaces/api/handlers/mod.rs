@@ -29,6 +29,7 @@ pub mod people_handler;
 pub mod photos_handler;
 pub mod reauth_handler;
 pub mod recent_handler;
+pub mod recovery_code_handler;
 pub mod rt_ticket_handler;
 pub mod rt_ws;
 pub mod search_handler;

@@ -818,7 +818,12 @@
     "register_disabled": "Le registrazioni sono chiuse su questa istanza. Chiedi un invito a un amministratore.",
     "account_deactivated": "Il tuo account è stato disattivato. Contatta il tuo amministratore.",
     "passkey_sign_in": "Accedi con una passkey",
-    "passkey_rejected": "Questa passkey non è stata accettata. Potrebbe essere stata rimossa dal tuo account."
+    "passkey_rejected": "Questa passkey non è stata accettata. Potrebbe essere stata rimossa dal tuo account.",
+    "recovery_rejected": "Questo codice di recupero non è stato accettato. Controlla nome utente e codice; ogni codice funziona una sola volta.",
+    "recovery_code": "Codice di recupero",
+    "recovery_sign_in": "Accedi con un codice di recupero",
+    "recovery_lost": "Hai perso la passkey?",
+    "recovery_use": "Usa un codice di recupero"
   },
   "storage": {
     "title": "Archiviazione",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "Non è stata usata nessuna passkey. Riprova o annulla.",
     "rejected": "Non ha funzionato. Riprova.",
     "unavailable": "Esci, accedi di nuovo e riprova. Questo account qui non ha né passkey né password per confermare."
+  },
+  "recovery": {
+    "title": "Codici di recupero",
+    "desc": "Se perdi tutte le passkey, accedi con uno di questi codici. Ogni codice funziona una sola volta. Conservali in un luogo sicuro, lontano dai tuoi dispositivi.",
+    "shown_once": "Salva ora questi codici. Non verranno più mostrati.",
+    "copy": "Copia",
+    "copied": "Copiato",
+    "download": "Scarica",
+    "done": "Li ho salvati",
+    "remaining": "Restano {{count}} codici inutilizzati.",
+    "none": "Ancora nessun codice di recupero.",
+    "create": "Crea codici",
+    "regenerate": "Crea nuovi codici",
+    "replace_title": "Creare nuovi codici di recupero?",
+    "replace_message": "I codici di recupero attuali smetteranno di funzionare.",
+    "file_header": "Codici di recupero OxiCloud: ognuno funziona una sola volta."
   }
 }

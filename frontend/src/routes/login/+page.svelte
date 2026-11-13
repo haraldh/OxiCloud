@@ -15,6 +15,7 @@
 		fetchMe,
 		login,
 		passkeyLogin,
+		recoveryLogin,
 		register,
 		sendMagicLink,
 		setupAdmin
@@ -283,13 +284,21 @@
 
 	const passkeyAvailable = $derived(serverConfig.features.passkeys && passkeysSupported());
 
-	async function onPasskeyLogin() {
+	/**
+	 * Sign-ins that skip the password form (passkey, recovery code): same
+	 * busy state, the same "server unreachable" message, and a
+	 * method-specific message when the server refuses.
+	 */
+	async function alternateSignIn(
+		signIn: () => Promise<AuthResponse>,
+		rejectedMessage: () => string
+	) {
 		error = '';
 		emailNotVerified = null;
 		magicStatus = null;
 		busy = true;
 		try {
-			await enterApp(await passkeyLogin());
+			await enterApp(await signIn());
 		} catch (err) {
 			if (isPasskeyCancelled(err)) return;
 			if (err instanceof ApiError && err.status === 0) {
@@ -298,16 +307,39 @@
 					"Couldn't reach the server. Check your connection and try again."
 				);
 			} else if (err instanceof ApiError && isBadCredentials(err)) {
-				error = t(
-					'auth.passkey_rejected',
-					'This passkey was not accepted. It may have been removed from your account.'
-				);
+				error = rejectedMessage();
 			} else {
 				error = err instanceof Error ? err.message : t('auth.login_error', 'Error logging in');
 			}
 		} finally {
 			busy = false;
 		}
+	}
+
+	const onPasskeyLogin = () =>
+		alternateSignIn(passkeyLogin, () =>
+			t(
+				'auth.passkey_rejected',
+				'This passkey was not accepted. It may have been removed from your account.'
+			)
+		);
+
+	// Recovery code (docs/plan/passkeys.md, Phase 2a): the way in when
+	// every passkey is gone. Offered wherever passkeys are.
+	let showRecovery = $state(false);
+	let recoveryUser = $state('');
+	let recoveryCode = $state('');
+
+	function onRecoveryLogin(e: SubmitEvent) {
+		e.preventDefault();
+		void alternateSignIn(
+			() => recoveryLogin(recoveryUser, recoveryCode),
+			() =>
+				t(
+					'auth.recovery_rejected',
+					'This recovery code was not accepted. Check the username and the code; each code works once.'
+				)
+		);
 	}
 
 	// Password-empty branch of the unified submit. Uses the same
@@ -886,6 +918,63 @@
 						>
 							{t('auth.passkey_sign_in', 'Sign in with a passkey')}
 						</button>
+					{/if}
+
+					{#if serverConfig.features.passkeys}
+						{#if showRecovery}
+							<form class="auth-form" data-testid="login-recovery-form" onsubmit={onRecoveryLogin}>
+								<div class="auth-input-group">
+									<label class="auth-label" for="recovery-user"
+										>{t('auth.username', 'Username or email')}</label
+									>
+									<div class="auth-input-wrap auth-input-wrap--user">
+										<input
+											id="recovery-user"
+											class="auth-input"
+											bind:value={recoveryUser}
+											autocomplete="username"
+											required
+										/>
+									</div>
+								</div>
+								<div class="auth-input-group">
+									<label class="auth-label" for="recovery-code"
+										>{t('auth.recovery_code', 'Recovery code')}</label
+									>
+									<div class="auth-input-wrap auth-input-wrap--lock">
+										<input
+											id="recovery-code"
+											class="auth-input"
+											data-testid="login-recovery-code-input"
+											bind:value={recoveryCode}
+											autocomplete="one-time-code"
+											autocapitalize="characters"
+											spellcheck="false"
+											placeholder="ABCD-EFGH-IJKL-MNOP"
+											required
+										/>
+									</div>
+								</div>
+								<button class="auth-button" type="submit" disabled={busy}>
+									{t('auth.recovery_sign_in', 'Sign in with recovery code')}
+								</button>
+							</form>
+						{:else}
+							<div class="auth-toggle">
+								{t('auth.recovery_lost', 'Lost your passkey?')}
+								<button
+									class="auth-toggle-link"
+									type="button"
+									data-testid="login-recovery-link"
+									onclick={() => {
+										showRecovery = true;
+										recoveryUser = username;
+									}}
+								>
+									{t('auth.recovery_use', 'Use a recovery code')}
+								</button>
+							</div>
+						{/if}
 					{/if}
 
 					{#if serverConfig.auth.oidc.enabled && serverConfig.auth.oidc.providers.length > 0}

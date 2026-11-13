@@ -2690,6 +2690,7 @@ impl AppServiceFactory {
             device_auth_service: None,
             idp_service: None,
             passkey_service: None,
+            recovery_code_service: None,
             app_password_service: None,
             path_resolver: None,
             webdav_lock_store:
@@ -3364,10 +3365,23 @@ impl AppServiceFactory {
                     match crate::application::services::passkey_service::PasskeyService::new(
                         &public_url,
                         store,
-                        users,
+                        users.clone(),
                     ) {
                         Ok(svc) => {
                             app_state.passkey_service = Some(Arc::new(svc));
+                            // Recovery codes (Phase 2a) belong to passkeys:
+                            // they are the way back when every passkey is
+                            // gone, so they exist exactly when passkeys do.
+                            app_state.recovery_code_service = Some(Arc::new(
+                                crate::application::services::recovery_code_service::RecoveryCodeService::new(
+                                    Arc::new(
+                                        crate::infrastructure::repositories::pg::RecoveryCodePgRepository::new(
+                                            pool.clone(),
+                                        ),
+                                    ),
+                                    users,
+                                ),
+                            ));
                             tracing::info!(public_url = %public_url, "Passkey sign-in enabled");
                         }
                         // Warn, not error: the default public URL is an IP
@@ -4228,6 +4242,9 @@ pub struct AppState {
     /// auth is enabled, and the public URL made a usable relying party.
     pub passkey_service:
         Option<Arc<crate::application::services::passkey_service::PasskeyService>>,
+    /// Recovery codes; `Some` exactly when `passkey_service` is.
+    pub recovery_code_service:
+        Option<Arc<crate::application::services::recovery_code_service::RecoveryCodeService>>,
     pub app_password_service:
         Option<Arc<crate::application::services::app_password_service::AppPasswordService>>,
     pub path_resolver:

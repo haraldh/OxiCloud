@@ -818,7 +818,12 @@
     "register_disabled": "Los registros están cerrados en esta instancia. Pide una invitación a un administrador.",
     "account_deactivated": "Tu cuenta ha sido desactivada. Por favor, contacta con tu administrador.",
     "passkey_sign_in": "Iniciar sesión con una llave de acceso",
-    "passkey_rejected": "Esta llave de acceso no fue aceptada. Puede que se haya eliminado de tu cuenta."
+    "passkey_rejected": "Esta llave de acceso no fue aceptada. Puede que se haya eliminado de tu cuenta.",
+    "recovery_rejected": "No se aceptó este código de recuperación. Comprueba el usuario y el código; cada código funciona una sola vez.",
+    "recovery_code": "Código de recuperación",
+    "recovery_sign_in": "Iniciar sesión con código de recuperación",
+    "recovery_lost": "¿Perdiste tu llave de acceso?",
+    "recovery_use": "Usar un código de recuperación"
   },
   "storage": {
     "title": "Almacenamiento",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "No se usó ninguna llave de acceso. Inténtalo de nuevo o cancela.",
     "rejected": "No ha funcionado. Inténtalo de nuevo.",
     "unavailable": "Cierra sesión, vuelve a iniciarla y reinténtalo. Esta cuenta no tiene aquí llave de acceso ni contraseña para confirmar."
+  },
+  "recovery": {
+    "title": "Códigos de recuperación",
+    "desc": "Si pierdes todas tus llaves de acceso, inicia sesión con uno de estos códigos. Cada código funciona una sola vez. Guárdalos en un lugar seguro, lejos de tus dispositivos.",
+    "shown_once": "Guarda estos códigos ahora. No se volverán a mostrar.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "download": "Descargar",
+    "done": "Ya los guardé",
+    "remaining": "Quedan {{count}} códigos sin usar.",
+    "none": "Aún no hay códigos de recuperación.",
+    "create": "Crear códigos",
+    "regenerate": "Crear códigos nuevos",
+    "replace_title": "¿Crear nuevos códigos de recuperación?",
+    "replace_message": "Tus códigos de recuperación actuales dejarán de funcionar.",
+    "file_header": "Códigos de recuperación de OxiCloud: cada uno funciona una vez."
   }
 }

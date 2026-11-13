@@ -16,7 +16,7 @@ use std::sync::Arc;
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
+use axum::response::Response;
 use axum::routing::{patch, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
@@ -309,13 +309,6 @@ pub async fn login_start(
 
 /// Same shape for every refusal, as the password login: the reason is in
 /// the audit log, not the response.
-fn invalid_credentials() -> AppError {
-    AppError::new(
-        StatusCode::UNAUTHORIZED,
-        "Invalid credentials",
-        "InvalidCredentials",
-    )
-}
 
 #[utoipa::path(
     post,
@@ -335,54 +328,27 @@ pub async fn login_finish(
     headers: axum::http::HeaderMap,
     Json(dto): Json<PasskeyLoginFinishDto>,
 ) -> Result<Response, AppError> {
-    let svc = service(&state)?;
-    let auth = state
-        .auth_service
-        .as_ref()
-        .ok_or_else(|| AppError::service_unavailable("Authentication is not enabled"))?;
-
-    let user_id = svc
+    let user_id = service(&state)?
         .finish_login(dto.ceremony_id, &dto.credential)
         .await
         .map_err(|e| match e {
             PasskeyError::Internal(d) => AppError::from(d),
-            _ => invalid_credentials(),
+            _ => cookie_auth::invalid_credentials(),
         })?;
-    let user = auth
-        .auth_application_service
-        .get_user_entity(user_id)
-        .await
-        .map_err(|_| invalid_credentials())?;
-
-    let client_ip = crate::interfaces::middleware::trusted_proxy::client_ip_from_parts(
+    let response = cookie_auth::signed_in_response(
+        &state,
+        peer,
         &headers,
-        Some(peer),
-        false,
-    );
-    let user_agent = headers
-        .get(axum::http::header::USER_AGENT)
-        .and_then(|v| v.to_str().ok())
-        .map(str::to_owned);
-
-    let session = auth
-        .auth_application_service
-        .mint_session_for_authenticated_user(
-            user,
-            dto.dpop_jkt,
-            Some(client_ip),
-            user_agent,
-            SessionOrigin::Passkey,
-        )
-        .await
-        .map_err(AppError::from)?;
+        user_id,
+        dto.dpop_jkt,
+        SessionOrigin::Passkey,
+    )
+    .await?;
     tracing::info!(
         target: "audit",
         event = "passkey.login_ok",
         user_id = %user_id,
         "passkey sign-in completed"
     );
-
-    let mut response = (StatusCode::OK, Json(&session)).into_response();
-    cookie_auth::append_login_cookies(response.headers_mut(), &state, &session);
     Ok(response)
 }

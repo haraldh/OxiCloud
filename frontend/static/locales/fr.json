@@ -818,7 +818,12 @@
     "register_disabled": "Les inscriptions sont fermées sur ce déploiement. Demandez une invitation à un administrateur.",
     "account_deactivated": "Votre compte a été désactivé. Veuillez contacter votre administrateur.",
     "passkey_sign_in": "Se connecter avec une clé d'accès",
-    "passkey_rejected": "Cette clé d'accès n'a pas été acceptée. Elle a peut-être été retirée de votre compte."
+    "passkey_rejected": "Cette clé d'accès n'a pas été acceptée. Elle a peut-être été retirée de votre compte.",
+    "recovery_rejected": "Ce code de récupération n’a pas été accepté. Vérifiez le nom d’utilisateur et le code ; chaque code ne fonctionne qu’une fois.",
+    "recovery_code": "Code de récupération",
+    "recovery_sign_in": "Se connecter avec un code de récupération",
+    "recovery_lost": "Clé d’accès perdue ?",
+    "recovery_use": "Utiliser un code de récupération"
   },
   "storage": {
     "title": "Stockage",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "Aucune clé d’accès n’a été utilisée. Réessayez ou annulez.",
     "rejected": "Cela n’a pas fonctionné. Veuillez réessayer.",
     "unavailable": "Déconnectez-vous, reconnectez-vous, puis réessayez. Ce compte n’a ici ni clé d’accès ni mot de passe pour confirmer."
+  },
+  "recovery": {
+    "title": "Codes de récupération",
+    "desc": "Si vous perdez toutes vos clés d’accès, connectez-vous avec l’un de ces codes. Chaque code ne fonctionne qu’une fois. Conservez-les en lieu sûr, loin de vos appareils.",
+    "shown_once": "Enregistrez ces codes maintenant. Ils ne seront plus affichés.",
+    "copy": "Copier",
+    "copied": "Copié",
+    "download": "Télécharger",
+    "done": "Je les ai enregistrés",
+    "remaining": "Il reste {{count}} codes inutilisés.",
+    "none": "Aucun code de récupération pour l’instant.",
+    "create": "Créer des codes",
+    "regenerate": "Créer de nouveaux codes",
+    "replace_title": "Créer de nouveaux codes de récupération ?",
+    "replace_message": "Vos codes de récupération actuels ne fonctionneront plus.",
+    "file_header": "Codes de récupération OxiCloud — chacun ne fonctionne qu’une fois."
   }
 }

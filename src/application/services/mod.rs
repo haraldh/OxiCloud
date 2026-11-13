@@ -37,6 +37,7 @@ pub mod people_service;
 pub mod places_service;
 pub mod recent_service;
 pub mod recipient_notification_service;
+pub mod recovery_code_service;
 pub mod registration_policy;
 pub mod search_service;
 pub mod share_service;

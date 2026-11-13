@@ -13,7 +13,8 @@
 #   • the gate refuses the stale session, and lets the same session
 #     through once it confirms with the password — a gate that refused
 #     everyone would pass the refusal alone;
-#   • a wrong password confirms nothing, and answers like a wrong login;
+#   • a wrong password confirms nothing: 403 InvalidCredentials (never
+#     401, which the SPA would treat as an expired session);
 #   • GET /api/auth/reauth tells the SPA which methods the user has.
 # =============================================================
 
@@ -108,13 +109,15 @@ HTTP 200
 
 
 # ── Confirming ───────────────────────────────────────────────
-# Wrong password: same shape as a failed login, and the gate stays shut.
+# Wrong password: InvalidCredentials, and the gate stays shut. 403, not
+# 401: the SPA reads a 401 as an expired session (refresh, retry, sign
+# out), so a mistyped password in "Confirm it's you" signed users out.
 POST {{base_url}}/api/auth/reauth/password
 Authorization: Bearer {{device_token}}
 Content-Type: application/json
 { "password": "definitely-not-the-password" }
 
-HTTP 401
+HTTP 403
 [Asserts]
 jsonpath "$.error_type" == "InvalidCredentials"
 
@@ -146,10 +149,10 @@ HTTP 404
 
 
 # ── Passkey confirmation needs a passkey ─────────────────────
-# The admin has none: refused like a wrong password.
+# The admin has none: refused like a wrong password (403, see above).
 POST {{base_url}}/api/auth/reauth/passkey/start
 Authorization: Bearer {{admin_token}}
 
-HTTP 401
+HTTP 403
 [Asserts]
 jsonpath "$.error_type" == "InvalidCredentials"

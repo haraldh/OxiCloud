@@ -347,6 +347,9 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
         handlers::reauth_handler::with_password,
         handlers::reauth_handler::passkey_start,
         handlers::reauth_handler::passkey_finish,
+        handlers::recovery_code_handler::status,
+        handlers::recovery_code_handler::generate,
+        handlers::recovery_code_handler::login,
         crate::interfaces::nextcloud::login_v2_handler::handle_session_grant,
         // Grant / ReBAC handlers (free functions)
         handlers::grant_handler::create_grant,
@@ -469,6 +472,9 @@ use crate::interfaces::middleware::server_status::{HeaderPayload, ProgressHeader
             crate::interfaces::api::handlers::reauth_handler::ReauthPasswordDto,
             crate::interfaces::api::handlers::reauth_handler::ReauthPasskeyStartResponse,
             crate::interfaces::api::handlers::reauth_handler::ReauthPasskeyFinishDto,
+            crate::interfaces::api::handlers::recovery_code_handler::RecoveryCodeStatusDto,
+            crate::interfaces::api::handlers::recovery_code_handler::RecoveryCodesDto,
+            crate::interfaces::api::handlers::recovery_code_handler::RecoveryLoginDto,
             crate::interfaces::nextcloud::login_v2_handler::LoginFlowGrantResponse,
             crate::interfaces::nextcloud::login_v2_handler::LoginFlowDrive,
             // App-password management.

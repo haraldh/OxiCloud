@@ -818,7 +818,12 @@
     "register_disabled": "Aanmelden is gesloten op deze omgeving. Vraag een uitnodiging aan een beheerder.",
     "account_deactivated": "Je account is gedeactiveerd. Neem contact op met je beheerder.",
     "passkey_sign_in": "Inloggen met een passkey",
-    "passkey_rejected": "Deze passkey is niet geaccepteerd. Mogelijk is hij uit je account verwijderd."
+    "passkey_rejected": "Deze passkey is niet geaccepteerd. Mogelijk is hij uit je account verwijderd.",
+    "recovery_rejected": "Deze herstelcode is niet geaccepteerd. Controleer de gebruikersnaam en de code; elke code werkt maar één keer.",
+    "recovery_code": "Herstelcode",
+    "recovery_sign_in": "Inloggen met herstelcode",
+    "recovery_lost": "Passkey kwijt?",
+    "recovery_use": "Gebruik een herstelcode"
   },
   "storage": {
     "title": "Opslag",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "Er is geen passkey gebruikt. Probeer het opnieuw of annuleer.",
     "rejected": "Dat werkte niet. Probeer het opnieuw.",
     "unavailable": "Log uit, log opnieuw in en probeer het dan nog eens. Dit account heeft hier geen passkey of wachtwoord om mee te bevestigen."
+  },
+  "recovery": {
+    "title": "Herstelcodes",
+    "desc": "Als je al je passkeys kwijtraakt, log je in met een van deze codes. Elke code werkt maar één keer. Bewaar ze veilig, gescheiden van je apparaten.",
+    "shown_once": "Bewaar deze codes nu. Ze worden niet opnieuw getoond.",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "download": "Downloaden",
+    "done": "Ik heb ze bewaard",
+    "remaining": "Nog {{count}} ongebruikte codes.",
+    "none": "Nog geen herstelcodes.",
+    "create": "Codes maken",
+    "regenerate": "Nieuwe codes maken",
+    "replace_title": "Nieuwe herstelcodes maken?",
+    "replace_message": "Je huidige herstelcodes werken dan niet meer.",
+    "file_header": "OxiCloud-herstelcodes — elke code werkt één keer."
   }
 }

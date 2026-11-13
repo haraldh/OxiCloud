@@ -111,6 +111,16 @@ impl PasskeyUserPort for MemUsers {
     async fn find_user(&self, id: Uuid) -> Result<Option<PasskeyUserView>, DomainError> {
         Ok(self.0.lock().unwrap().get(&id).cloned())
     }
+
+    async fn find_user_by_name(&self, name: &str) -> Result<Option<PasskeyUserView>, DomainError> {
+        Ok(self
+            .0
+            .lock()
+            .unwrap()
+            .values()
+            .find(|u| u.account_name == name)
+            .cloned())
+    }
 }
 
 struct Fixture {

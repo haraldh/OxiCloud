@@ -15,6 +15,7 @@ import {
 	oidcUnlink,
 	passkeyLoginFinish,
 	passkeyLoginStart,
+	recoveryLogin as recoveryLoginSdk,
 	refreshToken as sdkRefreshToken,
 	register as sdkRegister,
 	sendMagicLink as sdkSendMagicLink,
@@ -283,6 +284,22 @@ export async function passkeyLogin(): Promise<AuthResponse> {
 		})) as AuthResponse;
 	} catch (e) {
 		throw apiErrorFromSdkError(e, '/api/auth/passkey/login/finish');
+	}
+}
+
+/**
+ * Sign in with a single-use recovery code (docs/plan/passkeys.md, Phase
+ * 2a). The code is used up on success.
+ */
+export async function recoveryLogin(username: string, code: string): Promise<AuthResponse> {
+	const dpopJkt = await tryBindingThumbprint();
+	try {
+		return (await recoveryLoginSdk({
+			body: { username, code, ...(dpopJkt ? { dpopJkt } : {}) },
+			throwOnError: true
+		})) as AuthResponse;
+	} catch (e) {
+		throw apiErrorFromSdkError(e, '/api/auth/recovery/login');
 	}
 }
 

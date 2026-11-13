@@ -302,6 +302,58 @@ pub fn maybe_append_dpop_nonce_cookie(
     }
 }
 
+/// The answer to every refused sign-in, whatever the reason: the reason
+/// goes to the audit log, the caller learns nothing.
+pub fn invalid_credentials() -> crate::interfaces::errors::AppError {
+    crate::interfaces::errors::AppError::new(
+        axum::http::StatusCode::UNAUTHORIZED,
+        "Invalid credentials",
+        "InvalidCredentials",
+    )
+}
+
+/// Finish a sign-in whose credential a service already verified (passkey,
+/// recovery code): load the user, mint a session of `origin` through
+/// `mint_session_for_authenticated_user` (DPoP binding, session row,
+/// lifecycle hooks), and answer with the session body and every login
+/// cookie. A user gone between verification and here is answered like a
+/// wrong credential.
+pub async fn signed_in_response(
+    state: &crate::common::di::AppState,
+    peer: std::net::SocketAddr,
+    headers: &HeaderMap,
+    user_id: uuid::Uuid,
+    dpop_jkt: Option<String>,
+    origin: crate::domain::entities::session::SessionOrigin,
+) -> Result<axum::response::Response, crate::interfaces::errors::AppError> {
+    use axum::response::IntoResponse;
+    let auth = state.auth_service.as_ref().ok_or_else(|| {
+        crate::interfaces::errors::AppError::service_unavailable("Authentication is not enabled")
+    })?;
+    let user = auth
+        .auth_application_service
+        .get_user_entity(user_id)
+        .await
+        .map_err(|_| invalid_credentials())?;
+    let client_ip = crate::interfaces::middleware::trusted_proxy::client_ip_from_parts(
+        headers,
+        Some(peer),
+        false,
+    );
+    let user_agent = headers
+        .get(axum::http::header::USER_AGENT)
+        .and_then(|v| v.to_str().ok())
+        .map(str::to_owned);
+    let session = auth
+        .auth_application_service
+        .mint_session_for_authenticated_user(user, dpop_jkt, Some(client_ip), user_agent, origin)
+        .await
+        .map_err(crate::interfaces::errors::AppError::from)?;
+    let mut response = (axum::http::StatusCode::OK, axum::Json(&session)).into_response();
+    append_login_cookies(response.headers_mut(), state, &session);
+    Ok(response)
+}
+
 /// Every cookie a successful login sets: the HttpOnly access + refresh
 /// cookies, the double-submit CSRF cookie, and the DPoP nonce seed (no-op
 /// when DPoP is off). One helper so a new login path (OPAQUE, magic link,

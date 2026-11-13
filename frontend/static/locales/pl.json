@@ -818,7 +818,12 @@
     "register_disabled": "Rejestracja jest zamknięta na tej instancji. Poproś administratora o zaproszenie.",
     "account_deactivated": "Twoje konto zostało dezaktywowane. Skontaktuj się z administratorem.",
     "passkey_sign_in": "Zaloguj się kluczem dostępu",
-    "passkey_rejected": "Ten klucz dostępu nie został zaakceptowany. Mógł zostać usunięty z Twojego konta."
+    "passkey_rejected": "Ten klucz dostępu nie został zaakceptowany. Mógł zostać usunięty z Twojego konta.",
+    "recovery_rejected": "Ten kod odzyskiwania nie został przyjęty. Sprawdź nazwę użytkownika i kod; każdy kod działa tylko raz.",
+    "recovery_code": "Kod odzyskiwania",
+    "recovery_sign_in": "Zaloguj się kodem odzyskiwania",
+    "recovery_lost": "Zgubiony klucz dostępu?",
+    "recovery_use": "Użyj kodu odzyskiwania"
   },
   "storage": {
     "title": "Pamięć masowa",
@@ -2329,5 +2334,21 @@
     "passkey_cancelled": "Nie użyto klucza dostępu. Spróbuj ponownie lub anuluj.",
     "rejected": "Nie udało się. Spróbuj ponownie.",
     "unavailable": "Wyloguj się, zaloguj ponownie i spróbuj jeszcze raz. To konto nie ma tu klucza dostępu ani hasła do potwierdzenia."
+  },
+  "recovery": {
+    "title": "Kody odzyskiwania",
+    "desc": "Jeśli stracisz wszystkie klucze dostępu, zaloguj się jednym z tych kodów. Każdy kod działa tylko raz. Przechowuj je w bezpiecznym miejscu, z dala od swoich urządzeń.",
+    "shown_once": "Zapisz te kody teraz. Nie zostaną pokazane ponownie.",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano",
+    "download": "Pobierz",
+    "done": "Zapisałem je",
+    "remaining": "Pozostało {{count}} niewykorzystanych kodów.",
+    "none": "Brak kodów odzyskiwania.",
+    "create": "Utwórz kody",
+    "regenerate": "Utwórz nowe kody",
+    "replace_title": "Utworzyć nowe kody odzyskiwania?",
+    "replace_message": "Obecne kody odzyskiwania przestaną działać.",
+    "file_header": "Kody odzyskiwania OxiCloud — każdy działa tylko raz."
   }
 }

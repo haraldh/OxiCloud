@@ -6276,6 +6276,7 @@
         "tags": [
           "auth"
         ],
+        "summary": "Same shape for every refusal, as the password login: the reason is in\nthe audit log, not the response.",
         "operationId": "passkey_login_finish",
         "requestBody": {
           "content": {
@@ -6673,7 +6674,7 @@
             "description": "Confirmed; sensitive actions are open for the step-up window"
           },
           "401": {
-            "description": "Did not verify, or not signed in",
+            "description": "Not signed in",
             "content": {
               "application/json": {
                 "schema": {
@@ -6683,7 +6684,7 @@
             }
           },
           "403": {
-            "description": "This session cannot confirm (app password)",
+            "description": "Did not verify (`InvalidCredentials`), or this session cannot confirm (`ReauthUnavailable`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -6723,7 +6724,17 @@
             }
           },
           "401": {
-            "description": "No passkey to confirm with, or not signed in",
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No passkey to confirm with (`InvalidCredentials`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -6766,7 +6777,7 @@
             "description": "Confirmed; sensitive actions are open for the step-up window"
           },
           "401": {
-            "description": "Wrong password, no password, or not signed in",
+            "description": "Not signed in",
             "content": {
               "application/json": {
                 "schema": {
@@ -6776,7 +6787,145 @@
             }
           },
           "403": {
-            "description": "This session cannot confirm (app password)",
+            "description": "Wrong or no password (`InvalidCredentials`), or this session cannot confirm (`ReauthUnavailable`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/recovery-codes": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "recovery_codes_status",
+        "responses": {
+          "200": {
+            "description": "How many codes are left",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodeStatusDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys (and so recovery codes) disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "recovery_codes_generate",
+        "responses": {
+          "200": {
+            "description": "A new set; the old one no longer works",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecoveryCodesDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Confirm it's you first (`ReauthRequired`), or a guest account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys (and so recovery codes) disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/recovery/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "recovery_login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryLoginDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in; same body and cookies as a password login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unknown user, wrong or used code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Passkeys (and so recovery codes) disabled",
             "content": {
               "application/json": {
                 "schema": {
@@ -21784,6 +21933,65 @@
           }
         }
       },
+      "RecoveryCodeStatusDto": {
+        "type": "object",
+        "required": [
+          "remaining"
+        ],
+        "properties": {
+          "generated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the current set was made; absent when there is none."
+          },
+          "remaining": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unused codes left.",
+            "minimum": 0
+          }
+        }
+      },
+      "RecoveryCodesDto": {
+        "type": "object",
+        "required": [
+          "codes"
+        ],
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The new codes, shown once. Each signs in once."
+          }
+        }
+      },
+      "RecoveryLoginDto": {
+        "type": "object",
+        "required": [
+          "username",
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "dpopJkt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "DPoP key thumbprint to bind the new session to, as on the other\nlogin endpoints."
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
       "RefreshTokenDto": {
         "type": "object",
         "required": [
@@ -22749,6 +22957,7 @@
           "oidc",
           "device",
           "passkey",
+          "recovery",
           "unknown"
         ]
       },
